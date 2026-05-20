@@ -1,0 +1,52 @@
+.home-final-cta {
+  max-width: 1200px;
+  margin: 0 auto 30px;
+}
+
+.home-cta-box {
+  padding: 58px 30px;
+  border: 1px solid var(--border-color);
+  border-radius: 22px;
+  background: var(--card-bg);
+  color: var(--text-white);
+  text-align: center;
+}
+
+.home-leaf-icon {
+  display: grid;
+  width: 58px;
+  height: 58px;
+  place-items: center;
+  margin: 0 auto 18px;
+  border-radius: 999px;
+  background: rgba(212, 163, 115, 0.14);
+  font-size: 1.7rem;
+}
+
+.home-cta-box h2 {
+  color: var(--text-white);
+}
+
+.home-cta-box p {
+  max-width: 640px;
+  margin: 18px auto 28px;
+  color: var(--text-muted);
+  font-size: 1rem;
+  line-height: 1.6;
+}
+
+.home-dark-btn {
+  min-height: 48px;
+  padding: 13px 22px;
+  border: none;
+  border-radius: 8px;
+  background: var(--gold-primary);
+  color: #0a0a0a;
+  cursor: pointer;
+  font: inherit;
+  font-weight: 800;
+}
+
+.home-dark-btn:hover {
+  background: var(--gold-hover);
+}

@@ -1,0 +1,142 @@
+.contact-container {
+  max-width: 1200px;
+  margin: 60px auto;
+  padding: 0 20px;
+  display: flex;
+  gap: 80px;
+  color: var(--text-white);
+  text-align: left;
+}
+
+.contact-info { flex: 1; }
+
+.label-scrivici {
+  color: var(--gold-primary);
+  letter-spacing: 3px;
+  font-size: 0.8rem;
+}
+
+.title-contatti {
+  font-family: 'Playfair Display', serif;
+  font-size: 4.5rem;
+  margin: 10px 0 40px 0;
+}
+
+.info-details {
+  display: flex;
+  flex-direction: column;
+  gap: 25px;
+  margin-bottom: 40px;
+}
+
+.info-item {
+  display: flex;
+  gap: 15px;
+  align-items: flex-start;
+  color: var(--text-muted);
+}
+
+.info-item strong { color: var(--text-white); }
+
+/* Stile Mappa */
+.map-placeholder {
+  position: relative;
+  border-radius: 15px;
+  overflow: hidden;
+  border: 1px solid var(--border-color);
+}
+
+.map-placeholder-content {
+  display: grid;
+  min-height: 280px;
+  place-items: center;
+  background:
+    linear-gradient(135deg, rgba(212, 163, 115, 0.12), rgba(20, 20, 20, 0.96)),
+    #080808;
+  color: var(--text-muted);
+  text-align: center;
+}
+
+.map-placeholder-content span {
+  display: block;
+  color: var(--gold-primary);
+  font-family: 'Playfair Display', serif;
+  font-size: 2.5rem;
+}
+
+.map-placeholder-content strong {
+  display: block;
+  margin-top: 8px;
+  color: var(--text-white);
+}
+
+.map-controls {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.map-controls button {
+  width: 30px;
+  height: 30px;
+  background: var(--text-white);
+  border: none;
+  border-radius: 4px;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+/* Stile Card Form */
+.contact-card {
+  flex: 1;
+  background-color: var(--card-bg);
+  border: 1px solid var(--border-color);
+  border-radius: 20px;
+  padding: 40px;
+}
+
+.contact-card h2 {
+  font-family: 'Playfair Display', serif;
+  margin-bottom: 30px;
+}
+
+.input-group {
+  margin-bottom: 20px;
+}
+
+.input-group label {
+  display: block;
+  margin-bottom: 8px;
+  font-size: 0.9rem;
+  color: var(--text-white);
+}
+
+.input-group input, .input-group textarea {
+  width: 100%;
+  padding: 12px;
+  background-color: var(--bg-dark);
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  color: var(--text-white);
+  box-sizing: border-box;
+}
+
+.input-group textarea {
+  height: 150px;
+  resize: none;
+}
+
+.btn-send {
+  width: 100%;
+  padding: 15px;
+  background-color: var(--gold-primary);
+  border: none;
+  border-radius: 8px;
+  font-weight: bold;
+  font-size: 1rem;
+  cursor: pointer;
+  margin-top: 10px;
+}

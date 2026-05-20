@@ -1,0 +1,133 @@
+.menu-card {
+  overflow: hidden;
+  border: 1px solid var(--border-color);
+  border-radius: 20px;
+  background: var(--card-bg);
+  text-align: left;
+  transition: border-color 0.2s ease, transform 0.2s ease;
+}
+
+.menu-card:hover {
+  border-color: var(--gold-primary);
+  transform: translateY(-5px);
+}
+
+.menu-card-image-container {
+  position: relative;
+  min-height: 250px;
+  background-color: #080808;
+}
+
+.menu-card-image-container img {
+  display: block;
+  width: 100%;
+  height: 250px;
+  object-fit: cover;
+}
+
+.menu-card-image-placeholder {
+  display: grid;
+  width: 100%;
+  height: 250px;
+  place-items: center;
+  background:
+    linear-gradient(135deg, rgba(212, 163, 115, 0.14), rgba(20, 20, 20, 0.95)),
+    #080808;
+  color: rgba(255, 255, 255, 0.72);
+  font-size: 0.8rem;
+  font-weight: 800;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+}
+
+.menu-card-badges {
+  position: absolute;
+  top: 16px;
+  left: 16px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.menu-badge {
+  padding: 7px 11px;
+  border-radius: 999px;
+  font-size: 0.72rem;
+  font-weight: 800;
+  line-height: 1;
+}
+
+.menu-badge-veg {
+  background: #123d24;
+  color: #8ee6a5;
+}
+
+.menu-card-content {
+  padding: 24px;
+}
+
+.menu-card-header,
+.menu-card-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.menu-category-label {
+  color: var(--gold-primary);
+  font-size: 0.72rem;
+  font-weight: 800;
+  letter-spacing: 2px;
+}
+
+.menu-card h3 {
+  margin: 16px 0 10px;
+  color: var(--text-white);
+  font-family: 'Playfair Display', Georgia, serif;
+  font-size: 1.65rem;
+  line-height: 1.15;
+}
+
+.menu-description {
+  min-height: 68px;
+  margin: 0;
+  color: var(--text-muted);
+  font-size: 0.95rem;
+  line-height: 1.55;
+}
+
+.menu-prep-time {
+  margin: 18px 0 0;
+  color: var(--text-muted);
+  font-size: 0.9rem;
+}
+
+.menu-card-footer {
+  margin-top: 24px;
+  padding-top: 20px;
+  border-top: 1px solid var(--border-color);
+}
+
+.menu-price {
+  color: var(--gold-primary);
+  font-size: 1.55rem;
+  font-weight: 800;
+}
+
+@media (max-width: 520px) {
+  .menu-card-image-container,
+  .menu-card-image-container img,
+  .menu-card-image-placeholder {
+    height: 220px;
+    min-height: 220px;
+  }
+
+  .menu-card-content {
+    padding: 20px;
+  }
+
+  .menu-description {
+    min-height: auto;
+  }
+}

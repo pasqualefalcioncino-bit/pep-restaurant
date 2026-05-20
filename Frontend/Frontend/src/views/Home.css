@@ -1,0 +1,22 @@
+.home-page {
+  color: var(--text-white);
+}
+
+.home-section-label {
+  color: var(--gold-primary);
+  font-size: 0.8rem;
+  font-weight: 800;
+  letter-spacing: 4px;
+}
+
+.home-section-title,
+.home-intro h2,
+.home-specialties-heading h2,
+.home-reviews h2,
+.home-final-cta h2 {
+  margin: 16px 0 0;
+  color: var(--text-white);
+  font-family: 'Playfair Display', Georgia, serif;
+  font-size: clamp(2.3rem, 5vw, 3.6rem);
+  line-height: 1.08;
+}

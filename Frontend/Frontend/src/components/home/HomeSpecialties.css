@@ -1,0 +1,131 @@
+.home-specialties {
+  max-width: 1200px;
+  margin: 0 auto 92px;
+}
+
+.home-specialties-header {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 24px;
+  margin-bottom: 34px;
+}
+
+.home-view-all-btn,
+.home-discover-btn {
+  min-height: 44px;
+  border: 1px solid var(--gold-primary);
+  border-radius: 8px;
+  background: transparent;
+  color: var(--gold-primary);
+  cursor: pointer;
+  font: inherit;
+  font-weight: 800;
+}
+
+.home-view-all-btn {
+  padding: 11px 18px;
+}
+
+.home-view-all-btn:hover,
+.home-discover-btn:hover {
+  background: rgba(212, 163, 115, 0.14);
+}
+
+.home-specialties-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 28px;
+}
+
+.home-dish-card {
+  overflow: hidden;
+  border: 1px solid var(--border-color);
+  border-radius: 20px;
+  background: var(--card-bg);
+  text-align: left;
+}
+
+.home-dish-image {
+  height: 250px;
+  background: #080808;
+}
+
+.home-dish-image img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.home-dish-info {
+  padding: 24px;
+}
+
+.home-dish-meta,
+.home-dish-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.home-dish-meta {
+  color: var(--gold-primary);
+  font-size: 0.78rem;
+  font-weight: 800;
+  letter-spacing: 1.8px;
+}
+
+.home-dish-meta span:last-child {
+  color: var(--text-white);
+  letter-spacing: 0;
+}
+
+.home-dish-card h3 {
+  margin: 16px 0 10px;
+  color: var(--gold-primary);
+  font-family: 'Playfair Display', Georgia, serif;
+  font-size: 1.55rem;
+  line-height: 1.15;
+}
+
+.home-dish-card p {
+  min-height: 72px;
+  margin: 0;
+  color: var(--text-muted);
+  line-height: 1.55;
+}
+
+.home-dish-footer {
+  margin-top: 22px;
+  padding-top: 20px;
+  border-top: 1px solid var(--border-color);
+}
+
+.home-dish-price {
+  color: var(--gold-primary);
+  font-size: 1.45rem;
+  font-weight: 800;
+}
+
+.home-discover-btn {
+  padding: 9px 15px;
+}
+
+@media (max-width: 980px) {
+  .home-specialties-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .home-dish-card p {
+    min-height: auto;
+  }
+}
+
+@media (max-width: 640px) {
+  .home-specialties-header {
+    align-items: stretch;
+    flex-direction: column;
+  }
+}

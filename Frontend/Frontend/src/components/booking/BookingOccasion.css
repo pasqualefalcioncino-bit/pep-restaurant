@@ -1,0 +1,93 @@
+.booking-card-title.booking-occasion-title::before {
+  content: '✨';
+}
+
+.booking-occasion-grid {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 15px;
+  margin-bottom: 40px;
+}
+
+.booking-occasion-card {
+  display: flex;
+  min-height: 134px;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 15px;
+  padding: 24px 10px;
+  border: 1px solid var(--border-color);
+  border-radius: 15px;
+  background-color: var(--bg-dark);
+  color: var(--text-white);
+  cursor: pointer;
+  font: inherit;
+  text-align: center;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.booking-occasion-card:hover,
+.booking-occasion-card:focus-visible {
+  border-color: var(--gold-primary);
+  outline: none;
+}
+
+.booking-occasion-card.selected {
+  border-color: var(--gold-primary);
+  box-shadow: inset 0 0 10px rgba(212, 163, 115, 0.12);
+}
+
+.booking-occasion-icon {
+  font-size: 2rem;
+  line-height: 1;
+}
+
+.booking-occasion-label {
+  color: var(--text-white);
+  font-size: 0.85rem;
+  font-weight: 700;
+}
+
+.booking-special-requests {
+  margin-bottom: 40px;
+}
+
+.booking-special-requests label {
+  display: block;
+  margin-bottom: 15px;
+  color: var(--text-white);
+  font-size: 0.95rem;
+  font-weight: 600;
+}
+
+.booking-special-requests textarea {
+  width: 100%;
+  height: 120px;
+  box-sizing: border-box;
+  padding: 15px;
+  border: 1px solid var(--border-color);
+  border-radius: 10px;
+  background-color: var(--bg-dark);
+  color: var(--text-white);
+  font: inherit;
+  resize: none;
+}
+
+.booking-special-requests textarea:focus {
+  border-color: var(--gold-primary);
+  outline: 2px solid rgba(212, 163, 115, 0.25);
+  outline-offset: 2px;
+}
+
+@media (max-width: 760px) {
+  .booking-occasion-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 420px) {
+  .booking-occasion-grid {
+    grid-template-columns: 1fr;
+  }
+}
