@@ -136,6 +136,12 @@ npm install
 # 8️ Avviare Frontend React
 
 ```bash
+npm run dev
+```
+
+In alternativa puoi usare:
+
+```bash
 npm start
 ```
 
