@@ -47,6 +47,27 @@
   background: rgba(212, 163, 115, 0.16);
 }
 
+.navbar-menu {
+  min-width: 160px;
+  display: flex;
+  justify-content: flex-end;
+}
+
+.navbar-user {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.navbar-user-name {
+  max-width: 190px;
+  overflow: hidden;
+  color: var(--text-white);
+  font-size: 0.9rem;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
 .navbar-nav {
   display: flex;
   gap: 3.5rem;

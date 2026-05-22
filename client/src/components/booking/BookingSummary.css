@@ -120,6 +120,12 @@
   background-color: var(--gold-hover);
 }
 
+.booking-confirm-btn:disabled,
+.booking-back-btn:disabled {
+  cursor: not-allowed;
+  opacity: 0.7;
+}
+
 .booking-confirm-btn:focus-visible {
   outline: 2px solid rgba(212, 163, 115, 0.25);
   outline-offset: 2px;
@@ -132,6 +138,17 @@
   border-radius: 10px;
   background-color: rgba(212, 163, 115, 0.1);
   color: var(--gold-primary);
+  font-weight: 700;
+  text-align: center;
+}
+
+.booking-error-message {
+  margin: 0 0 24px;
+  padding: 14px 16px;
+  border: 1px solid rgba(255, 138, 138, 0.4);
+  border-radius: 10px;
+  background-color: rgba(255, 138, 138, 0.1);
+  color: #ff8a8a;
   font-weight: 700;
   text-align: center;
 }

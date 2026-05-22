@@ -27,9 +27,25 @@ exports.getOrders = async (req, res) => {
 exports.updateStatus = async (req, res) => {
   const { id } = req.params;
   const { status } = req.body;
+  const allowedStatuses = [
+    "in_attesa",
+    "in_preparazione",
+    "pronto",
+    "servito",
+    "annullato"
+  ];
+
+  if (!allowedStatuses.includes(status)) {
+    return res.status(400).send("Stato ordine non valido");
+  }
 
   try {
     const result = await orderModel.updateStatus(id, status);
+
+    if (result.rows.length === 0) {
+      return res.status(404).send("Ordine non trovato");
+    }
+
     res.json(result.rows[0]);
   } catch (err) {
     res.status(500).send("Errore aggiornamento");

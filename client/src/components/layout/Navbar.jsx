@@ -1,7 +1,15 @@
 import logo from '../../assets/images/brand/logo.png';
 import './Navbar.css';
 
-const Navbar = ({ onLoginClick, isLoginPage, onGoHome, onNavigate, currentPage }) => {
+const Navbar = ({
+  onLoginClick,
+  isLoginPage,
+  onGoHome,
+  onNavigate,
+  currentPage,
+  currentUser,
+  onLogout,
+}) => {
   const menuItems = [
     { label: 'Home', page: 'home' },
     { label: 'Menu', page: 'menu' },
@@ -9,6 +17,18 @@ const Navbar = ({ onLoginClick, isLoginPage, onGoHome, onNavigate, currentPage }
     { label: 'Eventi', page: 'eventi' },
     { label: 'Contatti', page: 'contatti' },
   ];
+  const visibleMenuItems = [...menuItems];
+
+  if (currentUser?.role === 'admin') {
+    visibleMenuItems.push(
+      { label: 'Prenotazioni', page: 'admin-prenotazioni' },
+      { label: 'Dipendenti', page: 'admin-dipendenti' }
+    );
+  }
+
+  if (currentUser?.role === 'cuoco') {
+    visibleMenuItems.push({ label: 'Cucina', page: 'cuoco' });
+  }
 
   return (
     <nav className="navbar">
@@ -18,7 +38,7 @@ const Navbar = ({ onLoginClick, isLoginPage, onGoHome, onNavigate, currentPage }
           <h1 className="navbar-logo">Ristorante Da Peppe e Spike</h1>
         </div>
         <div className="navbar-nav">
-          {menuItems.map((item) => {
+          {visibleMenuItems.map((item) => {
             return (
               <button
                 key={item.page}
@@ -32,7 +52,16 @@ const Navbar = ({ onLoginClick, isLoginPage, onGoHome, onNavigate, currentPage }
           })}
         </div>
         <div className="navbar-menu">
-          {!isLoginPage && onLoginClick && (
+          {currentUser ? (
+            <div className="navbar-user">
+              <span className="navbar-user-name">
+                {currentUser.name} ({currentUser.role})
+              </span>
+              <button className="navbar-button" type="button" onClick={onLogout}>
+                Esci
+              </button>
+            </div>
+          ) : !isLoginPage && onLoginClick && (
             <button className="navbar-button" type="button" onClick={onLoginClick}>
               Accedi
             </button>

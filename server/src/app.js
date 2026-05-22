@@ -12,20 +12,22 @@ const menuRoutes = require("./routes/menu.routes");
 const authRoutes = require("./routes/auth.routes");
 const orderRoutes = require("./routes/order.routes");
 const userRoutes = require("./routes/user.routes");
+const bookingRoutes = require("./routes/booking.routes");
 
 app.use("/menu", menuRoutes);
 app.use("/auth", authRoutes);
 app.use("/orders", orderRoutes);
 app.use("/users", userRoutes);
+app.use("/bookings", bookingRoutes);
 
 // DATABASE CONNECTION
 pool.connect()
-  .then(() => console.log("Database collegato ✅"))
+  .then(() => console.log("Database collegato con successo --OK--"))
   .catch(err => console.error("Errore DB", err));
 
 // TEST ROUTE
 app.get("/", (req, res) => {
-  res.send("Il server di PepRestaurant è in running 🍝");
+  res.send("Il server di PepRestaurant è in running --OK--");
 });
 
 // START SERVER

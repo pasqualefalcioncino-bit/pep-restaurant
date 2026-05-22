@@ -25,6 +25,8 @@ const BookingSummary = ({
   onBack,
   onConfirm,
   isConfirmed,
+  isSubmitting,
+  errorMessage,
 }) => {
   const isPhoneComplete = bookingData.phone.length === 10;
   const shouldShowPhoneError = bookingData.phone.length > 0 && !isPhoneComplete;
@@ -34,14 +36,14 @@ const BookingSummary = ({
     onFieldChange('phone', onlyDigits);
   };
 
-  const handleSubmit = (event) => {
+  const handleSubmit = async (event) => {
     event.preventDefault();
 
     if (!isPhoneComplete) {
       return;
     }
 
-    onConfirm();
+    await onConfirm();
   };
 
   return (
@@ -185,12 +187,18 @@ const BookingSummary = ({
           </p>
         )}
 
+        {errorMessage && (
+          <p className="booking-error-message" role="alert">
+            Errore invio prenotazione: {errorMessage}
+          </p>
+        )}
+
         <div className="booking-actions">
-          <button className="booking-back-btn" type="button" onClick={onBack}>
+          <button className="booking-back-btn" type="button" onClick={onBack} disabled={isSubmitting}>
             Indietro
           </button>
-          <button className="booking-confirm-btn" type="submit">
-            Conferma Prenotazione
+          <button className="booking-confirm-btn" type="submit" disabled={isSubmitting}>
+            {isSubmitting ? 'Invio in corso...' : 'Conferma Prenotazione'}
           </button>
         </div>
       </form>

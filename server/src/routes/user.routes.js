@@ -7,7 +7,7 @@ const bcrypt = require("bcrypt");
 const verifyToken = require("../middleware/auth.middleware");
 const checkRole = require("../middleware/role.middleware");
 
-// 🔐 SOLO ADMIN
+// SOLO ADMIN
 router.post("/", verifyToken, checkRole("admin"), async (req, res) => {
   const { name, email, password, role } = req.body;
 

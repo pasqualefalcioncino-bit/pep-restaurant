@@ -8,12 +8,17 @@ import Menu from './views/Menu';
 import Prenota from './views/Prenota';
 import Eventi from './views/Eventi';
 import Contatti from './views/Contatti';
+import AdminBookings from './views/AdminBookings';
+import AdminEmployees from './views/AdminEmployees';
+import CookDashboard from './views/CookDashboard';
+import { clearAuthSession, getAuthUser } from './api/client';
 import './index.css';
 
 function App() {
   const [page, setPage] = useState('home');
   const [pageRefreshKey, setPageRefreshKey] = useState(0);
   const [eventBookingDraft, setEventBookingDraft] = useState(null);
+  const [currentUser, setCurrentUser] = useState(() => getAuthUser());
 
   const goHome = () => {
     if (page === 'home') {
@@ -47,7 +52,15 @@ function App() {
   let content = <Home onNavigate={navigateTo} />;
 
   if (page === 'login') {
-    content = <Login onSwitchToRegister={() => setPage('register')} />;
+    content = (
+      <Login
+        onSwitchToRegister={() => setPage('register')}
+        onLoginSuccess={(user) => {
+          setCurrentUser(user);
+          setPage('home');
+        }}
+      />
+    );
   }
 
   if (page === 'register') {
@@ -70,6 +83,18 @@ function App() {
     content = <Contatti />;
   }
 
+  if (page === 'admin-prenotazioni') {
+    content = <AdminBookings />;
+  }
+
+  if (page === 'admin-dipendenti') {
+    content = <AdminEmployees />;
+  }
+
+  if (page === 'cuoco') {
+    content = <CookDashboard />;
+  }
+
   return (
     <div className="app-shell">
       <Navbar
@@ -78,6 +103,12 @@ function App() {
         onGoHome={goHome}
         onNavigate={navigateTo}
         currentPage={page}
+        currentUser={currentUser}
+        onLogout={() => {
+          clearAuthSession();
+          setCurrentUser(null);
+          setPage('home');
+        }}
       />
       <main className="app-main" key={`${page}-${pageRefreshKey}`}>
         {content}

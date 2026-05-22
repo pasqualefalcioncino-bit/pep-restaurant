@@ -1,9 +1,12 @@
 import LoginForm from '../components/auth/LoginForm';
 
-const Login = ({ onSwitchToRegister }) => {
+const Login = ({ onSwitchToRegister, onLoginSuccess }) => {
   return (
     <div className="login-page">
-      <LoginForm onSwitchToRegister={onSwitchToRegister} />
+      <LoginForm
+        onSwitchToRegister={onSwitchToRegister}
+        onLoginSuccess={onLoginSuccess}
+      />
     </div>
   );
 };

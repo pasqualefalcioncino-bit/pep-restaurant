@@ -11,10 +11,19 @@ const getMenu = async (req, res) => {
 };
 
 const createMenu = async (req, res) => {
-  const { name, price, category } = req.body;
+  const { name, description, price, category, prep_time, image, veg } = req.body;
 
   try {
-    const result = await menuModel.createMenuItem(name, price, category);
+    const result = await menuModel.createMenuItem({
+      name,
+      description,
+      price,
+      category,
+      prep_time,
+      image,
+      veg,
+    });
+
     res.json(result.rows[0]);
   } catch (err) {
     console.error(err);

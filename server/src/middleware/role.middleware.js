@@ -4,7 +4,9 @@ const checkRole = (role) => {
       return res.status(401).send("Non autenticato");
     }
 
-    if (req.user.role !== role) {
+    const allowedRoles = Array.isArray(role) ? role : [role];
+
+    if (!allowedRoles.includes(req.user.role)) {
       return res.status(403).send("Accesso negato");
     }
 

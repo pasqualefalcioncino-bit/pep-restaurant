@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { apiRequest } from '../../api/client';
 import BookingOccasion from './BookingOccasion';
 import BookingSummary from './BookingSummary';
 import bookingOptions from '../../data/bookingOptions.json';
@@ -37,6 +38,8 @@ const BookingForm = ({ eventBookingDraft }) => {
     email: '',
   });
   const [isConfirmed, setIsConfirmed] = useState(false);
+  const [isSubmittingBooking, setIsSubmittingBooking] = useState(false);
+  const [bookingErrorMessage, setBookingErrorMessage] = useState('');
   const todayValue = getTodayValue();
   const dateMin = bookingData.eventTitle && bookingData.date < todayValue ? bookingData.date : todayValue;
   const timesToShow = bookingData.eventTitle ? [bookingData.time] : availableTimes;
@@ -48,6 +51,7 @@ const BookingForm = ({ eventBookingDraft }) => {
       [field]: value,
     }));
     setIsConfirmed(false);
+    setBookingErrorMessage('');
   };
 
   const updateGuests = (nextGuests) => {
@@ -58,6 +62,35 @@ const BookingForm = ({ eventBookingDraft }) => {
   const handleSubmit = (event) => {
     event.preventDefault();
     setCurrentStep(2);
+  };
+
+  const confirmBooking = async () => {
+    setIsSubmittingBooking(true);
+    setBookingErrorMessage('');
+
+    try {
+      await apiRequest('/bookings', {
+        method: 'POST',
+        body: JSON.stringify({
+          full_name: bookingData.fullName,
+          email: bookingData.email,
+          phone: `${bookingData.phonePrefix} ${bookingData.phone}`,
+          booking_date: bookingData.date,
+          booking_time: bookingData.time,
+          guests: bookingData.guests,
+          occasion: bookingData.occasion,
+          special_requests: bookingData.specialRequests,
+          event_title: bookingData.eventTitle,
+        }),
+      });
+
+      setIsConfirmed(true);
+    } catch (error) {
+      setBookingErrorMessage(error.message);
+      setIsConfirmed(false);
+    } finally {
+      setIsSubmittingBooking(false);
+    }
   };
 
   return (
@@ -187,8 +220,10 @@ const BookingForm = ({ eventBookingDraft }) => {
           bookingData={bookingData}
           onFieldChange={updateField}
           onBack={() => setCurrentStep(2)}
-          onConfirm={() => setIsConfirmed(true)}
+          onConfirm={confirmBooking}
           isConfirmed={isConfirmed}
+          isSubmitting={isSubmittingBooking}
+          errorMessage={bookingErrorMessage}
         />
       )}
     </section>

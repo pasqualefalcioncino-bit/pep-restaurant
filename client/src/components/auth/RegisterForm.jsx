@@ -1,64 +1,118 @@
 import { useState } from 'react';
+import { apiRequest } from '../../api/client';
 import './RegisterForm.css';
 
 const RegisterForm = ({ onSwitchToLogin }) => {
-  const [role, setRole] = useState('user');
-  const roles = [
-    { value: 'user', label: 'Cliente', icon: '👤' },
-    { value: 'cook', label: 'Cuoco', icon: '👨‍🍳' },
-    { value: 'admin', label: 'Admin', icon: '🛡️' }
-  ];
-  
+  const [formData, setFormData] = useState({
+    firstName: '',
+    lastName: '',
+    email: '',
+    password: '',
+  });
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [errorMessage, setErrorMessage] = useState('');
+  const [successMessage, setSuccessMessage] = useState('');
+
+  const updateField = (field, value) => {
+    setFormData((currentData) => ({
+      ...currentData,
+      [field]: value,
+    }));
+    setErrorMessage('');
+    setSuccessMessage('');
+  };
+
+  const handleSubmit = async (event) => {
+    event.preventDefault();
+    setIsSubmitting(true);
+    setErrorMessage('');
+    setSuccessMessage('');
+
+    try {
+      await apiRequest('/auth/register', {
+        method: 'POST',
+        body: JSON.stringify({
+          name: `${formData.firstName} ${formData.lastName}`.trim(),
+          email: formData.email,
+          password: formData.password,
+        }),
+      });
+
+      setSuccessMessage('Registrazione completata. Ora puoi accedere.');
+      setFormData({
+        firstName: '',
+        lastName: '',
+        email: '',
+        password: '',
+      });
+    } catch (error) {
+      setErrorMessage(error.message);
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
   return (
     <div className="register-card">
       <div className="register-header">
         <h1>Crea account</h1>
         <p>Accedi per gestire prenotazioni, ordini e preferenze.</p>
       </div>
-      
-      <form className="auth-box" onSubmit={(event) => event.preventDefault()}>
+
+      <form className="auth-box" onSubmit={handleSubmit}>
         <div className="input-group">
-          <label>Nome</label>
-          <input type="text" />
+          <label htmlFor="register-first-name">Nome</label>
+          <input
+            id="register-first-name"
+            type="text"
+            value={formData.firstName}
+            onChange={(event) => updateField('firstName', event.target.value)}
+            required
+          />
         </div>
 
         <div className="input-group">
-          <label>Cognome</label>
-          <input type="text" />
+          <label htmlFor="register-last-name">Cognome</label>
+          <input
+            id="register-last-name"
+            type="text"
+            value={formData.lastName}
+            onChange={(event) => updateField('lastName', event.target.value)}
+            required
+          />
         </div>
-        
+
         <div className="input-group">
-          <label>Email</label>
-          <input type="email"  />
+          <label htmlFor="register-email">Email</label>
+          <input
+            id="register-email"
+            type="email"
+            value={formData.email}
+            onChange={(event) => updateField('email', event.target.value)}
+            required
+          />
         </div>
 
         <div className="input-group">
-          <label>Password</label>
-          <input type="password"  />
+          <label htmlFor="register-password">Password</label>
+          <input
+            id="register-password"
+            type="password"
+            value={formData.password}
+            onChange={(event) => updateField('password', event.target.value)}
+            required
+          />
         </div>
 
-        <div className="role-group">
-          <p className="role-label">Seleziona il tuo ruolo</p>
-          <input type="hidden" name="role" value={role} />
-          <div className="register-roles-container">
-            {roles.map((item) => (
-              <button
-                key={item.value}
-                type="button"
-                className={`register-role-card ${role === item.value ? 'register-role-card-active' : ''}`}
-                onClick={() => setRole(item.value)}
-              >
-                <span className="register-role-icon">{item.icon}</span>
-                <span className="register-role-name">{item.label}</span>
-              </button>
-            ))}
-          </div>
-        </div>
+        {errorMessage && <p className="auth-message error">{errorMessage}</p>}
+        {successMessage && <p className="auth-message success">{successMessage}</p>}
 
-        <button type="submit" className="btn-register">Registrati</button>
-        
+        <button type="submit" className="btn-register" disabled={isSubmitting}>
+          {isSubmitting ? 'Registrazione in corso...' : 'Registrati'}
+        </button>
+
         <button type="button" className="btn-outline-login" onClick={onSwitchToLogin}>
-          Hai già un account? Accedi
+          Hai gia un account? Accedi
         </button>
       </form>
     </div>

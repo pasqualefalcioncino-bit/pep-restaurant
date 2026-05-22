@@ -1,0 +1,104 @@
+.admin-bookings-page {
+  width: min(1180px, 100%);
+  margin: 0 auto;
+}
+
+.admin-bookings-header {
+  margin-bottom: 28px;
+}
+
+.admin-bookings-kicker {
+  display: block;
+  margin-bottom: 8px;
+  color: var(--gold-primary);
+  font-size: 0.82rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+}
+
+.admin-bookings-header h1 {
+  margin: 0 0 10px;
+  color: var(--text-white);
+  font-family: 'Playfair Display', serif;
+  font-size: 2.4rem;
+}
+
+.admin-bookings-header p,
+.admin-bookings-state {
+  margin: 0;
+  color: var(--text-muted);
+}
+
+.admin-bookings-state {
+  padding: 28px;
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  background-color: var(--card-bg);
+  text-align: center;
+}
+
+.admin-bookings-state.error {
+  color: #ff8a8a;
+}
+
+.admin-bookings-table-wrap {
+  overflow-x: auto;
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  background-color: var(--card-bg);
+}
+
+.admin-bookings-table {
+  width: 100%;
+  min-width: 980px;
+  border-collapse: collapse;
+}
+
+.admin-bookings-table th,
+.admin-bookings-table td {
+  padding: 14px 16px;
+  border-bottom: 1px solid var(--border-color);
+  text-align: left;
+  vertical-align: top;
+}
+
+.admin-bookings-table th {
+  color: var(--gold-primary);
+  font-size: 0.78rem;
+  text-transform: uppercase;
+}
+
+.admin-bookings-table td {
+  color: var(--text-white);
+  font-size: 0.92rem;
+}
+
+.admin-bookings-table td span,
+.admin-bookings-table td small,
+.admin-bookings-table td strong {
+  display: block;
+}
+
+.admin-bookings-table td small {
+  margin-top: 5px;
+  color: var(--text-muted);
+}
+
+.admin-bookings-table tbody tr:last-child td {
+  border-bottom: none;
+}
+
+.admin-bookings-status-select {
+  width: 130px;
+  padding: 5px 9px;
+  border: 1px solid rgba(212, 163, 115, 0.35);
+  border-radius: 8px;
+  color: var(--gold-primary);
+  background-color: rgba(212, 163, 115, 0.1);
+  font: inherit;
+}
+
+.admin-bookings-status-select:disabled {
+  cursor: not-allowed;
+  opacity: 0.7;
+}

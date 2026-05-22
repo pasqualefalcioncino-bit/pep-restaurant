@@ -10,11 +10,42 @@ exports.register = async (req, res) => {
   try {
     const hashed = await bcrypt.hash(password, 10);
 
-    const result = await userModel.createUser(name, email, hashed);
+    const result = await userModel.createUser(name, email, hashed, "cliente");
 
-    res.json(result.rows[0]);
+    const user = result.rows[0];
+
+    res.json({
+      id: user.id,
+      name: user.name,
+      email: user.email,
+      role: user.role
+    });
   } catch (err) {
     res.status(500).send("Errore registrazione");
+  }
+};
+
+exports.createEmployee = async (req, res) => {
+  const { name, email, password, role } = req.body;
+  const allowedRoles = ["cuoco", "admin"];
+
+  if (!allowedRoles.includes(role)) {
+    return res.status(400).send("Ruolo dipendente non valido");
+  }
+
+  try {
+    const hashed = await bcrypt.hash(password, 10);
+    const result = await userModel.createUser(name, email, hashed, role);
+    const user = result.rows[0];
+
+    res.status(201).json({
+      id: user.id,
+      name: user.name,
+      email: user.email,
+      role: user.role
+    });
+  } catch (err) {
+    res.status(500).send("Errore creazione dipendente");
   }
 };
 
