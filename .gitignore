@@ -11,6 +11,9 @@ dist/
 # Logs
 npm-debug.log*
 
+# Temporary local files
+tmp/
+
 # OS files
 .DS_Store
 Thumbs.db

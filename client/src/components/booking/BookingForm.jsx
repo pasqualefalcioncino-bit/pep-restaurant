@@ -1,5 +1,5 @@
-import { useState } from 'react';
-import { apiRequest } from '../../api/client';
+import { useEffect, useState } from 'react';
+import { apiRequest, getAuthUser, saveAuthSession, getAuthToken } from '../../api/client';
 import BookingOccasion from './BookingOccasion';
 import BookingSummary from './BookingSummary';
 import bookingOptions from '../../data/bookingOptions.json';
@@ -22,7 +22,8 @@ const getEventTimeValue = (eventDate) => {
   return eventDate?.split(' · ')[1] || '20:00';
 };
 
-const BookingForm = ({ eventBookingDraft }) => {
+const BookingForm = ({ eventBookingDraft, onBookingSuccess }) => {
+  const currentUser = getAuthUser();
   const [currentStep, setCurrentStep] = useState(1);
   const [bookingData, setBookingData] = useState({
     date: getEventDateValue(eventBookingDraft?.date),
@@ -32,10 +33,10 @@ const BookingForm = ({ eventBookingDraft }) => {
     eventSeatsRemaining: eventBookingDraft?.seatsRemaining || null,
     occasion: 'lavoro',
     specialRequests: '',
-    fullName: '',
+    fullName: currentUser?.role === 'cliente' ? currentUser.name || '' : '',
     phonePrefix: '+39',
     phone: '',
-    email: '',
+    email: currentUser?.role === 'cliente' ? currentUser.email || '' : '',
   });
   const [isConfirmed, setIsConfirmed] = useState(false);
   const [isSubmittingBooking, setIsSubmittingBooking] = useState(false);
@@ -44,6 +45,33 @@ const BookingForm = ({ eventBookingDraft }) => {
   const dateMin = bookingData.eventTitle && bookingData.date < todayValue ? bookingData.date : todayValue;
   const timesToShow = bookingData.eventTitle ? [bookingData.time] : availableTimes;
   const maxGuests = bookingData.eventSeatsRemaining || 12;
+
+  useEffect(() => {
+    if (currentUser?.role !== 'cliente' || currentUser.email) {
+      return;
+    }
+
+    const loadCurrentUser = async () => {
+      try {
+        const user = await apiRequest('/users/me');
+        const token = getAuthToken();
+
+        if (token) {
+          saveAuthSession({ token, user });
+        }
+
+        setBookingData((currentData) => ({
+          ...currentData,
+          fullName: currentData.fullName || user.name || '',
+          email: currentData.email || user.email || '',
+        }));
+      } catch {
+        // Se il recupero fallisce, il cliente puo' comunque compilare i campi manualmente.
+      }
+    };
+
+    loadCurrentUser();
+  }, [currentUser]);
 
   const updateField = (field, value) => {
     setBookingData((currentData) => ({
@@ -85,6 +113,9 @@ const BookingForm = ({ eventBookingDraft }) => {
       });
 
       setIsConfirmed(true);
+      if (onBookingSuccess) {
+        onBookingSuccess();
+      }
     } catch (error) {
       setBookingErrorMessage(error.message);
       setIsConfirmed(false);

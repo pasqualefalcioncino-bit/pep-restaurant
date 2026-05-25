@@ -21,7 +21,23 @@ body {
   flex-direction: column;
 }
 
+.app-content {
+  flex: 1;
+  display: flex;
+}
+
+.app-content.with-admin-sidebar {
+  align-items: stretch;
+}
+
 .app-main {
   flex: 1;
   padding: 40px 20px;
+  min-width: 0;
+}
+
+@media (max-width: 900px) {
+  .app-content {
+    flex-direction: column;
+  }
 }

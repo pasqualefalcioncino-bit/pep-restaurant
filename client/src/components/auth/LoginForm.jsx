@@ -31,12 +31,19 @@ const LoginForm = ({ onSwitchToRegister, onLoginSuccess }) => {
         method: 'POST',
         body: JSON.stringify(formData),
       });
+      const sessionData = {
+        ...data,
+        user: {
+          ...data.user,
+          email: data.user.email || formData.email,
+        },
+      };
 
-      saveAuthSession(data);
-      setSuccessMessage(`Accesso effettuato. Benvenuto, ${data.user.name}!`);
+      saveAuthSession(sessionData);
+      setSuccessMessage(`Accesso effettuato. Benvenuto, ${sessionData.user.name}!`);
 
       if (onLoginSuccess) {
-        onLoginSuccess(data.user);
+        onLoginSuccess(sessionData.user);
       }
     } catch (error) {
       setErrorMessage(error.message);

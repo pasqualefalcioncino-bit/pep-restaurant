@@ -10,6 +10,7 @@ const Navbar = ({
   currentUser,
   onLogout,
 }) => {
+  const displayUserName = currentUser?.name || currentUser?.role || '';
   const menuItems = [
     { label: 'Home', page: 'home' },
     { label: 'Menu', page: 'menu' },
@@ -19,15 +20,16 @@ const Navbar = ({
   ];
   const visibleMenuItems = [...menuItems];
 
-  if (currentUser?.role === 'admin') {
-    visibleMenuItems.push(
-      { label: 'Prenotazioni', page: 'admin-prenotazioni' },
-      { label: 'Dipendenti', page: 'admin-dipendenti' }
-    );
-  }
-
   if (currentUser?.role === 'cuoco') {
     visibleMenuItems.push({ label: 'Cucina', page: 'cuoco' });
+  }
+
+  if (currentUser?.role === 'cameriere') {
+    visibleMenuItems.push({ label: 'Ordini', page: 'ordini' });
+  }
+
+  if (currentUser?.role === 'cliente') {
+    visibleMenuItems.push({ label: 'Prenotazioni', page: 'mie-prenotazioni' });
   }
 
   return (
@@ -55,7 +57,7 @@ const Navbar = ({
           {currentUser ? (
             <div className="navbar-user">
               <span className="navbar-user-name">
-                {currentUser.name} ({currentUser.role})
+                {displayUserName}
               </span>
               <button className="navbar-button" type="button" onClick={onLogout}>
                 Esci

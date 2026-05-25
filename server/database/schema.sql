@@ -29,9 +29,23 @@ CREATE TABLE orders (
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
+-- ORDER ITEMS TABLE
+CREATE TABLE order_items (
+  id SERIAL PRIMARY KEY,
+  order_id INT NOT NULL REFERENCES orders(id) ON DELETE CASCADE,
+  menu_item_id INT REFERENCES menu_items(id) ON DELETE SET NULL,
+  item_name VARCHAR(100) NOT NULL,
+  category VARCHAR(50),
+  quantity INT NOT NULL DEFAULT 1,
+  notes TEXT,
+  status VARCHAR(20) DEFAULT 'pending',
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
 -- BOOKINGS TABLE
 CREATE TABLE bookings (
   id SERIAL PRIMARY KEY,
+  user_id INT REFERENCES users(id) ON DELETE SET NULL,
   full_name VARCHAR(100) NOT NULL,
   email VARCHAR(100) NOT NULL,
   phone VARCHAR(30) NOT NULL,
@@ -43,6 +57,19 @@ CREATE TABLE bookings (
   event_title VARCHAR(100),
   status VARCHAR(20) DEFAULT 'in_attesa',
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- ORDER ITEMS STATUS CONSTRAINT
+ALTER TABLE order_items
+ADD CONSTRAINT order_items_status_check
+CHECK (
+  status IN (
+    'pending',
+    'preparing',
+    'ready',
+    'served',
+    'cancelled'
+  )
 );
 
 -- ORDER STATUS CONSTRAINT

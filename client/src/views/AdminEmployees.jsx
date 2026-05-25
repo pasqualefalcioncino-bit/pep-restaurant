@@ -98,6 +98,7 @@ const AdminEmployees = () => {
             onChange={(event) => updateField('role', event.target.value)}
           >
             <option value="cuoco">Cuoco</option>
+            <option value="cameriere">Cameriere</option>
             <option value="admin">Admin</option>
           </select>
         </div>

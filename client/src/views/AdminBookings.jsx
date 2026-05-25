@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { apiRequest } from '../api/client';
+import ConfirmDeleteModal from '../components/admin/ConfirmDeleteModal';
 import './AdminBookings.css';
 
 const formatDate = (dateValue) => {
@@ -29,6 +30,8 @@ const AdminBookings = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [errorMessage, setErrorMessage] = useState('');
   const [updatingBookingId, setUpdatingBookingId] = useState(null);
+  const [deletingBookingId, setDeletingBookingId] = useState(null);
+  const [bookingToDelete, setBookingToDelete] = useState(null);
 
   useEffect(() => {
     const loadBookings = async () => {
@@ -64,6 +67,30 @@ const AdminBookings = () => {
       setErrorMessage(error.message);
     } finally {
       setUpdatingBookingId(null);
+    }
+  };
+
+  const deleteBooking = async () => {
+    if (!bookingToDelete) {
+      return;
+    }
+
+    setDeletingBookingId(bookingToDelete.id);
+    setErrorMessage('');
+
+    try {
+      await apiRequest(`/bookings/${bookingToDelete.id}`, {
+        method: 'DELETE',
+      });
+
+      setBookings((currentBookings) =>
+        currentBookings.filter((currentBooking) => currentBooking.id !== bookingToDelete.id)
+      );
+      setBookingToDelete(null);
+    } catch (error) {
+      setErrorMessage(error.message);
+    } finally {
+      setDeletingBookingId(null);
     }
   };
 
@@ -106,6 +133,7 @@ const AdminBookings = () => {
                 <th>Evento</th>
                 <th>Stato</th>
                 <th>Richieste</th>
+                <th>Azioni</th>
               </tr>
             </thead>
             <tbody>
@@ -141,11 +169,35 @@ const AdminBookings = () => {
                     </select>
                   </td>
                   <td>{booking.special_requests || '-'}</td>
+                  <td>
+                    <button
+                      className="admin-bookings-delete-btn"
+                      type="button"
+                      onClick={() => setBookingToDelete(booking)}
+                      disabled={deletingBookingId === booking.id}
+                    >
+                      {deletingBookingId === booking.id ? 'Elimino...' : 'Elimina'}
+                    </button>
+                  </td>
                 </tr>
               ))}
             </tbody>
           </table>
         </div>
+      )}
+
+      {bookingToDelete && (
+        <ConfirmDeleteModal
+          title="Vuoi eliminare definitivamente la prenotazione?"
+          summaryItems={[
+            bookingToDelete.full_name,
+            `${formatDate(bookingToDelete.booking_date)} alle ${formatTime(bookingToDelete.booking_time)}`,
+            `${bookingToDelete.guests} ospiti`,
+          ]}
+          isDeleting={deletingBookingId === bookingToDelete.id}
+          onCancel={() => setBookingToDelete(null)}
+          onConfirm={deleteBooking}
+        />
       )}
     </section>
   );

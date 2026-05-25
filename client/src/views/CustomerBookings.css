@@ -1,0 +1,136 @@
+.customer-bookings-page {
+  width: min(1120px, 100%);
+  margin: 0 auto;
+}
+
+.customer-bookings-header {
+  margin-bottom: 28px;
+}
+
+.customer-bookings-kicker {
+  display: block;
+  margin-bottom: 8px;
+  color: var(--gold-primary);
+  font-size: 0.82rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+}
+
+.customer-bookings-header h1 {
+  margin: 0 0 10px;
+  color: var(--text-white);
+  font-family: 'Playfair Display', serif;
+  font-size: 2.4rem;
+}
+
+.customer-bookings-header p,
+.customer-bookings-state {
+  margin: 0;
+  color: var(--text-muted);
+}
+
+.customer-bookings-state {
+  padding: 24px;
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  background: var(--card-bg);
+}
+
+.customer-bookings-state.error {
+  color: #ff8a8a;
+}
+
+.customer-bookings-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 18px;
+}
+
+.customer-booking-card {
+  padding: 22px;
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  background: var(--card-bg);
+}
+
+.customer-booking-card-header {
+  display: flex;
+  gap: 16px;
+  align-items: flex-start;
+  justify-content: space-between;
+  margin-bottom: 20px;
+}
+
+.customer-booking-label {
+  display: block;
+  margin-bottom: 6px;
+  color: var(--text-muted);
+  font-size: 0.78rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.customer-booking-card h2 {
+  margin: 0;
+  color: var(--text-white);
+  font-family: 'Playfair Display', serif;
+  font-size: 1.55rem;
+}
+
+.customer-booking-status {
+  flex: 0 0 auto;
+  padding: 7px 10px;
+  border: 1px solid currentColor;
+  border-radius: 999px;
+  font-size: 0.76rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.customer-booking-status.status-in_attesa {
+  color: var(--gold-primary);
+}
+
+.customer-booking-status.status-confermata {
+  color: #8af0b2;
+}
+
+.customer-booking-status.status-annullata {
+  color: #ff8a8a;
+}
+
+.customer-booking-details {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+  margin: 0;
+}
+
+.customer-booking-details div {
+  min-width: 0;
+}
+
+.customer-booking-details dt {
+  margin-bottom: 5px;
+  color: var(--text-muted);
+  font-size: 0.78rem;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.customer-booking-details dd {
+  margin: 0;
+  color: var(--text-white);
+  overflow-wrap: anywhere;
+}
+
+@media (max-width: 640px) {
+  .customer-booking-details {
+    grid-template-columns: 1fr;
+  }
+
+  .customer-booking-card-header {
+    flex-direction: column;
+  }
+}

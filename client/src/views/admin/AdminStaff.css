@@ -1,13 +1,13 @@
-.admin-bookings-page {
+.admin-staff-page {
   width: min(1180px, 100%);
   margin: 0 auto;
 }
 
-.admin-bookings-header {
+.admin-staff-header {
   margin-bottom: 28px;
 }
 
-.admin-bookings-kicker {
+.admin-staff-kicker {
   display: block;
   margin-bottom: 8px;
   color: var(--gold-primary);
@@ -16,20 +16,20 @@
   letter-spacing: 0.08em;
 }
 
-.admin-bookings-header h1 {
+.admin-staff-header h1 {
   margin: 0 0 10px;
   color: var(--text-white);
   font-family: 'Playfair Display', serif;
   font-size: 2.4rem;
 }
 
-.admin-bookings-header p,
-.admin-bookings-state {
+.admin-staff-header p,
+.admin-staff-state {
   margin: 0;
   color: var(--text-muted);
 }
 
-.admin-bookings-state {
+.admin-staff-state {
   padding: 28px;
   border: 1px solid var(--border-color);
   border-radius: 8px;
@@ -37,73 +37,57 @@
   text-align: center;
 }
 
-.admin-bookings-state.error {
+.admin-staff-state.error {
   color: #ff8a8a;
 }
 
-.admin-bookings-table-wrap {
+.admin-staff-table-wrap {
   overflow-x: auto;
   border: 1px solid var(--border-color);
   border-radius: 8px;
   background-color: var(--card-bg);
 }
 
-.admin-bookings-table {
+.admin-staff-table {
   width: 100%;
-  min-width: 980px;
+  min-width: 720px;
   border-collapse: collapse;
 }
 
-.admin-bookings-table th,
-.admin-bookings-table td {
+.admin-staff-table th,
+.admin-staff-table td {
   padding: 14px 16px;
   border-bottom: 1px solid var(--border-color);
   text-align: left;
-  vertical-align: top;
+  vertical-align: middle;
 }
 
-.admin-bookings-table th {
+.admin-staff-table th {
   color: var(--gold-primary);
   font-size: 0.78rem;
   text-transform: uppercase;
 }
 
-.admin-bookings-table td {
+.admin-staff-table td {
   color: var(--text-white);
   font-size: 0.92rem;
 }
 
-.admin-bookings-table td span,
-.admin-bookings-table td small,
-.admin-bookings-table td strong {
-  display: block;
-}
-
-.admin-bookings-table td small {
-  margin-top: 5px;
-  color: var(--text-muted);
-}
-
-.admin-bookings-table tbody tr:last-child td {
+.admin-staff-table tbody tr:last-child td {
   border-bottom: none;
 }
 
-.admin-bookings-status-select {
-  width: 130px;
-  padding: 5px 9px;
+.admin-staff-role {
+  display: inline-flex;
+  padding: 5px 10px;
   border: 1px solid rgba(212, 163, 115, 0.35);
   border-radius: 8px;
+  background: rgba(212, 163, 115, 0.1);
   color: var(--gold-primary);
-  background-color: rgba(212, 163, 115, 0.1);
-  font: inherit;
+  font-weight: 700;
 }
 
-.admin-bookings-status-select:disabled {
-  cursor: not-allowed;
-  opacity: 0.7;
-}
-
-.admin-bookings-delete-btn {
+.admin-staff-delete-btn {
   padding: 7px 11px;
   border: 1px solid rgba(255, 138, 138, 0.45);
   border-radius: 8px;
@@ -115,13 +99,13 @@
   transition: background 0.2s ease, border-color 0.2s ease, color 0.2s ease;
 }
 
-.admin-bookings-delete-btn:hover {
+.admin-staff-delete-btn:hover {
   border-color: rgba(255, 138, 138, 0.75);
   background: rgba(255, 138, 138, 0.16);
   color: #ffc0c0;
 }
 
-.admin-bookings-delete-btn:disabled {
+.admin-staff-delete-btn:disabled {
   cursor: not-allowed;
-  opacity: 0.7;
+  opacity: 0.55;
 }

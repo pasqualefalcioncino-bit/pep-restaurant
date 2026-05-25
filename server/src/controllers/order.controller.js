@@ -2,10 +2,10 @@ const orderModel = require("../models/order.model");
 
 // crea ordine
 exports.createOrder = async (req, res) => {
-  const { table_number } = req.body;
+  const { table_number, items } = req.body;
 
   try {
-    const result = await orderModel.createOrder(table_number);
+    const result = await orderModel.createOrder(table_number, "in_attesa", items || []);
 
     res.json(result.rows[0]);
   } catch (err) {

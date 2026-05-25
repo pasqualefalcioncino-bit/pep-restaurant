@@ -15,6 +15,7 @@ exports.createBooking = async (req, res) => {
 
   try {
     const result = await bookingModel.createBooking({
+      user_id: req.user.id,
       full_name,
       email,
       phone,
@@ -30,6 +31,16 @@ exports.createBooking = async (req, res) => {
   } catch (err) {
     console.error(err);
     res.status(500).send("Errore creazione prenotazione");
+  }
+};
+
+exports.getMyBookings = async (req, res) => {
+  try {
+    const result = await bookingModel.getBookingsByUser(req.user.id);
+    res.json(result.rows);
+  } catch (err) {
+    console.error(err);
+    res.status(500).send("Errore recupero prenotazioni cliente");
   }
 };
 
@@ -63,5 +74,22 @@ exports.updateBookingStatus = async (req, res) => {
   } catch (err) {
     console.error(err);
     res.status(500).send("Errore aggiornamento prenotazione");
+  }
+};
+
+exports.deleteBooking = async (req, res) => {
+  const { id } = req.params;
+
+  try {
+    const result = await bookingModel.deleteBooking(id);
+
+    if (result.rows.length === 0) {
+      return res.status(404).send("Prenotazione non trovata");
+    }
+
+    res.json(result.rows[0]);
+  } catch (err) {
+    console.error(err);
+    res.status(500).send("Errore eliminazione prenotazione");
   }
 };

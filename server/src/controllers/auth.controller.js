@@ -27,7 +27,7 @@ exports.register = async (req, res) => {
 
 exports.createEmployee = async (req, res) => {
   const { name, email, password, role } = req.body;
-  const allowedRoles = ["cuoco", "admin"];
+  const allowedRoles = ["cuoco", "cameriere", "admin"];
 
   if (!allowedRoles.includes(role)) {
     return res.status(400).send("Ruolo dipendente non valido");
@@ -55,9 +55,6 @@ exports.login = async (req, res) => {
   try {
     const result = await userModel.findByEmail(email);
 
-    console.log("EMAIL:", email);
-    console.log("RESULT:", result.rows);
-
     if (result.rows.length === 0)
       return res.status(401).send("Utente non trovato");
 
@@ -82,6 +79,7 @@ exports.login = async (req, res) => {
       user: {
         id: user.id,
         name: user.name,
+        email: user.email,
         role: user.role
       }
     });
