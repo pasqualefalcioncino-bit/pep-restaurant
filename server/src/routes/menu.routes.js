@@ -16,4 +16,18 @@ router.post(
   menuController.createMenu
 );
 
+router.put(
+  "/:id",
+  verifyToken,
+  checkRole("admin"),
+  menuController.updateMenu
+);
+
+router.delete(
+  "/:id",
+  verifyToken,
+  checkRole("admin"),
+  menuController.deleteMenu
+);
+
 module.exports = router;

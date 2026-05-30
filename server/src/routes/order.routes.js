@@ -7,8 +7,8 @@ const verifyToken = require("../middleware/auth.middleware");
 const checkRole = require("../middleware/role.middleware");
 
 // TUTTE PROTETTE
-router.post("/", verifyToken, orderController.createOrder);
-router.get("/", verifyToken, checkRole(["admin", "cuoco"]), orderController.getOrders);
+router.post("/", verifyToken, checkRole(["admin", "cameriere"]), orderController.createOrder);
+router.get("/", verifyToken, checkRole(["admin", "cuoco", "cameriere"]), orderController.getOrders);
 router.put("/:id", verifyToken, checkRole(["admin", "cuoco"]), orderController.updateStatus);
 
 module.exports = router;

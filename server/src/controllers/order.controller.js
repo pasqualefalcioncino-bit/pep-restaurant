@@ -3,11 +3,28 @@ const orderModel = require("../models/order.model");
 // crea ordine
 exports.createOrder = async (req, res) => {
   const { table_number, items } = req.body;
+  const tableNumber = Number(table_number);
+
+  if (!Number.isInteger(tableNumber) || tableNumber <= 0) {
+    return res.status(400).send("Numero tavolo non valido");
+  }
+
+  if (!Array.isArray(items) || items.length === 0) {
+    return res.status(400).send("Aggiungi almeno un piatto all'ordine");
+  }
+
+  const hasInvalidItems = items.some((item) => {
+    return !item.item_name || !Number.isInteger(Number(item.quantity)) || Number(item.quantity) <= 0;
+  });
+
+  if (hasInvalidItems) {
+    return res.status(400).send("Uno o piu' piatti dell'ordine non sono validi");
+  }
 
   try {
-    const result = await orderModel.createOrder(table_number, "in_attesa", items || []);
+    const result = await orderModel.createOrder(tableNumber, "in_attesa", items);
 
-    res.json(result.rows[0]);
+    res.status(201).json(result.rows[0]);
   } catch (err) {
     res.status(500).send("Errore creazione ordine");
   }

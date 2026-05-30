@@ -1,121 +1,161 @@
 # Pep Restaurant
 
-Sistema gestionale per ristorante con architettura client-server, sviluppato nell'ambito del corso di **Ingegneria del Software**.
+Gestionale full-stack per ristorante sviluppato per il corso di Ingegneria del Software.
 
----
+Il progetto permette di gestire menu, prenotazioni, utenti, ordini di sala e flusso cucina tramite interfacce diverse in base al ruolo dell'utente.
 
-## Indice
+## Stack
 
-- [Panoramica](#panoramica)
-- [Stack tecnologico](#stack-tecnologico)
-- [Architettura](#architettura)
-- [Requisiti](#requisiti)
-- [Installazione](#installazione)
-- [Credenziali demo](#credenziali-demo)
-- [Ruoli e permessi](#ruoli-e-permessi)
-- [API Reference](#api-reference)
-- [Struttura del progetto](#struttura-del-progetto)
-- [Funzionalità implementate](#funzionalità-implementate)
-- [Sviluppi futuri](#sviluppi-futuri)
-- [Autori](#autori)
-
----
-
-## Panoramica
-
-Pep Restaurant è un'applicazione web full-stack per la gestione di un ristorante. Permette a clienti, camerieri, cuochi e amministratori di interagire tramite interfacce dedicate, ciascuna con accesso controllato in base al ruolo.
-
----
-
-## Stack tecnologico
-
-| Layer      | Tecnologie                          |
-|------------|-------------------------------------|
-| Frontend   | React, Vite, Axios, CSS             |
-| Backend    | Node.js, Express.js, JWT, Bcrypt    |
-| Database   | PostgreSQL                          |
-
----
+| Layer | Tecnologie |
+| --- | --- |
+| Frontend | React, Vite, CSS, Fetch API |
+| Backend | Node.js, Express.js |
+| Auth | JWT, Bcrypt |
+| Database | PostgreSQL |
 
 ## Architettura
 
-```
-pep-restaurant/
-├── client/          # Frontend React (Vite) — porta 3001
-│   └── src/
-│       ├── api/     # client.js — tutte le chiamate HTTP
-│       └── assets/  # immagini menu e risorse statiche
-└── server/          # Backend Express — porta 3000
-    └── src/
-        ├── app.js          # Entry point Express
-        ├── config/db.js    # Connessione PostgreSQL
-        ├── middleware/
-        │   ├── auth.middleware.js   # Verifica JWT
-        │   └── role.middleware.js   # Controllo permessi
-        └── routes/         # Endpoint API
+```text
+client/ React + Vite
+  -> HTTP REST API
+server/ Node.js + Express
+  -> pg
+PostgreSQL
 ```
 
-Il frontend comunica con il backend tramite `client/src/api/client.js`, che aggiunge automaticamente il token JWT a ogni richiesta protetta.
+Porte usate in sviluppo:
 
----
+```text
+Frontend: http://localhost:3001
+Backend:  http://localhost:3000
+```
+
+Le chiamate del frontend passano dal file:
+
+```text
+client/src/api/client.js
+```
+
+Questo file centralizza la base URL del backend e aggiunge automaticamente il token JWT alle richieste protette.
+
+## Funzionalita
+
+### Cliente
+
+- Registrazione e login.
+- Visualizzazione menu pubblico.
+- Prenotazione tavolo.
+- Visualizzazione delle proprie prenotazioni.
+
+### Cameriere
+
+- Accesso all'area ordini.
+- Visualizzazione menu.
+- Ricerca e filtro dei piatti.
+- Creazione ordine per tavolo.
+- Aggiunta di piatti, quantita e note per la cucina.
+- Visualizzazione degli ordini recenti.
+
+### Cuoco
+
+- Accesso all'area cucina.
+- Visualizzazione ordini con righe ordine.
+- Aggiornamento stato ordine.
+- Filtri e metriche operative della cucina.
+
+### Admin
+
+- Dashboard con statistiche reali.
+- Gestione prenotazioni.
+- Gestione menu: creazione, modifica ed eliminazione piatti.
+- Creazione utenze dipendente.
+- Visualizzazione ed eliminazione clienti.
+- Visualizzazione ed eliminazione staff.
+
+## Ruoli
+
+I ruoli gestiti sono:
+
+```text
+cliente
+cameriere
+cuoco
+admin
+```
+
+Il backend protegge le rotte tramite:
+
+```text
+server/src/middleware/auth.middleware.js
+server/src/middleware/role.middleware.js
+```
+
+Il frontend mostra le pagine disponibili in base al ruolo dell'utente loggato.
 
 ## Requisiti
 
-- **Node.js** (versione LTS consigliata)
-- **PostgreSQL**
+- Node.js
+- npm
+- PostgreSQL
 
----
+## Setup
 
-## Installazione
-
-### 1. Clona il repository
+### 1. Clonare il repository
 
 ```bash
 git clone https://github.com/pasqualefalcioncino-bit/pep-restaurant.git
 cd pep-restaurant
 ```
 
-### 2. Configura il database
+### 2. Creare il database
 
-Crea il database:
+In PostgreSQL:
 
 ```sql
 CREATE DATABASE "pep-restaurant";
 ```
 
-Importa lo schema:
+Importare lo schema:
 
 ```bash
 psql -U postgres -d pep-restaurant -f server/database/schema.sql
 ```
 
-### 3. Configura il backend
+Lo schema crea le tabelle principali e inserisce l'utente admin demo e i piatti iniziali del menu.
+
+### 3. Configurare il backend
 
 ```bash
 cd server
 npm install
 ```
 
-Crea il file `.env` nella cartella `server/` (vedi `.env.example`):
+Creare il file:
+
+```text
+server/.env
+```
+
+Esempio:
 
 ```env
 DB_USER=postgres
 DB_HOST=localhost
 DB_NAME=pep-restaurant
-DB_PASSWORD=la_tua_password
+DB_PASSWORD=YOUR_PASSWORD
 DB_PORT=5432
 JWT_SECRET=pep_secret_2026
 ```
 
-Avvia il backend:
+Avviare il backend:
 
 ```bash
 npm run dev
 ```
 
-Il server sarà disponibile su `http://localhost:3000`.
+### 4. Configurare il frontend
 
-### 4. Configura il frontend
+In un secondo terminale:
 
 ```bash
 cd client
@@ -123,118 +163,169 @@ npm install
 npm run dev
 ```
 
-Il frontend sarà disponibile su `http://localhost:3001`.
+Aprire:
 
----
+```text
+http://localhost:3001
+```
 
 ## Credenziali demo
 
-| Ruolo | Email          | Password |
-|-------|----------------|----------|
-| Admin | admin@test.it  | 123456   |
+| Ruolo | Email | Password |
+| --- | --- | --- |
+| Admin | admin@test.it | 123456 |
 
-Gli account per gli altri ruoli (`cuoco`, `cameriere`) possono essere creati dall'admin tramite l'apposita sezione del pannello di gestione.
+Gli account `cameriere`, `cuoco` e altri `admin` possono essere creati dall'area admin.
 
----
+## API principali
 
-## Ruoli e permessi
+### Auth
 
-| Ruolo      | Accesso                                                       |
-|------------|---------------------------------------------------------------|
-| `cliente`  | Visualizza menu, effettua prenotazioni, gestisce le proprie prenotazioni |
-| `cameriere`| Accede alla pagina Ordini                                     |
-| `cuoco`    | Visualizza e aggiorna lo stato degli ordini                   |
-| `admin`    | Accesso completo: gestione dipendenti, prenotazioni, ordini e menu |
-
----
-
-## API Reference
-
-### Autenticazione
-
-| Metodo | Endpoint          | Descrizione                        | Accesso     |
-|--------|-------------------|------------------------------------|-------------|
-| POST   | `/auth/login`     | Login utente                       | Pubblico    |
-| POST   | `/auth/register`  | Registrazione cliente              | Pubblico    |
-| POST   | `/auth/employees` | Creazione account dipendente       | Admin       |
+| Metodo | Endpoint | Accesso | Descrizione |
+| --- | --- | --- | --- |
+| POST | `/auth/login` | Pubblico | Login utente |
+| POST | `/auth/register` | Pubblico | Registrazione cliente |
+| POST | `/auth/employees` | Admin | Creazione dipendente |
 
 ### Utenti
 
-| Metodo | Endpoint         | Descrizione                        | Accesso     |
-|--------|------------------|------------------------------------|-------------|
-| GET    | `/users/me`      | Dati dell'utente autenticato       | Autenticato |
-| GET    | `/users/staff`   | Lista staff (non clienti)          | Admin       |
-| GET    | `/users/customers` | Lista clienti                    | Admin       |
-| DELETE | `/users/:id`     | Elimina un'utenza                  | Admin       |
+| Metodo | Endpoint | Accesso | Descrizione |
+| --- | --- | --- | --- |
+| GET | `/users/me` | Autenticato | Dati utente loggato |
+| GET | `/users/staff` | Admin | Lista staff |
+| GET | `/users/customers` | Admin | Lista clienti |
+| DELETE | `/users/:id` | Admin | Eliminazione utente |
 
 ### Menu
 
-| Metodo | Endpoint | Descrizione              | Accesso     |
-|--------|----------|--------------------------|-------------|
-| GET    | `/menu`  | Lista piatti del menu    | Pubblico    |
-| POST   | `/menu`  | Aggiunge un nuovo piatto | Admin       |
-
-### Ordini
-
-| Metodo | Endpoint       | Descrizione                   | Accesso      |
-|--------|----------------|-------------------------------|--------------|
-| GET    | `/orders`      | Lista ordini                  | Admin, Cuoco |
-| POST   | `/orders`      | Crea un nuovo ordine          | Autenticato  |
-| PUT    | `/orders/:id`  | Aggiorna lo stato di un ordine | Admin, Cuoco |
+| Metodo | Endpoint | Accesso | Descrizione |
+| --- | --- | --- | --- |
+| GET | `/menu` | Pubblico | Lista piatti |
+| POST | `/menu` | Admin | Creazione piatto |
+| PUT | `/menu/:id` | Admin | Modifica piatto |
+| DELETE | `/menu/:id` | Admin | Eliminazione piatto |
 
 ### Prenotazioni
 
-| Metodo | Endpoint                  | Descrizione                        | Accesso     |
-|--------|---------------------------|------------------------------------|-------------|
-| GET    | `/bookings`               | Lista tutte le prenotazioni        | Admin       |
-| GET    | `/bookings/my`            | Prenotazioni del cliente loggato   | Cliente     |
-| POST   | `/bookings`               | Crea una nuova prenotazione        | Autenticato |
-| PUT    | `/bookings/:id/status`    | Aggiorna stato prenotazione        | Admin       |
-| DELETE | `/bookings/:id`           | Elimina una prenotazione           | Admin       |
+| Metodo | Endpoint | Accesso | Descrizione |
+| --- | --- | --- | --- |
+| POST | `/bookings` | Autenticato | Nuova prenotazione |
+| GET | `/bookings/my` | Cliente | Prenotazioni del cliente |
+| GET | `/bookings` | Admin | Tutte le prenotazioni |
+| PUT | `/bookings/:id/status` | Admin | Aggiorna stato prenotazione |
+| DELETE | `/bookings/:id` | Admin | Elimina prenotazione |
 
----
+### Ordini
 
-## Funzionalità implementate
+| Metodo | Endpoint | Accesso | Descrizione |
+| --- | --- | --- | --- |
+| POST | `/orders` | Admin, cameriere | Crea ordine |
+| GET | `/orders` | Admin, cuoco, cameriere | Lista ordini |
+| PUT | `/orders/:id` | Admin, cuoco | Aggiorna stato ordine |
 
--  Menu pubblico con immagini, descrizioni, tempi di preparazione e indicazione vegetariano
--  Registrazione e login clienti con JWT
--  Prenotazioni: creazione lato cliente, gestione e aggiornamento stato lato admin
--  Pannello admin per la gestione dei dipendenti
--  Area cuoco: visualizzazione e aggiornamento stato ordini per numero tavolo
--  Area cameriere: pagina ordini (in costruzione)
--  Navigazione e voci di menu condizionali in base al ruolo
+## Database
 
----
+Tabelle principali:
 
-## Sviluppi futuri
-
-Il passo tecnico successivo è l'introduzione delle **righe ordine** (`order_items`), per associare piatti specifici a ciascun ordine:
-
-```sql
--- Struttura proposta
-CREATE TABLE order_items (
-  id          SERIAL PRIMARY KEY,
-  order_id    INTEGER REFERENCES orders(id),
-  menu_item_id INTEGER REFERENCES menu_items(id),
-  quantity    INTEGER NOT NULL,
-  note        TEXT
-);
+```text
+users
+menu_items
+bookings
+orders
+order_items
 ```
 
-Questo permetterà a cuochi e camerieri di vedere esattamente cosa è stato ordinato per ogni tavolo.
+Le immagini dei piatti non sono salvate nel database come file binari. Nel database viene salvato il nome del file, mentre le immagini stanno in:
 
-Altre funzionalità pianificate:
+```text
+client/src/assets/images/menu
+```
 
-- [ ] Pagina ordini completa per il cameriere
-- [ ] Gestione del menu con modifica ed eliminazione piatti (admin)
-- [ ] Statistiche e dashboard per l'admin
-- [ ] Notifiche in tempo reale (WebSocket)
+Esempio:
 
----
+```text
+menu_items.image = risotto-allo-zafferano.webp
+```
+
+## Flusso operativo ordini
+
+```text
+Cameriere crea ordine
+  -> POST /orders
+  -> tabella orders
+  -> tabella order_items
+  -> Cuoco vede ordine e piatti in Area Cucina
+  -> Cuoco aggiorna stato ordine
+```
+
+Stati ordine:
+
+```text
+in_attesa
+in_preparazione
+pronto
+servito
+annullato
+```
+
+Stati prenotazione:
+
+```text
+in_attesa
+confermata
+annullata
+```
+
+## Struttura progetto
+
+```text
+pep-restaurant/
+  client/
+    src/
+      api/
+      assets/
+      components/
+      data/
+      utils/
+      views/
+  server/
+    database/
+      schema.sql
+    src/
+      config/
+      controllers/
+      middleware/
+      models/
+      routes/
+      app.js
+  docs/
+```
+
+## Script utili
+
+Backend:
+
+```bash
+cd server
+npm run dev
+npm start
+```
+
+Frontend:
+
+```bash
+cd client
+npm run dev
+npm run build
+```
+
+## Note sviluppo
+
+- Se una tabella e' stata aggiunta dopo la creazione del database locale, bisogna eseguire manualmente la relativa parte di `schema.sql` in PgAdmin o ricreare il database.
+- Le pagine admin attualmente piu complete sono Dashboard, Prenotazioni, Menu, Clienti, Staff e Dipendenti.
+- Tavoli, Inventario e Cassa sono presenti come sezioni dell'interfaccia admin ma sono ancora da completare lato logica/database.
 
 ## Autori
 
-- **Pasquale Spina**
-- **Josef Mignogna**
-
-Progetto sviluppato per il corso di Ingegneria del Software.
+- Pasquale Spina
+- Josef Mignogna
