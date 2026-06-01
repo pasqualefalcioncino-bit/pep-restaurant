@@ -1,4 +1,5 @@
 import logo from '../../assets/images/brand/logo.png';
+import { getRoleAvatar } from '../../utils/roleAvatars';
 import './Navbar.css';
 
 const Navbar = ({
@@ -11,6 +12,7 @@ const Navbar = ({
   onLogout,
 }) => {
   const displayUserName = currentUser?.name || currentUser?.role || '';
+  const userAvatar = getRoleAvatar(currentUser?.role);
   const menuItems = [
     { label: 'Home', page: 'home' },
     { label: 'Menu', page: 'menu' },
@@ -18,18 +20,18 @@ const Navbar = ({
     { label: 'Eventi', page: 'eventi' },
     { label: 'Contatti', page: 'contatti' },
   ];
-  const visibleMenuItems = [...menuItems];
+  const roleMenuItems = [];
 
   if (currentUser?.role === 'cuoco') {
-    visibleMenuItems.push({ label: 'Cucina', page: 'cuoco' });
+    roleMenuItems.push({ label: 'Cucina', page: 'cuoco' });
   }
 
   if (currentUser?.role === 'cameriere') {
-    visibleMenuItems.push({ label: 'Ordini', page: 'ordini' });
+    roleMenuItems.push({ label: 'Ordini', page: 'ordini' });
   }
 
   if (currentUser?.role === 'cliente') {
-    visibleMenuItems.push({ label: 'Prenotazioni', page: 'mie-prenotazioni' });
+    roleMenuItems.push({ label: 'Prenotazioni', page: 'mie-prenotazioni' });
   }
 
   return (
@@ -40,7 +42,22 @@ const Navbar = ({
           <h1 className="navbar-logo">Ristorante Da Peppe e Spike</h1>
         </div>
         <div className="navbar-nav">
-          {visibleMenuItems.map((item) => {
+          {menuItems.map((item) => {
+            return (
+              <button
+                key={item.page}
+                type="button"
+                onClick={item.page === 'home' ? onGoHome : () => onNavigate(item.page)}
+                className={`navbar-nav-link navbar-nav-button${currentPage === item.page ? ' active' : ''}`}
+              >
+                {item.label}
+              </button>
+            );
+          })}
+
+          {roleMenuItems.length > 0 && <span className="navbar-nav-divider" aria-hidden="true">|</span>}
+
+          {roleMenuItems.map((item) => {
             return (
               <button
                 key={item.page}
@@ -59,6 +76,13 @@ const Navbar = ({
               <span className="navbar-user-name">
                 {displayUserName}
               </span>
+              {userAvatar && (
+                <img
+                  className="navbar-user-avatar"
+                  src={userAvatar}
+                  alt={`Avatar ${currentUser.role}`}
+                />
+              )}
               <button className="navbar-button" type="button" onClick={onLogout}>
                 Esci
               </button>

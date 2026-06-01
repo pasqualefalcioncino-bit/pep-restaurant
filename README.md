@@ -52,22 +52,26 @@ Questo file centralizza la base URL del backend e aggiunge automaticamente il to
 - Accesso all'area ordini.
 - Visualizzazione menu.
 - Ricerca e filtro dei piatti.
+- Menu diviso per categorie con foto dei piatti.
 - Creazione ordine per tavolo.
 - Aggiunta di piatti, quantita e note per la cucina.
-- Visualizzazione degli ordini recenti.
+- Visualizzazione degli ordini recenti con riepilogo, stato e piatti pronti.
 
 ### Cuoco
 
 - Accesso all'area cucina.
-- Visualizzazione ordini con righe ordine.
+- Visualizzazione ordini con righe ordine, foto dei piatti e filtri per categoria.
 - Aggiornamento stato ordine.
-- Filtri e metriche operative della cucina.
+- Segnalazione delle singole portate pronte.
+- Gestione disponibilita piatti.
+- Riepiloghi per stato ordine con filtro data ed eliminazione.
 
 ### Admin
 
 - Dashboard con statistiche reali.
+- Riepilogo ordini attivi con popup dettaglio.
 - Gestione prenotazioni.
-- Gestione menu: creazione, modifica ed eliminazione piatti.
+- Gestione menu: creazione, modifica, eliminazione piatti, immagini e disponibilita.
 - Creazione utenze dipendente.
 - Visualizzazione ed eliminazione clienti.
 - Visualizzazione ed eliminazione staff.
@@ -203,6 +207,8 @@ Gli account `cameriere`, `cuoco` e altri `admin` possono essere creati dall'area
 | GET | `/menu` | Pubblico | Lista piatti |
 | POST | `/menu` | Admin | Creazione piatto |
 | PUT | `/menu/:id` | Admin | Modifica piatto |
+| PATCH | `/menu/:id/availability` | Admin, cuoco | Aggiorna disponibilita piatto |
+| POST | `/menu/upload-image` | Admin | Caricamento immagine piatto |
 | DELETE | `/menu/:id` | Admin | Eliminazione piatto |
 
 ### Prenotazioni
@@ -222,6 +228,8 @@ Gli account `cameriere`, `cuoco` e altri `admin` possono essere creati dall'area
 | POST | `/orders` | Admin, cameriere | Crea ordine |
 | GET | `/orders` | Admin, cuoco, cameriere | Lista ordini |
 | PUT | `/orders/:id` | Admin, cuoco | Aggiorna stato ordine |
+| PATCH | `/orders/:orderId/items/:itemId/ready` | Cuoco | Segna una portata pronta |
+| DELETE | `/orders` | Cuoco | Elimina ordini per stato e data |
 
 ## Database
 
@@ -234,6 +242,10 @@ bookings
 orders
 order_items
 ```
+
+La tabella `menu_items` contiene anche il campo `available`, usato per nascondere o bloccare i piatti non disponibili.
+
+La tabella `order_items` mantiene lo stato della singola portata, cosi il cuoco puo segnare un piatto come pronto senza chiudere subito tutto l'ordine.
 
 Le immagini dei piatti non sono salvate nel database come file binari. Nel database viene salvato il nome del file, mentre le immagini stanno in:
 
@@ -255,7 +267,9 @@ Cameriere crea ordine
   -> tabella orders
   -> tabella order_items
   -> Cuoco vede ordine e piatti in Area Cucina
+  -> Cuoco puo segnare le singole portate come pronte
   -> Cuoco aggiorna stato ordine
+  -> Cameriere e Admin vedono stato e portate aggiornate
 ```
 
 Stati ordine:

@@ -5,6 +5,7 @@
 
 .cook-dashboard-header {
   margin-bottom: 30px;
+  text-align: center;
 }
 
 .cook-dashboard-header h1 {
@@ -17,17 +18,52 @@
 
 .cook-metrics {
   display: grid;
-  grid-template-columns: repeat(5, minmax(150px, 1fr));
+  grid-template-columns: repeat(6, minmax(0, 1fr));
   gap: 16px;
   margin-bottom: 32px;
 }
 
 .cook-metric-card {
+  display: block;
   min-height: 96px;
   padding: 18px 20px;
   border: 1px solid rgba(212, 163, 115, 0.2);
   border-radius: 8px;
   background: #161310;
+  cursor: pointer;
+  font: inherit;
+  text-align: left;
+}
+
+.cook-metric-card:hover {
+  border-color: #e6b53e;
+  background: #1d1814;
+}
+
+.cook-metric-card.active,
+.cook-metric-card.wait {
+  border-color: rgba(230, 181, 62, 0.62);
+  background: rgba(230, 181, 62, 0.08);
+}
+
+.cook-metric-card.prep {
+  border-color: rgba(103, 174, 255, 0.62);
+  background: rgba(103, 174, 255, 0.08);
+}
+
+.cook-metric-card.ready {
+  border-color: rgba(48, 216, 120, 0.62);
+  background: rgba(48, 216, 120, 0.08);
+}
+
+.cook-metric-card.served {
+  border-color: rgba(127, 215, 255, 0.62);
+  background: rgba(127, 215, 255, 0.08);
+}
+
+.cook-metric-card.cancelled {
+  border-color: rgba(255, 138, 138, 0.62);
+  background: rgba(255, 138, 138, 0.08);
 }
 
 .cook-metric-icon {
@@ -37,15 +73,26 @@
   font-weight: 800;
 }
 
-.cook-metric-icon.hot,
+.cook-metric-icon.active,
 .cook-metric-icon.wait,
-.cook-metric-icon.prep,
-.cook-metric-icon.time {
+.cook-metric-icon.prep {
   color: #e6b53e;
+}
+
+.cook-metric-icon.prep {
+  color: #67aeff;
 }
 
 .cook-metric-icon.ready {
   color: #30d878;
+}
+
+.cook-metric-icon.served {
+  color: #7fd7ff;
+}
+
+.cook-metric-icon.cancelled {
+  color: #ff8a8a;
 }
 
 .cook-metric-card strong {
@@ -56,17 +103,10 @@
   line-height: 1;
 }
 
-.cook-metric-card small {
-  display: block;
-  margin-top: 8px;
-  color: var(--text-muted);
-  font-size: 0.76rem;
-  letter-spacing: 0.16em;
-  text-transform: uppercase;
-}
-
 .cook-tabs {
-  display: inline-flex;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  width: 100%;
   gap: 4px;
   margin-bottom: 24px;
   padding: 4px;
@@ -84,25 +124,13 @@
   cursor: pointer;
   font: inherit;
   font-weight: 700;
+  text-align: center;
 }
 
 .cook-tabs button.active {
   background: #17120f;
   color: var(--text-white);
   box-shadow: inset 0 0 0 2px #e6b53e;
-}
-
-.cook-tabs span {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  min-width: 28px;
-  height: 22px;
-  margin-left: 8px;
-  border-radius: 999px;
-  background: #df3434;
-  color: var(--text-white);
-  font-size: 0.75rem;
 }
 
 .cook-filters {
@@ -156,73 +184,104 @@
   background: #181410;
 }
 
-.cook-order-card.waiting {
-  border-color: #e6b53e;
-}
-
-.cook-order-card.preparing {
-  border-color: rgba(212, 163, 115, 0.35);
-}
-
-.cook-order-card.ready {
-  border-color: #30d878;
-}
-
-.cook-order-card.rush {
-  border-color: #df3434;
-}
-
 .cook-order-card-header {
   display: flex;
   align-items: flex-start;
   justify-content: space-between;
-  gap: 16px;
-  padding: 20px;
+  gap: 12px;
+  padding: 14px 16px;
   background: #26201c;
 }
 
-.cook-order-card.waiting .cook-order-card-header {
-  background: #e6b53e;
-  color: #17120f;
+.cook-order-card.status-in_attesa {
+  border-color: rgba(230, 181, 62, 0.62);
+  background: rgba(230, 181, 62, 0.08);
+}
+
+.cook-order-card.status-in_attesa .cook-order-card-header {
+  background: rgba(230, 181, 62, 0.18);
+}
+
+.cook-order-card.status-in_preparazione {
+  border-color: rgba(103, 174, 255, 0.62);
+  background: rgba(103, 174, 255, 0.08);
+}
+
+.cook-order-card.status-in_preparazione .cook-order-card-header {
+  background: rgba(103, 174, 255, 0.16);
+}
+
+.cook-order-card.status-pronto {
+  border-color: rgba(48, 216, 120, 0.62);
+  background: rgba(48, 216, 120, 0.08);
+}
+
+.cook-order-card.status-pronto .cook-order-card-header {
+  background: rgba(48, 216, 120, 0.16);
+}
+
+.cook-order-card.status-servito {
+  border-color: rgba(127, 215, 255, 0.62);
+  background: rgba(127, 215, 255, 0.08);
+}
+
+.cook-order-card.status-servito .cook-order-card-header {
+  background: rgba(127, 215, 255, 0.16);
+}
+
+.cook-order-card.status-annullato {
+  border-color: rgba(255, 138, 138, 0.62);
+  background: rgba(255, 138, 138, 0.08);
+}
+
+.cook-order-card.status-annullato .cook-order-card-header {
+  background: rgba(255, 138, 138, 0.16);
 }
 
 .cook-order-card h2 {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: baseline;
   margin: 0;
   color: inherit;
   font-family: 'Playfair Display', serif;
-  font-size: 1.35rem;
+  font-size: 1.22rem;
+  line-height: 1.1;
 }
 
-.cook-order-card small {
-  display: block;
-  margin-top: 4px;
+.cook-order-card h2 small {
+  display: inline-block;
+  margin-top: 0;
   color: inherit;
+  font-family: inherit;
+  font-size: 0.82rem;
+  font-weight: 700;
   opacity: 0.72;
 }
 
 .cook-order-time {
+  display: flex;
+  align-items: baseline;
+  justify-content: flex-end;
+  gap: 6px;
   text-align: right;
 }
 
-.cook-order-time strong {
-  display: block;
+.cook-order-time span {
   color: inherit;
-  font-family: 'Playfair Display', serif;
-  font-size: 1.45rem;
-  white-space: nowrap;
+  font-size: 0.68rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  opacity: 0.72;
+  text-transform: uppercase;
 }
 
-.cook-order-time span {
-  display: inline-flex;
-  margin-top: 8px;
-  padding: 5px 9px;
-  border-radius: 999px;
-  background: rgba(0, 0, 0, 0.18);
+.cook-order-time strong {
   color: inherit;
-  font-size: 0.72rem;
-  font-weight: 800;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
+  font-family: 'Playfair Display', serif;
+  font-size: 1.22rem;
+  white-space: nowrap;
 }
 
 .cook-order-items {
@@ -231,11 +290,64 @@
 
 .cook-order-item {
   display: grid;
-  grid-template-columns: 42px 1fr auto;
+  grid-template-columns: 52px 42px minmax(0, 1fr) auto;
   gap: 12px;
+  align-items: center;
   padding: 16px 20px;
   border-bottom: 1px solid rgba(212, 163, 115, 0.12);
   color: var(--text-white);
+}
+
+.cook-order-item.ready,
+.cook-metric-modal-item.ready {
+  border-color: rgba(48, 216, 120, 0.28);
+  background: rgba(48, 216, 120, 0.1);
+}
+
+.cook-order-item.ready .cook-order-item-image,
+.cook-metric-modal-item.ready .cook-order-item-image {
+  border-color: rgba(48, 216, 120, 0.42);
+}
+
+.cook-order-item-ready {
+  min-height: 34px;
+  padding: 0 10px;
+  border: 1px solid rgba(48, 216, 120, 0.55);
+  border-radius: 8px;
+  background: rgba(48, 216, 120, 0.12);
+  color: #30d878;
+  cursor: pointer;
+  font: inherit;
+  font-size: 0.78rem;
+  font-weight: 900;
+}
+
+.cook-order-item-ready:hover {
+  background: rgba(48, 216, 120, 0.2);
+}
+
+.cook-order-item-ready:disabled {
+  cursor: not-allowed;
+  opacity: 0.7;
+}
+
+.cook-order-item-image {
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+  width: 52px;
+  aspect-ratio: 1;
+  border: 1px solid rgba(212, 163, 115, 0.22);
+  border-radius: 8px;
+  background-color: rgba(212, 163, 115, 0.08);
+  color: #e6b53e;
+  font-weight: 800;
+}
+
+.cook-order-item-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
 }
 
 .cook-order-item strong {
@@ -253,17 +365,6 @@
   color: var(--text-muted);
 }
 
-.cook-order-item em {
-  align-self: start;
-  padding: 5px 9px;
-  border: 1px solid rgba(212, 163, 115, 0.45);
-  border-radius: 6px;
-  color: #e6b53e;
-  font-size: 0.72rem;
-  font-style: normal;
-  text-transform: uppercase;
-}
-
 .cook-order-empty {
   margin: 0;
   padding: 22px 20px;
@@ -271,37 +372,24 @@
 }
 
 .cook-order-actions {
-  display: flex;
-  gap: 10px;
   padding: 16px 20px 20px;
 }
 
-.cook-order-status,
-.cook-order-next {
-  min-height: 38px;
-  border-radius: 8px;
-  font: inherit;
-}
-
 .cook-order-status {
-  flex: 1;
-  padding: 0 10px;
+  width: 100%;
+  min-height: 38px;
+  box-sizing: border-box;
+  padding: 0 12px;
   border: 1px solid rgba(212, 163, 115, 0.35);
-  color: var(--gold-primary);
+  border-radius: 8px;
   background-color: rgba(212, 163, 115, 0.1);
-}
-
-.cook-order-next {
-  padding: 0 13px;
-  border: 1px solid #30d878;
-  background: rgba(48, 216, 120, 0.1);
-  color: #30d878;
+  color: var(--gold-primary);
+  font: inherit;
   cursor: pointer;
   font-weight: 800;
 }
 
-.cook-order-status:disabled,
-.cook-order-next:disabled {
+.cook-order-status:disabled {
   cursor: not-allowed;
   opacity: 0.7;
 }
@@ -324,11 +412,443 @@
   color: var(--text-muted);
 }
 
+.cook-menu-management {
+  display: grid;
+  gap: 18px;
+}
+
+.cook-menu-management-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 18px;
+  padding: 22px 24px;
+  border: 1px solid rgba(212, 163, 115, 0.22);
+  border-radius: 8px;
+  background: var(--card-bg);
+}
+
+.cook-menu-management-header h2 {
+  margin: 0;
+  color: var(--text-white);
+  font-family: 'Playfair Display', serif;
+  font-size: 1.7rem;
+}
+
+.cook-menu-management-header p {
+  margin: 6px 0 0;
+  color: var(--text-muted);
+}
+
+.cook-menu-management-header > strong {
+  min-width: 82px;
+  padding: 8px 10px;
+  border: 1px solid rgba(255, 138, 138, 0.45);
+  border-radius: 8px;
+  background: rgba(255, 138, 138, 0.1);
+  color: #ff8a8a;
+  font-family: 'Playfair Display', serif;
+  font-size: 1.8rem;
+  line-height: 1;
+  text-align: center;
+}
+
+.cook-menu-management-header > strong::after {
+  content: " non disp.";
+  display: block;
+  margin-top: 4px;
+  color: var(--text-muted);
+  font-family: inherit;
+  font-size: 0.7rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.cook-menu-table-wrap {
+  overflow-x: auto;
+  border: 1px solid rgba(212, 163, 115, 0.18);
+  border-radius: 8px;
+  background: var(--card-bg);
+}
+
+.cook-menu-table {
+  width: 100%;
+  min-width: 920px;
+  border-collapse: collapse;
+}
+
+.cook-menu-table th,
+.cook-menu-table td {
+  padding: 14px 16px;
+  border-bottom: 1px solid rgba(212, 163, 115, 0.14);
+  text-align: left;
+  vertical-align: top;
+}
+
+.cook-menu-table th {
+  color: #e6b53e;
+  font-size: 0.78rem;
+  text-transform: uppercase;
+}
+
+.cook-menu-table td {
+  color: var(--text-white);
+  font-size: 0.92rem;
+}
+
+.cook-menu-table tr.unavailable td {
+  background: rgba(95, 22, 22, 0.28);
+}
+
+.cook-menu-table tbody tr:last-child td {
+  border-bottom: none;
+}
+
+.cook-menu-dish {
+  display: grid;
+  grid-template-columns: 58px minmax(0, 1fr);
+  gap: 12px;
+  align-items: start;
+  min-width: 0;
+}
+
+.cook-menu-dish-image {
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+  width: 58px;
+  aspect-ratio: 1;
+  border: 1px solid rgba(212, 163, 115, 0.22);
+  border-radius: 8px;
+  background-color: rgba(212, 163, 115, 0.08);
+  color: #e6b53e;
+  font-weight: 800;
+}
+
+.cook-menu-table tr.unavailable .cook-menu-dish-image {
+  opacity: 0.62;
+}
+
+.cook-menu-dish-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.cook-menu-dish strong,
+.cook-menu-dish small {
+  display: block;
+}
+
+.cook-menu-dish small {
+  max-width: 380px;
+  margin-top: 5px;
+  color: var(--text-muted);
+  line-height: 1.4;
+}
+
+.cook-menu-status {
+  display: inline-flex;
+  padding: 5px 8px;
+  border: 1px solid rgba(48, 216, 120, 0.45);
+  border-radius: 999px;
+  background: rgba(48, 216, 120, 0.1);
+  color: #30d878;
+  font-size: 0.78rem;
+  font-weight: 900;
+}
+
+.cook-menu-status.unavailable {
+  border-color: rgba(255, 138, 138, 0.65);
+  background: rgba(255, 138, 138, 0.12);
+  color: #ff8a8a;
+}
+
+.cook-menu-availability {
+  min-height: 36px;
+  padding: 0 12px;
+  border: 1px solid #30d878;
+  border-radius: 8px;
+  background: rgba(48, 216, 120, 0.1);
+  color: #30d878;
+  cursor: pointer;
+  font: inherit;
+  font-weight: 900;
+}
+
+.cook-menu-table tr.unavailable .cook-menu-availability {
+  border-color: rgba(255, 138, 138, 0.7);
+  background: rgba(255, 138, 138, 0.14);
+  color: #ff8a8a;
+}
+
+.cook-menu-availability:hover {
+  filter: brightness(1.15);
+}
+
+.cook-menu-availability:disabled {
+  cursor: not-allowed;
+  opacity: 0.7;
+}
+
+.cook-metric-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 50;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  background: rgba(0, 0, 0, 0.72);
+}
+
+.cook-metric-modal {
+  width: min(760px, 100%);
+  max-height: min(780px, calc(100vh - 48px));
+  overflow: auto;
+  padding: 28px;
+  border: 1px solid rgba(212, 163, 115, 0.28);
+  border-radius: 8px;
+  background: var(--card-bg);
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.45);
+}
+
+.cook-metric-modal-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 18px;
+  padding-bottom: 18px;
+  border-bottom: 1px dashed rgba(212, 163, 115, 0.35);
+}
+
+.cook-metric-modal-header h2 {
+  margin: 0;
+  color: var(--text-white);
+  font-family: 'Playfair Display', serif;
+  font-size: 1.85rem;
+}
+
+.cook-metric-modal-header button {
+  padding: 9px 13px;
+  border: 1px solid rgba(212, 163, 115, 0.4);
+  border-radius: 8px;
+  background: transparent;
+  color: #e6b53e;
+  cursor: pointer;
+  font: inherit;
+  font-weight: 800;
+}
+
+.cook-metric-modal-header button:hover {
+  background: rgba(212, 163, 115, 0.12);
+}
+
+.cook-metric-modal-total {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 14px;
+  align-items: center;
+  margin: 18px 0;
+  padding: 14px;
+  border: 1px solid rgba(212, 163, 115, 0.18);
+  border-radius: 8px;
+  background: #161310;
+}
+
+.cook-metric-modal-total-copy {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: 12px;
+  align-items: end;
+  min-width: 0;
+}
+
+.cook-metric-modal-total strong {
+  color: var(--text-white);
+  font-family: 'Playfair Display', serif;
+  font-size: 2.1rem;
+  line-height: 1;
+}
+
+.cook-metric-modal-total span,
+.cook-metric-modal-empty {
+  color: var(--text-muted);
+}
+
+.cook-metric-modal-empty {
+  margin: 0;
+  padding: 20px;
+  border: 1px dashed rgba(212, 163, 115, 0.22);
+  border-radius: 8px;
+  text-align: center;
+}
+
+.cook-metric-modal-tools {
+  display: flex;
+  align-items: end;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-right: 18px;
+}
+
+.cook-metric-modal-tools label {
+  display: grid;
+  gap: 6px;
+  color: var(--text-muted);
+  font-size: 0.78rem;
+  font-weight: 800;
+}
+
+.cook-metric-modal-tools select,
+.cook-metric-modal-tools button {
+  min-height: 38px;
+  border-radius: 8px;
+  font: inherit;
+  font-weight: 800;
+}
+
+.cook-metric-modal-tools select {
+  min-width: 190px;
+  appearance: none;
+  padding: 0 36px 0 12px;
+  border: 1px solid rgba(212, 163, 115, 0.35);
+  background-color: #080808;
+  background-image:
+    linear-gradient(45deg, transparent 50%, #e6b53e 50%),
+    linear-gradient(135deg, #e6b53e 50%, transparent 50%);
+  background-position:
+    calc(100% - 18px) 50%,
+    calc(100% - 12px) 50%;
+  background-repeat: no-repeat;
+  background-size: 6px 6px;
+  color: var(--text-white);
+}
+
+.cook-metric-modal-tools button {
+  padding: 0 14px;
+  border: 1px solid rgba(255, 138, 138, 0.55);
+  background: rgba(255, 138, 138, 0.12);
+  color: #ff8a8a;
+  cursor: pointer;
+}
+
+.cook-metric-modal-tools button:hover {
+  background: rgba(255, 138, 138, 0.2);
+}
+
+.cook-metric-modal-tools button:disabled {
+  cursor: not-allowed;
+  opacity: 0.7;
+}
+
+.cook-metric-modal-list {
+  display: grid;
+  gap: 10px;
+}
+
+.cook-metric-modal-order {
+  overflow: hidden;
+  border: 1px solid rgba(212, 163, 115, 0.2);
+  border-radius: 8px;
+  background: #181410;
+}
+
+.cook-metric-modal-order-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 12px 14px;
+  background: #26201c;
+}
+
+.cook-metric-modal-order-head h3 {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: baseline;
+  min-width: 0;
+  margin: 0;
+  color: var(--text-white);
+  font-family: 'Playfair Display', serif;
+  font-size: 1.08rem;
+  line-height: 1.25;
+}
+
+.cook-metric-modal-order-head h3 span {
+  margin: 0;
+  font-family: inherit;
+  font-size: 0.78rem;
+  font-weight: 700;
+}
+
+.cook-metric-modal-order-head span {
+  display: inline-block;
+  color: var(--text-muted);
+  font-size: 0.76rem;
+}
+
+.cook-metric-modal-order-head > div:first-child {
+  min-width: 0;
+}
+
+.cook-metric-modal-order-head > div:last-child {
+  flex: 0 0 auto;
+  text-align: right;
+}
+
+.cook-metric-modal-items {
+  display: grid;
+}
+
+.cook-metric-modal-item {
+  display: grid;
+  grid-template-columns: 42px 38px minmax(0, 1fr);
+  gap: 8px;
+  align-items: center;
+  padding: 9px 14px;
+  border-bottom: 1px solid rgba(212, 163, 115, 0.12);
+}
+
+.cook-metric-modal-item .cook-order-item-image {
+  width: 42px;
+}
+
+.cook-metric-modal-item:last-child {
+  border-bottom: none;
+}
+
+.cook-metric-modal-item strong {
+  color: #e6b53e;
+  font-family: 'Playfair Display', serif;
+  font-size: 1.05rem;
+}
+
+.cook-metric-modal-item span {
+  display: block;
+  color: var(--text-white);
+  font-size: 0.9rem;
+  font-weight: 800;
+}
+
+.cook-metric-modal-item small {
+  display: block;
+  margin-top: 2px;
+  color: var(--text-muted);
+  font-size: 0.78rem;
+}
+
 @media (max-width: 1100px) {
-  .cook-metrics,
+  .cook-metrics {
+    grid-template-columns: repeat(3, minmax(170px, 1fr));
+  }
+
   .cook-orders-grid {
     grid-template-columns: repeat(2, minmax(240px, 1fr));
   }
+
 }
 
 @media (max-width: 720px) {
@@ -338,15 +858,45 @@
   }
 
   .cook-tabs {
-    display: flex;
     width: 100%;
-  }
-
-  .cook-tabs button {
-    flex: 1;
   }
 
   .cook-order-actions {
     flex-direction: column;
+  }
+
+  .cook-menu-management-header {
+    flex-direction: column;
+  }
+
+  .cook-order-item {
+    grid-template-columns: 52px 42px minmax(0, 1fr) auto;
+  }
+
+  .cook-metric-modal-item {
+    grid-template-columns: 52px 42px minmax(0, 1fr);
+  }
+
+  .cook-metric-modal-total {
+    grid-template-columns: 1fr;
+  }
+
+  .cook-metric-modal-tools {
+    justify-content: flex-start;
+    margin-right: 0;
+  }
+
+  .cook-metric-modal-tools label,
+  .cook-metric-modal-tools select,
+  .cook-metric-modal-tools button {
+    width: 100%;
+  }
+
+  .cook-metric-modal-order-head {
+    flex-direction: column;
+  }
+
+  .cook-metric-modal-order-head > div:last-child {
+    text-align: left;
   }
 }

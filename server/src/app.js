@@ -22,7 +22,16 @@ app.use("/bookings", bookingRoutes);
 
 // DATABASE CONNECTION
 pool.connect()
-  .then(() => console.log("Database collegato con successo --OK--"))
+  .then(async (client) => {
+    try {
+      await client.query(
+        "ALTER TABLE menu_items ADD COLUMN IF NOT EXISTS available BOOLEAN DEFAULT true"
+      );
+      console.log("Database collegato con successo --OK--");
+    } finally {
+      client.release();
+    }
+  })
   .catch(err => console.error("Errore DB", err));
 
 // TEST ROUTE

@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { apiRequest, getAuthUser } from '../../api/client';
 import AdminSearchToolbar from '../../components/admin/AdminSearchToolbar';
 import ConfirmDeleteModal from '../../components/admin/ConfirmDeleteModal';
+import { getRoleAvatar } from '../../utils/roleAvatars';
 import './AdminCustomers.css';
 
 const AdminCustomers = () => {
@@ -75,7 +76,6 @@ const AdminCustomers = () => {
   return (
     <section className="admin-customers-page" aria-labelledby="admin-customers-title">
       <div className="admin-customers-header">
-        <span className="admin-customers-kicker">ADMIN</span>
         <h1 id="admin-customers-title">Clienti</h1>
         <p>{customers.length} clienti presenti nel database.</p>
       </div>
@@ -111,7 +111,12 @@ const AdminCustomers = () => {
                   {filteredCustomers.map((customer) => (
                     <tr key={customer.id}>
                       <td>
-                        <strong>{customer.name}</strong>
+                        <div className="admin-customers-person">
+                          {getRoleAvatar(customer.role) && (
+                            <img src={getRoleAvatar(customer.role)} alt={`Avatar ${customer.role}`} />
+                          )}
+                          <strong>{customer.name}</strong>
+                        </div>
                       </td>
                       <td>{customer.email}</td>
                       <td>

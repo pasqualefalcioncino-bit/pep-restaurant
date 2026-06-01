@@ -1,19 +1,13 @@
 import { useEffect, useMemo, useState } from 'react';
 import { apiRequest } from '../../api/client';
+import { getOrderStatusLabel, sortByMenuCategory } from '../../utils/menuCatalog';
+import { getMenuImage } from '../../utils/menuImages';
 import './AdminDashboard.css';
 
 const bookingStatusLabels = {
   in_attesa: 'In attesa',
   confermata: 'Confermata',
   annullata: 'Annullata',
-};
-
-const orderStatusLabels = {
-  in_attesa: 'In attesa',
-  in_preparazione: 'In preparazione',
-  pronto: 'Pronto',
-  servito: 'Servito',
-  annullato: 'Annullato',
 };
 
 const formatDate = (dateValue) => {
@@ -45,7 +39,7 @@ const buildCount = (items, predicate) => {
   return items.filter(predicate).length;
 };
 
-const AdminDashboard = () => {
+const AdminDashboard = ({ onNavigate }) => {
   const [dashboardData, setDashboardData] = useState({
     bookings: [],
     orders: [],
@@ -53,6 +47,7 @@ const AdminDashboard = () => {
     staff: [],
     menuItems: [],
   });
+  const [selectedOrderId, setSelectedOrderId] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
   const [loadErrors, setLoadErrors] = useState([]);
 
@@ -93,6 +88,10 @@ const AdminDashboard = () => {
     };
 
     loadDashboard();
+
+    const intervalId = window.setInterval(loadDashboard, 5000);
+
+    return () => window.clearInterval(intervalId);
   }, []);
 
   const stats = useMemo(() => {
@@ -102,35 +101,43 @@ const AdminDashboard = () => {
       {
         label: 'Prenotazioni',
         value: bookings.length,
-        detail: `${buildCount(bookings, (booking) => booking.status === 'in_attesa')} in attesa`,
+        targetPage: 'admin-prenotazioni',
       },
       {
         label: 'Ordini attivi',
         value: buildCount(orders, (order) =>
           ['in_attesa', 'in_preparazione', 'pronto'].includes(order.status)
         ),
-        detail: `${buildCount(orders, (order) => order.status === 'pronto')} pronti`,
       },
       {
         label: 'Clienti',
         value: customers.length,
-        detail: 'utenti registrati',
+        targetPage: 'admin-clienti',
       },
       {
         label: 'Staff',
         value: staff.length,
-        detail: 'utenze operative',
+        targetPage: 'admin-staff',
       },
       {
         label: 'Piatti',
         value: menuItems.length,
-        detail: 'voci menu',
+        targetPage: 'admin-menu',
       },
     ];
   }, [dashboardData]);
 
+  const activeOrders = useMemo(() => {
+    return dashboardData.orders.filter((order) => !['servito', 'annullato'].includes(order.status));
+  }, [dashboardData.orders]);
+  const menuItemsById = useMemo(() => {
+    return Object.fromEntries(dashboardData.menuItems.map((item) => [item.id, item]));
+  }, [dashboardData.menuItems]);
+  const selectedOrder = useMemo(() => {
+    return activeOrders.find((order) => order.id === selectedOrderId) || null;
+  }, [activeOrders, selectedOrderId]);
   const recentBookings = dashboardData.bookings.slice(0, 5);
-  const recentOrders = dashboardData.orders.slice(0, 5);
+  const recentOrders = activeOrders.slice(0, 5);
 
   if (isLoading) {
     return (
@@ -143,7 +150,6 @@ const AdminDashboard = () => {
   return (
     <section className="admin-dashboard-page" aria-labelledby="admin-dashboard-title">
       <div className="admin-dashboard-header">
-        <span className="admin-dashboard-kicker">ADMIN</span>
         <h1 id="admin-dashboard-title">Dashboard</h1>
         <p>Riepilogo operativo di prenotazioni, ordini, utenti e menu.</p>
       </div>
@@ -158,13 +164,33 @@ const AdminDashboard = () => {
       )}
 
       <div className="admin-dashboard-stats" aria-label="Statistiche principali">
-        {stats.map((stat) => (
-          <article className="admin-dashboard-stat" key={stat.label}>
-            <span>{stat.label}</span>
-            <strong>{stat.value}</strong>
-            <small>{stat.detail}</small>
-          </article>
-        ))}
+        {stats.map((stat) => {
+          const content = (
+            <>
+              <span>{stat.label}</span>
+              <strong>{stat.value}</strong>
+            </>
+          );
+
+          if (stat.targetPage && onNavigate) {
+            return (
+              <button
+                className="admin-dashboard-stat clickable"
+                key={stat.label}
+                type="button"
+                onClick={() => onNavigate(stat.targetPage)}
+              >
+                {content}
+              </button>
+            );
+          }
+
+          return (
+            <article className="admin-dashboard-stat" key={stat.label}>
+              {content}
+            </article>
+          );
+        })}
       </div>
 
       <div className="admin-dashboard-panels">
@@ -198,7 +224,7 @@ const AdminDashboard = () => {
         <article className="admin-dashboard-panel">
           <div className="admin-dashboard-panel-header">
             <h2>Ordini recenti</h2>
-            <span>{dashboardData.orders.length} totali</span>
+            <span>{activeOrders.length} attivi</span>
           </div>
 
           {recentOrders.length === 0 ? (
@@ -206,7 +232,12 @@ const AdminDashboard = () => {
           ) : (
             <div className="admin-dashboard-list">
               {recentOrders.map((order) => (
-                <div className="admin-dashboard-row" key={order.id}>
+                <button
+                  className={`admin-dashboard-row admin-dashboard-order-row status-${order.status}`}
+                  key={order.id}
+                  type="button"
+                  onClick={() => setSelectedOrderId(order.id)}
+                >
                   <div>
                     <strong>Tavolo {order.table_number || '-'}</strong>
                     <small>
@@ -214,14 +245,88 @@ const AdminDashboard = () => {
                     </small>
                   </div>
                   <span className={`admin-dashboard-pill status-${order.status}`}>
-                    {orderStatusLabels[order.status] || order.status}
+                    {getOrderStatusLabel(order.status)}
                   </span>
-                </div>
+                </button>
               ))}
             </div>
           )}
         </article>
       </div>
+
+      {selectedOrder && (
+        <div className="admin-dashboard-modal-backdrop" role="presentation">
+          <div
+            className="admin-dashboard-order-modal"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="admin-dashboard-order-title"
+          >
+            <div className="admin-dashboard-modal-header">
+              <div>
+                <span>Riepilogo ordine</span>
+                <h2 id="admin-dashboard-order-title">Ordine #{selectedOrder.id}</h2>
+              </div>
+              <button type="button" onClick={() => setSelectedOrderId(null)}>
+                Chiudi
+              </button>
+            </div>
+
+            <div className="admin-dashboard-order-meta">
+              <div>
+                <span>Tavolo</span>
+                <strong>{selectedOrder.table_number || '-'}</strong>
+              </div>
+              <div>
+                <span>Creato</span>
+                <strong>{formatDateTime(selectedOrder.created_at)}</strong>
+              </div>
+              <div>
+                <span>Stato</span>
+                <strong>
+                  <span className={`admin-dashboard-pill status-${selectedOrder.status}`}>
+                    {getOrderStatusLabel(selectedOrder.status)}
+                  </span>
+                </strong>
+              </div>
+            </div>
+
+            <div className="admin-dashboard-order-items">
+              {(selectedOrder.items || []).length === 0 ? (
+                <p className="admin-dashboard-empty">Nessun dettaglio piatto disponibile.</p>
+              ) : (
+                [...selectedOrder.items].sort(sortByMenuCategory).map((item) => {
+                  const menuItem = menuItemsById[item.menu_item_id];
+                  const itemImage = getMenuImage(menuItem?.image);
+
+                  return (
+                    <div
+                      className={`admin-dashboard-order-item ${
+                        item.status === 'ready' ? 'ready' : ''
+                      }`}
+                      key={item.id}
+                    >
+                      <div className="admin-dashboard-order-item-image">
+                        {itemImage ? (
+                          <img src={itemImage} alt={item.item_name} />
+                        ) : (
+                          <span aria-hidden="true">{item.item_name.charAt(0)}</span>
+                        )}
+                      </div>
+                      <strong>{item.quantity}x</strong>
+                      <div>
+                        <span>{item.item_name}</span>
+                        <small>{item.category || 'Senza categoria'}</small>
+                        {item.notes && <small>Note: {item.notes}</small>}
+                      </div>
+                    </div>
+                  );
+                })
+              )}
+            </div>
+          </div>
+        </div>
+      )}
     </section>
   );
 };

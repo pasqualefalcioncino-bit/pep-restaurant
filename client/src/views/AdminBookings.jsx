@@ -113,7 +113,6 @@ const AdminBookings = () => {
   return (
     <section className="admin-bookings-page" aria-labelledby="admin-bookings-title">
       <div className="admin-bookings-header">
-        <span className="admin-bookings-kicker">ADMIN</span>
         <h1 id="admin-bookings-title">Prenotazioni Ricevute</h1>
         <p>{bookings.length} prenotazioni presenti nel database.</p>
       </div>

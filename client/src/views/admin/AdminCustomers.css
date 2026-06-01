@@ -7,15 +7,6 @@
   margin-bottom: 28px;
 }
 
-.admin-customers-kicker {
-  display: block;
-  margin-bottom: 8px;
-  color: var(--gold-primary);
-  font-size: 0.82rem;
-  font-weight: 800;
-  letter-spacing: 0.08em;
-}
-
 .admin-customers-header h1 {
   margin: 0 0 10px;
   color: var(--text-white);
@@ -75,6 +66,30 @@
 
 .admin-customers-table tbody tr:last-child td {
   border-bottom: none;
+}
+
+.admin-customers-person {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-width: 0;
+}
+
+.admin-customers-person img {
+  display: block;
+  width: 42px;
+  height: 42px;
+  flex: 0 0 auto;
+  border-radius: 50%;
+  background: transparent;
+  box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.08);
+  clip-path: circle(50%);
+  object-fit: cover;
+  object-position: center;
+}
+
+.admin-customers-person strong {
+  min-width: 0;
 }
 
 .admin-customers-role {

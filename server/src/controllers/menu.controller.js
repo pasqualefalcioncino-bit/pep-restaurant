@@ -23,7 +23,7 @@ const getMenu = async (req, res) => {
 };
 
 const createMenu = async (req, res) => {
-  const { name, description, price, category, prep_time, image, veg } = req.body;
+  const { name, description, price, category, prep_time, image, veg, available } = req.body;
   const validationError = validateMenuPayload({ name, price, category });
 
   if (validationError) {
@@ -39,6 +39,7 @@ const createMenu = async (req, res) => {
       prep_time: Number(prep_time) || 0,
       image,
       veg: Boolean(veg),
+      available: available !== false,
     });
 
     res.status(201).json(result.rows[0]);
@@ -50,7 +51,7 @@ const createMenu = async (req, res) => {
 
 const updateMenu = async (req, res) => {
   const { id } = req.params;
-  const { name, description, price, category, prep_time, image, veg } = req.body;
+  const { name, description, price, category, prep_time, image, veg, available } = req.body;
   const validationError = validateMenuPayload({ name, price, category });
 
   if (validationError) {
@@ -66,6 +67,7 @@ const updateMenu = async (req, res) => {
       prep_time: Number(prep_time) || 0,
       image,
       veg: Boolean(veg),
+      available: available !== false,
     });
 
     if (result.rows.length === 0) {
@@ -76,6 +78,28 @@ const updateMenu = async (req, res) => {
   } catch (err) {
     console.error(err);
     res.status(500).send("Errore aggiornamento piatto");
+  }
+};
+
+const updateAvailability = async (req, res) => {
+  const { id } = req.params;
+  const { available } = req.body;
+
+  if (typeof available !== "boolean") {
+    return res.status(400).send("Disponibilita' non valida");
+  }
+
+  try {
+    const result = await menuModel.updateMenuAvailability(id, available);
+
+    if (result.rows.length === 0) {
+      return res.status(404).send("Piatto non trovato");
+    }
+
+    res.json(result.rows[0]);
+  } catch (err) {
+    console.error(err);
+    res.status(500).send("Errore aggiornamento disponibilita'");
   }
 };
 
@@ -100,5 +124,6 @@ module.exports = {
   getMenu,
   createMenu,
   updateMenu,
+  updateAvailability,
   deleteMenu,
 };

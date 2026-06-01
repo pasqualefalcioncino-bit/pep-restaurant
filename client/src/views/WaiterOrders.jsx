@@ -1,14 +1,13 @@
 import { useEffect, useMemo, useState } from 'react';
 import { apiRequest } from '../api/client';
+import {
+  compareMenuCategory,
+  getOrderStatusLabel,
+  menuCategories,
+  sortByMenuCategory,
+} from '../utils/menuCatalog';
+import { getMenuImage } from '../utils/menuImages';
 import './WaiterOrders.css';
-
-const statusLabels = {
-  in_attesa: 'In attesa',
-  in_preparazione: 'In preparazione',
-  pronto: 'Pronto',
-  servito: 'Servito',
-  annullato: 'Annullato',
-};
 
 const formatTime = (dateValue) => {
   if (!dateValue) {
@@ -21,10 +20,24 @@ const formatTime = (dateValue) => {
   }).format(new Date(dateValue));
 };
 
+const formatDateTime = (dateValue) => {
+  if (!dateValue) {
+    return '-';
+  }
+
+  return new Intl.DateTimeFormat('it-IT', {
+    day: '2-digit',
+    month: '2-digit',
+    hour: '2-digit',
+    minute: '2-digit',
+  }).format(new Date(dateValue));
+};
+
 const WaiterOrders = () => {
   const [menuItems, setMenuItems] = useState([]);
   const [orders, setOrders] = useState([]);
   const [cartItems, setCartItems] = useState([]);
+  const [selectedOrderId, setSelectedOrderId] = useState(null);
   const [tableNumber, setTableNumber] = useState('');
   const [activeCategory, setActiveCategory] = useState('Tutti');
   const [searchTerm, setSearchTerm] = useState('');
@@ -57,33 +70,100 @@ const WaiterOrders = () => {
     };
 
     loadData();
+
+    const intervalId = window.setInterval(loadData, 5000);
+
+    return () => window.clearInterval(intervalId);
   }, []);
+
+  useEffect(() => {
+    if (!successMessage) {
+      return undefined;
+    }
+
+    const timeoutId = window.setTimeout(() => {
+      setSuccessMessage('');
+    }, 5000);
+
+    return () => window.clearTimeout(timeoutId);
+  }, [successMessage]);
 
   const categories = useMemo(() => {
     const uniqueCategories = [...new Set(menuItems.map((item) => item.category).filter(Boolean))];
 
-    return ['Tutti', ...uniqueCategories];
+    return [
+      'Tutti',
+      ...uniqueCategories.sort((currentCategory, nextCategory) => {
+        return compareMenuCategory(currentCategory, nextCategory);
+      }),
+    ];
   }, [menuItems]);
 
   const visibleMenuItems = useMemo(() => {
     const normalizedSearch = searchTerm.trim().toLowerCase();
 
-    return menuItems.filter((item) => {
-      const matchesCategory = activeCategory === 'Tutti' || item.category === activeCategory;
-      const matchesSearch =
-        !normalizedSearch ||
-        item.name.toLowerCase().includes(normalizedSearch) ||
-        (item.description || '').toLowerCase().includes(normalizedSearch);
+    return menuItems
+      .filter((item) => {
+        const matchesCategory = activeCategory === 'Tutti' || item.category === activeCategory;
+        const matchesSearch =
+          !normalizedSearch ||
+          item.name.toLowerCase().includes(normalizedSearch) ||
+          (item.description || '').toLowerCase().includes(normalizedSearch);
 
-      return matchesCategory && matchesSearch;
-    });
+        return matchesCategory && matchesSearch;
+      })
+      .sort(sortByMenuCategory);
   }, [activeCategory, menuItems, searchTerm]);
+
+  const groupedMenuItems = useMemo(() => {
+    return menuCategories
+      .map((category) => ({
+        category,
+        items: visibleMenuItems.filter((item) => item.category === category),
+      }))
+      .filter((group) => group.items.length > 0);
+  }, [visibleMenuItems]);
 
   const cartTotal = cartItems.reduce((total, item) => {
     return total + Number(item.price) * item.quantity;
   }, 0);
 
+  const recentOrders = useMemo(() => {
+    return orders
+      .filter((order) => !['servito', 'annullato'].includes(order.status))
+      .slice(0, 6);
+  }, [orders]);
+
+  const selectedOrder = useMemo(() => {
+    return orders.find((order) => order.id === selectedOrderId) || null;
+  }, [orders, selectedOrderId]);
+
+  const menuItemsById = useMemo(() => {
+    return Object.fromEntries(menuItems.map((item) => [item.id, item]));
+  }, [menuItems]);
+
+  const unavailableCartItems = useMemo(() => {
+    return cartItems.filter((item) => menuItemsById[item.menu_item_id]?.available === false);
+  }, [cartItems, menuItemsById]);
+
+  const selectedOrderTotal = useMemo(() => {
+    if (!selectedOrder) {
+      return 0;
+    }
+
+    return (selectedOrder.items || []).reduce((total, item) => {
+      const menuItem = menuItemsById[item.menu_item_id];
+      const itemPrice = Number(menuItem?.price) || 0;
+
+      return total + itemPrice * Number(item.quantity || 0);
+    }, 0);
+  }, [menuItemsById, selectedOrder]);
+
   const addItem = (menuItem) => {
+    if (menuItem.available === false) {
+      return;
+    }
+
     setCartItems((currentItems) => {
       const existingItem = currentItems.find((item) => item.menu_item_id === menuItem.id);
 
@@ -101,6 +181,7 @@ const WaiterOrders = () => {
           menu_item_id: menuItem.id,
           item_name: menuItem.name,
           category: menuItem.category,
+          image: menuItem.image,
           price: menuItem.price,
           quantity: 1,
           notes: '',
@@ -129,6 +210,12 @@ const WaiterOrders = () => {
 
   const submitOrder = async (event) => {
     event.preventDefault();
+
+    if (unavailableCartItems.length > 0) {
+      setErrorMessage('Rimuovi dal carrello i piatti non disponibili prima di inviare.');
+      return;
+    }
+
     setIsSubmitting(true);
     setErrorMessage('');
     setSuccessMessage('');
@@ -212,125 +299,280 @@ const WaiterOrders = () => {
             </div>
           </div>
 
-          <div className="waiter-menu-grid">
+          <div className="waiter-menu-sections">
             {visibleMenuItems.length === 0 ? (
               <p className="waiter-orders-state">Nessun piatto trovato.</p>
             ) : (
-              visibleMenuItems.map((item) => (
-                <article className="waiter-menu-item" key={item.id}>
-                  <div>
-                    <span>{item.category}</span>
-                    <h2>{item.name}</h2>
-                    <p>{item.description}</p>
+              groupedMenuItems.map((group) => (
+                <section className="waiter-menu-category-section" key={group.category}>
+                  <div className="waiter-menu-category-heading">
+                    <h2>{group.category}</h2>
                   </div>
-                  <div className="waiter-menu-item-footer">
-                    <strong>EUR {item.price}</strong>
-                    <button type="button" onClick={() => addItem(item)}>
-                      Aggiungi
-                    </button>
+
+                  <div className="waiter-menu-grid">
+                    {group.items.map((item) => {
+                      const menuImage = getMenuImage(item.image);
+
+                      return (
+                        <article
+                          className={`waiter-menu-item ${
+                            item.available === false ? 'unavailable' : ''
+                          }`}
+                          key={item.id}
+                        >
+                          <div className="waiter-menu-item-main">
+                            <div className="waiter-menu-item-image">
+                              {menuImage ? (
+                                <img src={menuImage} alt={item.name} />
+                              ) : (
+                                <span aria-hidden="true">{item.name.charAt(0)}</span>
+                              )}
+                            </div>
+                            <div>
+                              <span>{item.category}</span>
+                              <h2>{item.name}</h2>
+                              <p>{item.description}</p>
+                            </div>
+                          </div>
+                          <div className="waiter-menu-item-footer">
+                            <strong>EUR {item.price}</strong>
+                            <button
+                              type="button"
+                              onClick={() => addItem(item)}
+                              disabled={item.available === false}
+                            >
+                              {item.available === false ? 'Non disponibile' : 'Aggiungi'}
+                            </button>
+                          </div>
+                        </article>
+                      );
+                    })}
                   </div>
-                </article>
+                </section>
               ))
             )}
           </div>
         </div>
 
-        <form className="waiter-cart-panel" onSubmit={submitOrder}>
-          <div className="waiter-cart-header">
-            <h2>Nuovo ordine</h2>
-            <label htmlFor="waiter-table-number">
-              Tavolo
-              <input
-                id="waiter-table-number"
-                type="number"
-                min="1"
-                value={tableNumber}
-                onChange={(event) => setTableNumber(event.target.value)}
-                required
-              />
-            </label>
-          </div>
-
-          {cartItems.length === 0 ? (
-            <p className="waiter-cart-empty">Aggiungi almeno un piatto.</p>
-          ) : (
-            <div className="waiter-cart-items">
-              {cartItems.map((item) => (
-                <div className="waiter-cart-item" key={item.menu_item_id}>
-                  <div className="waiter-cart-item-top">
-                    <strong>{item.item_name}</strong>
-                    <button type="button" onClick={() => removeCartItem(item.menu_item_id)}>
-                      Rimuovi
-                    </button>
-                  </div>
-
-                  <div className="waiter-cart-controls">
-                    <label>
-                      Qta
-                      <input
-                        type="number"
-                        min="1"
-                        value={item.quantity}
-                        onChange={(event) =>
-                          updateCartItem(item.menu_item_id, {
-                            quantity: Math.max(1, Number(event.target.value) || 1),
-                          })
-                        }
-                      />
-                    </label>
-                    <label>
-                      Note
-                      <input
-                        type="text"
-                        value={item.notes}
-                        onChange={(event) =>
-                          updateCartItem(item.menu_item_id, { notes: event.target.value })
-                        }
-                        placeholder="Senza sale, allergie..."
-                      />
-                    </label>
-                  </div>
-                </div>
-              ))}
+        <div className="waiter-sidebar">
+          <form className="waiter-cart-panel" onSubmit={submitOrder}>
+            <div className="waiter-cart-header">
+              <h2>Nuovo ordine</h2>
+              <label htmlFor="waiter-table-number">
+                Tavolo
+                <input
+                  id="waiter-table-number"
+                  type="number"
+                  min="1"
+                  value={tableNumber}
+                  onChange={(event) => setTableNumber(event.target.value)}
+                  required
+                />
+              </label>
             </div>
-          )}
 
-          <div className="waiter-cart-footer">
-            <span>Totale indicativo</span>
-            <strong>EUR {cartTotal.toFixed(2)}</strong>
-          </div>
+            {cartItems.length === 0 ? (
+              <p className="waiter-cart-empty">Aggiungi almeno un piatto.</p>
+            ) : (
+              <div className="waiter-cart-items">
+                {cartItems.map((item) => {
+                  const cartImage = getMenuImage(item.image);
+                  const isUnavailable = menuItemsById[item.menu_item_id]?.available === false;
 
-          <button
-            className="waiter-submit-order"
-            type="submit"
-            disabled={isSubmitting || cartItems.length === 0}
-          >
-            {isSubmitting ? 'Invio ordine...' : 'Invia ordine'}
-          </button>
-        </form>
-      </div>
+                  return (
+                    <div
+                      className={`waiter-cart-item ${isUnavailable ? 'unavailable' : ''}`}
+                      key={item.menu_item_id}
+                    >
+                      <div className="waiter-cart-item-top">
+                        <div className="waiter-cart-dish">
+                          <div className="waiter-cart-dish-image">
+                            {cartImage ? (
+                              <img src={cartImage} alt={item.item_name} />
+                            ) : (
+                              <span aria-hidden="true">{item.item_name.charAt(0)}</span>
+                            )}
+                          </div>
+                          <div>
+                            <strong>{item.item_name}</strong>
+                            {isUnavailable && <span>Non disponibile</span>}
+                          </div>
+                        </div>
+                        <button type="button" onClick={() => removeCartItem(item.menu_item_id)}>
+                          Rimuovi
+                        </button>
+                      </div>
 
-      <div className="waiter-recent-orders">
-        <h2>Ordini recenti</h2>
-        {orders.length === 0 ? (
-          <p className="waiter-orders-state">Nessun ordine presente.</p>
-        ) : (
-          <div className="waiter-recent-grid">
-            {orders.slice(0, 6).map((order) => (
-              <article className="waiter-recent-card" key={order.id}>
-                <div>
-                  <strong>Tavolo {order.table_number}</strong>
-                  <span>Ordine #{order.id}</span>
+                      <div className="waiter-cart-controls">
+                        <label>
+                          Qta
+                          <input
+                            type="number"
+                            min="1"
+                            value={item.quantity}
+                            onChange={(event) =>
+                              updateCartItem(item.menu_item_id, {
+                                quantity: Math.max(1, Number(event.target.value) || 1),
+                              })
+                            }
+                          />
+                        </label>
+                        <label>
+                          Note
+                          <input
+                            type="text"
+                            value={item.notes}
+                            onChange={(event) =>
+                              updateCartItem(item.menu_item_id, { notes: event.target.value })
+                            }
+                            placeholder="Senza sale, allergie..."
+                          />
+                        </label>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            )}
+
+            <div className="waiter-cart-footer">
+              <span>Totale indicativo</span>
+              <strong>EUR {cartTotal.toFixed(2)}</strong>
+            </div>
+
+            {unavailableCartItems.length > 0 && (
+              <p className="waiter-cart-warning">
+                Rimuovi i piatti non disponibili per inviare l'ordine.
+              </p>
+            )}
+
+            <button
+              className="waiter-submit-order"
+              type="submit"
+              disabled={isSubmitting || cartItems.length === 0 || unavailableCartItems.length > 0}
+            >
+              {isSubmitting ? 'Invio ordine...' : 'Invia ordine'}
+            </button>
+          </form>
+
+          <section className="waiter-recent-orders" aria-labelledby="waiter-recent-title">
+            <h2 id="waiter-recent-title">Ordini recenti</h2>
+            {recentOrders.length === 0 ? (
+              <p className="waiter-recent-empty">Nessun ordine presente.</p>
+            ) : (
+              <>
+                <div className="waiter-recent-grid">
+                  {recentOrders.map((order) => (
+                    <button
+                      className={`waiter-recent-card ${
+                        selectedOrderId === order.id ? 'active' : ''
+                      } status-${order.status}`}
+                      key={order.id}
+                      type="button"
+                      onClick={() => setSelectedOrderId(order.id)}
+                      aria-haspopup="dialog"
+                    >
+                      <div className="waiter-recent-main">
+                        <strong>Tavolo {order.table_number}</strong>
+                        <span>Ordine #{order.id}</span>
+                        <small>{formatTime(order.created_at)}</small>
+                      </div>
+                      <span className={`waiter-order-status status-${order.status}`}>
+                        {getOrderStatusLabel(order.status)}
+                      </span>
+                    </button>
+                  ))}
                 </div>
-                <span className={`waiter-order-status status-${order.status}`}>
-                  {statusLabels[order.status] || order.status}
-                </span>
-                <small>{formatTime(order.created_at)}</small>
-              </article>
-            ))}
-          </div>
-        )}
+              </>
+            )}
+          </section>
+        </div>
       </div>
+
+      {selectedOrder && (
+        <div className="confirm-delete-backdrop" role="presentation">
+          <div
+            className="waiter-receipt-modal"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="waiter-receipt-title"
+          >
+            <div className="waiter-receipt-header">
+              <div>
+                <span>Riepilogo ordine</span>
+                <h2 id="waiter-receipt-title">Scontrino #{selectedOrder.id}</h2>
+              </div>
+              <button type="button" onClick={() => setSelectedOrderId(null)}>
+                Chiudi
+              </button>
+            </div>
+
+            <div className="waiter-receipt-meta">
+              <div>
+                <span>Tavolo</span>
+                <strong>{selectedOrder.table_number || '-'}</strong>
+              </div>
+              <div>
+                <span>Data</span>
+                <strong>{formatDateTime(selectedOrder.created_at)}</strong>
+              </div>
+              <div>
+                <span>Stato</span>
+                <strong>
+                  <span className={`waiter-order-status status-${selectedOrder.status}`}>
+                    {getOrderStatusLabel(selectedOrder.status)}
+                  </span>
+                </strong>
+              </div>
+            </div>
+
+            <div className="waiter-receipt-items">
+              {(selectedOrder.items || []).length === 0 ? (
+                <p>Nessun dettaglio piatto disponibile.</p>
+              ) : (
+                [...selectedOrder.items].sort(sortByMenuCategory).map((item) => {
+                  const menuItem = menuItemsById[item.menu_item_id];
+                  const itemImage = getMenuImage(menuItem?.image);
+                  const itemPrice = Number(menuItem?.price) || 0;
+                  const itemQuantity = Number(item.quantity) || 0;
+                  const rowTotal = itemPrice * itemQuantity;
+
+                  return (
+                    <div
+                      className={`waiter-receipt-item ${item.status === 'ready' ? 'ready' : ''}`}
+                      key={item.id}
+                    >
+                      <div className="waiter-receipt-item-image">
+                        {itemImage ? (
+                          <img src={itemImage} alt={item.item_name} />
+                        ) : (
+                          <span aria-hidden="true">{item.item_name.charAt(0)}</span>
+                        )}
+                      </div>
+                      <div className="waiter-receipt-item-body">
+                        <strong>{item.item_name}</strong>
+                        <span>{item.category || 'Senza categoria'}</span>
+                        {item.notes && <small>Note: {item.notes}</small>}
+                      </div>
+                      <div className="waiter-receipt-item-price">
+                        <span>
+                          {itemQuantity} x EUR {itemPrice.toFixed(2)}
+                        </span>
+                        <strong>EUR {rowTotal.toFixed(2)}</strong>
+                      </div>
+                    </div>
+                  );
+                })
+              )}
+            </div>
+
+            <div className="waiter-receipt-total">
+              <span>Totale conto</span>
+              <strong>EUR {selectedOrderTotal.toFixed(2)}</strong>
+            </div>
+          </div>
+        </div>
+      )}
     </section>
   );
 };

@@ -7,15 +7,6 @@
   margin-bottom: 28px;
 }
 
-.admin-bookings-kicker {
-  display: block;
-  margin-bottom: 8px;
-  color: var(--gold-primary);
-  font-size: 0.82rem;
-  font-weight: 800;
-  letter-spacing: 0.08em;
-}
-
 .admin-bookings-header h1 {
   margin: 0 0 10px;
   color: var(--text-white);

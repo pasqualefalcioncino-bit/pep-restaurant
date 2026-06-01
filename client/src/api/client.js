@@ -1,4 +1,4 @@
-const API_URL = 'http://localhost:3000';
+export const API_URL = 'http://localhost:3000';
 const AUTH_TOKEN_KEY = 'pep_auth_token';
 const AUTH_USER_KEY = 'pep_auth_user';
 

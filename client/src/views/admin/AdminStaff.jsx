@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { apiRequest, getAuthUser } from '../../api/client';
 import AdminSearchToolbar from '../../components/admin/AdminSearchToolbar';
 import ConfirmDeleteModal from '../../components/admin/ConfirmDeleteModal';
+import { getRoleAvatar } from '../../utils/roleAvatars';
 import './AdminStaff.css';
 
 const AdminStaff = () => {
@@ -76,7 +77,6 @@ const AdminStaff = () => {
   return (
     <section className="admin-staff-page" aria-labelledby="admin-staff-title">
       <div className="admin-staff-header">
-        <span className="admin-staff-kicker">ADMIN</span>
         <h1 id="admin-staff-title">Staff</h1>
         <p>{staffMembers.length} membri staff presenti nel database.</p>
       </div>
@@ -112,7 +112,12 @@ const AdminStaff = () => {
                   {filteredStaffMembers.map((member) => (
                     <tr key={member.id}>
                       <td>
-                        <strong>{member.name}</strong>
+                        <div className="admin-staff-person">
+                          {getRoleAvatar(member.role) && (
+                            <img src={getRoleAvatar(member.role)} alt={`Avatar ${member.role}`} />
+                          )}
+                          <strong>{member.name}</strong>
+                        </div>
                       </td>
                       <td>{member.email}</td>
                       <td>

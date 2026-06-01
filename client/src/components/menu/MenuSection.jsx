@@ -1,16 +1,10 @@
 import { useMemo, useState } from 'react';
+import { compareMenuCategory, menuCategories } from '../../utils/menuCatalog';
 import { getMenuImage } from '../../utils/menuImages';
 import MenuCard from './MenuCard';
 import './MenuSection.css';
 
-const categories = ['Tutti', 'Antipasti', 'Primi', 'Secondi', 'Dolci', 'Vini'];
-const categoryOrder = {
-  Antipasti: 1,
-  Primi: 2,
-  Secondi: 3,
-  Dolci: 4,
-  Vini: 5,
-};
+const categories = ['Tutti', ...menuCategories];
 
 const MenuSection = ({ piatti }) => {
   const [activeCategory, setActiveCategory] = useState('Tutti');
@@ -33,20 +27,32 @@ const MenuSection = ({ piatti }) => {
         return matchesCategory && matchesVeg && matchesSearch;
       })
       .sort((currentPiatto, nextPiatto) => {
-        if (activeCategory !== 'Tutti') {
-          return 0;
+        const categoryComparison = compareMenuCategory(
+          currentPiatto.categoria,
+          nextPiatto.categoria
+        );
+
+        if (categoryComparison !== 0) {
+          return categoryComparison;
         }
 
-        return (
-          (categoryOrder[currentPiatto.categoria] || 99) -
-          (categoryOrder[nextPiatto.categoria] || 99)
-        );
+        return currentPiatto.nome.localeCompare(nextPiatto.nome, 'it');
       })
       .map((piatto) => ({
         ...piatto,
         immagine: getMenuImage(piatto.immagine),
       }));
   }, [activeCategory, piatti, searchTerm, showVegOnly]);
+
+  const groupedPiatti = useMemo(() => {
+    return categories
+      .filter((category) => category !== 'Tutti')
+      .map((category) => ({
+        category,
+        piatti: filteredPiatti.filter((piatto) => piatto.categoria === category),
+      }))
+      .filter((group) => group.piatti.length > 0);
+  }, [filteredPiatti]);
 
   return (
     <section className="menu-section" aria-labelledby="menu-title">
@@ -94,9 +100,21 @@ const MenuSection = ({ piatti }) => {
         </div>
       </div>
 
-      <div className="menu-grid">
-        {filteredPiatti.map((piatto) => (
-          <MenuCard key={piatto.id} piatto={piatto} />
+      <div className="menu-category-sections">
+        {groupedPiatti.map((group) => (
+          <section className="menu-category-section" key={group.category}>
+            <div className="menu-category-heading">
+              <div>
+                <h2>{group.category}</h2>
+              </div>
+            </div>
+
+            <div className="menu-grid">
+              {group.piatti.map((piatto) => (
+                <MenuCard key={piatto.id} piatto={piatto} />
+              ))}
+            </div>
+          </section>
         ))}
       </div>
 

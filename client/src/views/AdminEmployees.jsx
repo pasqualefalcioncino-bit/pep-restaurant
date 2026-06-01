@@ -51,7 +51,6 @@ const AdminEmployees = () => {
   return (
     <section className="admin-employees-page" aria-labelledby="admin-employees-title">
       <div className="admin-employees-header">
-        <span className="admin-employees-kicker">ADMIN</span>
         <h1 id="admin-employees-title">Crea Utenza Dipendente</h1>
         <p>Gli account creati qui possono accedere alle aree dedicate al proprio ruolo.</p>
       </div>

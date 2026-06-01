@@ -97,16 +97,124 @@ const getOrderById = (id) => {
 
 // aggiornare stato ordine
 const updateStatus = async (id, status) => {
-  const result = await pool.query(
-    "UPDATE orders SET status=$1 WHERE id=$2 RETURNING id",
-    [status, id]
-  );
+  const itemStatusByOrderStatus = {
+    in_attesa: "pending",
+    in_preparazione: "preparing",
+    pronto: "ready",
+    servito: "served",
+    annullato: "cancelled",
+  };
+  const client = await pool.connect();
 
-  if (result.rows.length === 0) {
-    return { rows: [] };
+  try {
+    await client.query("BEGIN");
+
+    const result = await client.query(
+      "UPDATE orders SET status=$1 WHERE id=$2 RETURNING id",
+      [status, id]
+    );
+
+    if (result.rows.length === 0) {
+      await client.query("ROLLBACK");
+      return { rows: [] };
+    }
+
+    await client.query(
+      "UPDATE order_items SET status=$1 WHERE order_id=$2",
+      [itemStatusByOrderStatus[status], id]
+    );
+
+    await client.query("COMMIT");
+
+    return getOrderById(id);
+  } catch (err) {
+    await client.query("ROLLBACK");
+    throw err;
+  } finally {
+    client.release();
+  }
+};
+
+const markOrderItemReady = async (orderId, itemId) => {
+  const client = await pool.connect();
+
+  try {
+    await client.query("BEGIN");
+
+    const orderResult = await client.query(
+      "SELECT id, status FROM orders WHERE id=$1",
+      [orderId]
+    );
+
+    if (orderResult.rows.length === 0) {
+      await client.query("ROLLBACK");
+      return { rows: [] };
+    }
+
+    if (!["in_attesa", "in_preparazione"].includes(orderResult.rows[0].status)) {
+      await client.query("ROLLBACK");
+      return {
+        rows: [],
+        reason: "ORDER_NOT_MARKABLE",
+      };
+    }
+
+    const itemResult = await client.query(
+      `UPDATE order_items
+       SET status='ready'
+       WHERE id=$1 AND order_id=$2
+       RETURNING id`,
+      [itemId, orderId]
+    );
+
+    if (itemResult.rows.length === 0) {
+      await client.query("ROLLBACK");
+      return { rows: [] };
+    }
+
+    const countResult = await client.query(
+      `SELECT
+        COUNT(*)::int AS total_items,
+        COUNT(*) FILTER (WHERE status='ready')::int AS ready_items
+       FROM order_items
+       WHERE order_id=$1`,
+      [orderId]
+    );
+    const counts = countResult.rows[0];
+
+    if (counts.total_items > 0 && counts.total_items === counts.ready_items) {
+      await client.query(
+        "UPDATE orders SET status='pronto' WHERE id=$1",
+        [orderId]
+      );
+    }
+
+    await client.query("COMMIT");
+
+    return getOrderById(orderId);
+  } catch (err) {
+    await client.query("ROLLBACK");
+    throw err;
+  } finally {
+    client.release();
+  }
+};
+
+const deleteOrdersByStatusAndDate = async (status, date) => {
+  const params = [status];
+  let dateFilter = "";
+
+  if (date) {
+    params.push(date);
+    dateFilter = " AND created_at::date=$2::date";
   }
 
-  return getOrderById(id);
+  return await pool.query(
+    `DELETE FROM orders
+     WHERE status=$1${dateFilter}
+     RETURNING id`,
+    params
+  );
 };
 
 module.exports = {
@@ -114,4 +222,6 @@ module.exports = {
   getAllOrders,
   getOrderById,
   updateStatus,
+  markOrderItemReady,
+  deleteOrdersByStatusAndDate,
 };

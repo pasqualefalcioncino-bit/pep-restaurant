@@ -30,7 +30,6 @@ const staticPages = {
   'mie-prenotazioni': <CustomerBookings />,
   'admin-prenotazioni': <AdminBookings />,
   'admin-dipendenti': <AdminEmployees />,
-  'admin-dashboard': <AdminDashboard />,
   'admin-menu': <AdminMenu />,
   'admin-tavoli': <AdminTables />,
   'admin-clienti': <AdminCustomers />,
@@ -136,6 +135,10 @@ function App() {
 
   if (page === 'eventi') {
     content = <Eventi onBookEvent={startEventBooking} />;
+  }
+
+  if (page === 'admin-dashboard') {
+    content = <AdminDashboard onNavigate={navigateTo} />;
   }
 
   const showAdminSidebar = currentUser?.role === 'admin';

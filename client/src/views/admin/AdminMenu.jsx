@@ -1,32 +1,39 @@
-import { useEffect, useMemo, useState } from 'react';
-import { apiRequest } from '../../api/client';
-import AdminSearchToolbar from '../../components/admin/AdminSearchToolbar';
+import { useEffect, useMemo, useRef, useState } from 'react';
+import { API_URL, apiRequest, getAuthToken } from '../../api/client';
 import ConfirmDeleteModal from '../../components/admin/ConfirmDeleteModal';
+import { menuCategories } from '../../utils/menuCatalog';
+import { getMenuImage } from '../../utils/menuImages';
 import './AdminMenu.css';
 
 const emptyForm = {
   name: '',
   description: '',
   price: '',
-  category: 'Primi',
+  category: '',
   prep_time: '',
   image: '',
   veg: false,
+  available: true,
 };
 
-const categories = ['Antipasti', 'Primi', 'Secondi', 'Dolci', 'Vini'];
+const filterCategories = ['Tutti', ...menuCategories];
+const allowedImageTypes = ['image/png', 'image/jpeg', 'image/webp', 'image/avif'];
 
 const AdminMenu = () => {
   const [menuItems, setMenuItems] = useState([]);
   const [formData, setFormData] = useState(emptyForm);
   const [editingItemId, setEditingItemId] = useState(null);
   const [searchTerm, setSearchTerm] = useState('');
+  const [activeCategory, setActiveCategory] = useState('Tutti');
+  const [showVegOnly, setShowVegOnly] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isUploadingImage, setIsUploadingImage] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
   const [successMessage, setSuccessMessage] = useState('');
   const [itemToDelete, setItemToDelete] = useState(null);
   const [deletingItemId, setDeletingItemId] = useState(null);
+  const imageInputRef = useRef(null);
 
   const loadMenu = async () => {
     try {
@@ -46,18 +53,18 @@ const AdminMenu = () => {
   const filteredMenuItems = useMemo(() => {
     const normalizedSearch = searchTerm.trim().toLowerCase();
 
-    if (!normalizedSearch) {
-      return menuItems;
-    }
-
     return menuItems.filter((item) => {
-      return (
+      const matchesCategory = activeCategory === 'Tutti' || item.category === activeCategory;
+      const matchesVeg = !showVegOnly || item.veg;
+      const matchesSearch =
+        !normalizedSearch ||
         item.name.toLowerCase().includes(normalizedSearch) ||
         item.category.toLowerCase().includes(normalizedSearch) ||
-        (item.description || '').toLowerCase().includes(normalizedSearch)
-      );
+        (item.description || '').toLowerCase().includes(normalizedSearch);
+
+      return matchesCategory && matchesVeg && matchesSearch;
     });
-  }, [menuItems, searchTerm]);
+  }, [activeCategory, menuItems, searchTerm, showVegOnly]);
 
   const updateField = (field, value) => {
     setFormData((currentData) => ({
@@ -81,14 +88,61 @@ const AdminMenu = () => {
       name: item.name || '',
       description: item.description || '',
       price: item.price || '',
-      category: item.category || 'Primi',
+      category: item.category || '',
       prep_time: item.prep_time || '',
       image: item.image || '',
       veg: Boolean(item.veg),
+      available: item.available !== false,
     });
     setErrorMessage('');
     setSuccessMessage('');
     window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  const uploadMenuImage = async (event) => {
+    const file = event.target.files?.[0];
+
+    if (!file) {
+      return;
+    }
+
+    if (!allowedImageTypes.includes(file.type)) {
+      setErrorMessage('Puoi caricare solo immagini PNG, JPG, WEBP o AVIF.');
+      setSuccessMessage('');
+      event.target.value = '';
+      return;
+    }
+
+    const uploadData = new FormData();
+    uploadData.append('image', file);
+    setIsUploadingImage(true);
+    setErrorMessage('');
+    setSuccessMessage('');
+
+    try {
+      const token = getAuthToken();
+      const response = await fetch(`${API_URL}/menu/upload-image`, {
+        method: 'POST',
+        headers: {
+          ...(token ? { Authorization: `Bearer ${token}` } : {}),
+        },
+        body: uploadData,
+      });
+
+      if (!response.ok) {
+        const errorText = await response.text();
+        throw new Error(errorText || 'Errore caricamento immagine');
+      }
+
+      const data = await response.json();
+      updateField('image', data.fileName);
+      setSuccessMessage(`Immagine "${data.fileName}" caricata.`);
+    } catch (error) {
+      setErrorMessage(error.message);
+    } finally {
+      setIsUploadingImage(false);
+      event.target.value = '';
+    }
   };
 
   const submitMenuItem = async (event) => {
@@ -170,7 +224,6 @@ const AdminMenu = () => {
   return (
     <section className="admin-menu-page" aria-labelledby="admin-menu-title">
       <div className="admin-menu-header">
-        <span className="admin-menu-kicker">ADMIN</span>
         <h1 id="admin-menu-title">Gestione Menu</h1>
         <p>{menuItems.length} piatti presenti nel database.</p>
       </div>
@@ -204,8 +257,10 @@ const AdminMenu = () => {
             <select
               value={formData.category}
               onChange={(event) => updateField('category', event.target.value)}
+              required
             >
-              {categories.map((category) => (
+              <option value="" disabled aria-label="Categoria non selezionata" />
+              {menuCategories.map((category) => (
                 <option key={category} value={category}>
                   {category}
                 </option>
@@ -236,16 +291,33 @@ const AdminMenu = () => {
           </label>
 
           <label>
-            Nome file immagine
-            <input
-              type="text"
-              value={formData.image}
-              onChange={(event) => updateField('image', event.target.value)}
-              placeholder="risotto-allo-zafferano.webp"
-            />
+            Immagine piatto
+            <div className="admin-menu-image-field">
+              <input
+                type="text"
+                value={formData.image}
+                placeholder=""
+                readOnly
+              />
+              <button
+                type="button"
+                onClick={() => imageInputRef.current?.click()}
+                disabled={isUploadingImage}
+                aria-label="Carica immagine piatto"
+              >
+                {isUploadingImage ? '...' : '+'}
+              </button>
+              <input
+                ref={imageInputRef}
+                className="admin-menu-file-input"
+                type="file"
+                accept="image/png,image/jpeg,image/webp,image/avif"
+                onChange={uploadMenuImage}
+              />
+            </div>
           </label>
 
-          <label className="admin-menu-check">
+          <label className={`admin-menu-check ${formData.veg ? 'active' : ''}`}>
             <input
               type="checkbox"
               checked={formData.veg}
@@ -269,13 +341,40 @@ const AdminMenu = () => {
         </button>
       </form>
 
-      <AdminSearchToolbar
-        id="admin-menu-search"
-        placeholder="Nome, categoria o descrizione"
-        value={searchTerm}
-        onChange={setSearchTerm}
-        resultsCount={filteredMenuItems.length}
-      />
+      <div className="admin-menu-toolbar">
+        <label className="admin-menu-search-field" htmlFor="admin-menu-search">
+          <input
+            id="admin-menu-search"
+            type="search"
+            value={searchTerm}
+            onChange={(event) => setSearchTerm(event.target.value)}
+            placeholder="Nome, categoria o descrizione"
+          />
+        </label>
+
+        <div className="admin-menu-filters" aria-label="Filtri menu admin">
+          <div className="admin-menu-filter-group" aria-label="Filtra per categoria">
+            {filterCategories.map((category) => (
+              <button
+                key={category}
+                className={activeCategory === category ? 'active' : ''}
+                type="button"
+                onClick={() => setActiveCategory(category)}
+              >
+                {category}
+              </button>
+            ))}
+          </div>
+
+          <button
+            className={`admin-menu-veg-filter ${showVegOnly ? 'active' : ''}`}
+            type="button"
+            onClick={() => setShowVegOnly((currentValue) => !currentValue)}
+          >
+            Solo veg
+          </button>
+        </div>
+      </div>
 
       {filteredMenuItems.length === 0 ? (
         <p className="admin-menu-state">Nessun piatto trovato.</p>
@@ -294,34 +393,49 @@ const AdminMenu = () => {
               </tr>
             </thead>
             <tbody>
-              {filteredMenuItems.map((item) => (
-                <tr key={item.id}>
-                  <td>
-                    <strong>{item.name}</strong>
-                    <small>{item.description || '-'}</small>
-                  </td>
-                  <td>{item.category}</td>
-                  <td>EUR {Number(item.price).toFixed(2)}</td>
-                  <td>{item.prep_time || 0} min</td>
-                  <td>{item.image || '-'}</td>
-                  <td>{item.veg ? 'Si' : 'No'}</td>
-                  <td>
-                    <div className="admin-menu-actions">
-                      <button type="button" onClick={() => startEdit(item)}>
-                        Modifica
-                      </button>
-                      <button
-                        className="danger"
-                        type="button"
-                        onClick={() => setItemToDelete(item)}
-                        disabled={deletingItemId === item.id}
-                      >
-                        {deletingItemId === item.id ? 'Elimino...' : 'Elimina'}
-                      </button>
-                    </div>
-                  </td>
-                </tr>
-              ))}
+              {filteredMenuItems.map((item) => {
+                const menuImage = getMenuImage(item.image);
+
+                return (
+                  <tr key={item.id}>
+                    <td>
+                      <div className="admin-menu-dish">
+                        <div className="admin-menu-dish-image">
+                          {menuImage ? (
+                            <img src={menuImage} alt={item.name} />
+                          ) : (
+                            <span aria-hidden="true">{item.name.charAt(0)}</span>
+                          )}
+                        </div>
+                        <div>
+                          <strong>{item.name}</strong>
+                          <small>{item.description || '-'}</small>
+                        </div>
+                      </div>
+                    </td>
+                    <td>{item.category}</td>
+                    <td>EUR {Number(item.price).toFixed(2)}</td>
+                    <td>{item.prep_time || 0} min</td>
+                    <td>{item.image || '-'}</td>
+                    <td>{item.veg ? 'Si' : 'No'}</td>
+                    <td>
+                      <div className="admin-menu-actions">
+                        <button type="button" onClick={() => startEdit(item)}>
+                          Modifica
+                        </button>
+                        <button
+                          className="danger"
+                          type="button"
+                          onClick={() => setItemToDelete(item)}
+                          disabled={deletingItemId === item.id}
+                        >
+                          {deletingItemId === item.id ? 'Elimino...' : 'Elimina'}
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                );
+              })}
             </tbody>
           </table>
         </div>

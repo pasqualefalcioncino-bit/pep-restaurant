@@ -7,15 +7,6 @@
   margin-bottom: 28px;
 }
 
-.admin-employees-kicker {
-  display: block;
-  margin-bottom: 8px;
-  color: var(--gold-primary);
-  font-size: 0.82rem;
-  font-weight: 800;
-  letter-spacing: 0.08em;
-}
-
 .admin-employees-header h1 {
   margin: 0 0 10px;
   color: var(--text-white);
@@ -56,6 +47,25 @@
   background: #080808;
   color: var(--text-white);
   font: inherit;
+}
+
+.admin-employees-field select {
+  appearance: none;
+  padding-right: 40px;
+  background-image:
+    linear-gradient(45deg, transparent 50%, var(--gold-primary) 50%),
+    linear-gradient(135deg, var(--gold-primary) 50%, transparent 50%);
+  background-position:
+    calc(100% - 20px) 50%,
+    calc(100% - 14px) 50%;
+  background-repeat: no-repeat;
+  background-size: 6px 6px;
+}
+
+.admin-employees-field input:focus,
+.admin-employees-field select:focus {
+  outline: none;
+  border-color: var(--gold-primary);
 }
 
 .admin-employees-message {
