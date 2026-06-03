@@ -107,6 +107,7 @@
 
 .waiter-search-field input,
 .waiter-cart-header input,
+.waiter-cart-header select,
 .waiter-cart-controls input {
   width: 100%;
   box-sizing: border-box;
@@ -116,6 +117,10 @@
   background: #080808;
   color: var(--text-white);
   font: inherit;
+}
+
+.waiter-cart-header select option {
+  color: #1f1a17;
 }
 
 .waiter-category-tabs {

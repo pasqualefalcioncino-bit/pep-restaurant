@@ -24,6 +24,14 @@ exports.createOrder = async (req, res) => {
   try {
     const result = await orderModel.createOrder(tableNumber, "in_attesa", items);
 
+    if (result.reason === "TABLE_NOT_FOUND") {
+      return res.status(404).send("Tavolo non trovato");
+    }
+
+    if (result.reason === "TABLE_NOT_AVAILABLE") {
+      return res.status(409).send("Il tavolo selezionato non e' disponibile");
+    }
+
     res.status(201).json(result.rows[0]);
   } catch (err) {
     res.status(500).send("Errore creazione ordine");

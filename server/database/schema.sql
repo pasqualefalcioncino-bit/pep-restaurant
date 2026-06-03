@@ -53,10 +53,22 @@ CREATE TABLE bookings (
   booking_date DATE NOT NULL,
   booking_time TIME NOT NULL,
   guests INT NOT NULL,
+  table_number INT,
   occasion VARCHAR(50),
   special_requests TEXT,
   event_title VARCHAR(100),
   status VARCHAR(20) DEFAULT 'in_attesa',
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- RESTAURANT TABLES TABLE
+CREATE TABLE restaurant_tables (
+  id SERIAL PRIMARY KEY,
+  table_number INT UNIQUE NOT NULL,
+  seats INT NOT NULL,
+  area VARCHAR(50),
+  status VARCHAR(20) DEFAULT 'libero',
+  notes TEXT,
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
@@ -94,6 +106,18 @@ CHECK (
     'in_attesa',
     'confermata',
     'annullata'
+  )
+);
+
+-- RESTAURANT TABLE STATUS CONSTRAINT
+ALTER TABLE restaurant_tables
+ADD CONSTRAINT restaurant_tables_status_check
+CHECK (
+  status IN (
+    'libero',
+    'occupato',
+    'prenotato',
+    'in_pulizia'
   )
 );
 
@@ -147,3 +171,20 @@ ON CONFLICT (id) DO UPDATE SET
   veg = EXCLUDED.veg;
 
 SELECT setval('menu_items_id_seq', (SELECT MAX(id) FROM menu_items));
+
+-- DEFAULT RESTAURANT TABLES
+INSERT INTO restaurant_tables (table_number, seats, area, status, notes)
+VALUES
+  (1, 2, 'Sala principale', 'libero', NULL),
+  (2, 2, 'Sala principale', 'libero', NULL),
+  (3, 4, 'Sala principale', 'libero', NULL),
+  (4, 4, 'Sala principale', 'libero', NULL),
+  (5, 6, 'Sala principale', 'libero', NULL),
+  (6, 2, 'Veranda', 'libero', NULL),
+  (7, 4, 'Veranda', 'libero', NULL),
+  (8, 6, 'Veranda', 'libero', NULL)
+ON CONFLICT (table_number) DO UPDATE SET
+  seats = EXCLUDED.seats,
+  area = EXCLUDED.area,
+  status = EXCLUDED.status,
+  notes = EXCLUDED.notes;

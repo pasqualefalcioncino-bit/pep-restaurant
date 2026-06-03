@@ -41,7 +41,7 @@
 
 .admin-bookings-table {
   width: 100%;
-  min-width: 980px;
+  min-width: 1120px;
   border-collapse: collapse;
 }
 
@@ -79,8 +79,9 @@
   border-bottom: none;
 }
 
-.admin-bookings-status-select {
-  width: 130px;
+.admin-bookings-status-select,
+.admin-bookings-table-select {
+  width: 140px;
   padding: 5px 9px;
   border: 1px solid rgba(212, 163, 115, 0.35);
   border-radius: 8px;
@@ -89,7 +90,17 @@
   font: inherit;
 }
 
-.admin-bookings-status-select:disabled {
+.admin-bookings-table-select {
+  width: 210px;
+}
+
+.admin-bookings-status-select option,
+.admin-bookings-table-select option {
+  color: #1f1a17;
+}
+
+.admin-bookings-status-select:disabled,
+.admin-bookings-table-select:disabled {
   cursor: not-allowed;
   opacity: 0.7;
 }

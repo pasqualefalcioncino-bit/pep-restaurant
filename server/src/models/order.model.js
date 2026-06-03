@@ -7,6 +7,27 @@ const createOrder = async (table_number, status = "in_attesa", items = []) => {
   try {
     await client.query("BEGIN");
 
+    const tableResult = await client.query(
+      "SELECT id, status FROM restaurant_tables WHERE table_number=$1",
+      [table_number]
+    );
+
+    if (tableResult.rows.length === 0) {
+      await client.query("ROLLBACK");
+      return {
+        rows: [],
+        reason: "TABLE_NOT_FOUND",
+      };
+    }
+
+    if (tableResult.rows[0].status === "in_pulizia") {
+      await client.query("ROLLBACK");
+      return {
+        rows: [],
+        reason: "TABLE_NOT_AVAILABLE",
+      };
+    }
+
     const orderResult = await client.query(
       "INSERT INTO orders (table_number, status) VALUES ($1,$2) RETURNING *",
       [table_number, status]
@@ -29,6 +50,11 @@ const createOrder = async (table_number, status = "in_attesa", items = []) => {
         ]
       );
     }
+
+    await client.query(
+      "UPDATE restaurant_tables SET status='occupato' WHERE table_number=$1",
+      [table_number]
+    );
 
     await client.query("COMMIT");
 
@@ -119,10 +145,27 @@ const updateStatus = async (id, status) => {
       return { rows: [] };
     }
 
+    const orderResult = await client.query(
+      "SELECT table_number FROM orders WHERE id=$1",
+      [id]
+    );
+    const tableNumber = orderResult.rows[0]?.table_number;
+
     await client.query(
       "UPDATE order_items SET status=$1 WHERE order_id=$2",
       [itemStatusByOrderStatus[status], id]
     );
+
+    if (tableNumber) {
+      const tableStatus = ["servito", "annullato"].includes(status)
+        ? "libero"
+        : "occupato";
+
+      await client.query(
+        "UPDATE restaurant_tables SET status=$1 WHERE table_number=$2",
+        [tableStatus, tableNumber]
+      );
+    }
 
     await client.query("COMMIT");
 

@@ -53,7 +53,7 @@ Questo file centralizza la base URL del backend e aggiunge automaticamente il to
 - Visualizzazione menu.
 - Ricerca e filtro dei piatti.
 - Menu diviso per categorie con foto dei piatti.
-- Creazione ordine per tavolo.
+- Creazione ordine selezionando un tavolo reale.
 - Aggiunta di piatti, quantita e note per la cucina.
 - Visualizzazione degli ordini recenti con riepilogo, stato e piatti pronti.
 
@@ -68,10 +68,12 @@ Questo file centralizza la base URL del backend e aggiunge automaticamente il to
 
 ### Admin
 
-- Dashboard con statistiche reali.
+- Dashboard con statistiche reali su prenotazioni, ordini, tavoli, utenti e menu.
 - Riepilogo ordini attivi con popup dettaglio.
 - Gestione prenotazioni.
+- Assegnazione tavoli alle prenotazioni confermate.
 - Gestione menu: creazione, modifica, eliminazione piatti, immagini e disponibilita.
+- Gestione tavoli: creazione, modifica, stato sala ed eliminazione.
 - Creazione utenze dipendente.
 - Visualizzazione ed eliminazione clienti.
 - Visualizzazione ed eliminazione staff.
@@ -231,6 +233,16 @@ Gli account `cameriere`, `cuoco` e altri `admin` possono essere creati dall'area
 | PATCH | `/orders/:orderId/items/:itemId/ready` | Cuoco | Segna una portata pronta |
 | DELETE | `/orders` | Cuoco | Elimina ordini per stato e data |
 
+### Tavoli
+
+| Metodo | Endpoint | Accesso | Descrizione |
+| --- | --- | --- | --- |
+| GET | `/tables` | Admin, cameriere | Lista tavoli |
+| POST | `/tables` | Admin | Crea tavolo |
+| PUT | `/tables/:id` | Admin | Modifica tavolo |
+| PATCH | `/tables/:id/status` | Admin, cameriere | Aggiorna stato tavolo |
+| DELETE | `/tables/:id` | Admin | Elimina tavolo |
+
 ## Database
 
 Tabelle principali:
@@ -241,11 +253,16 @@ menu_items
 bookings
 orders
 order_items
+restaurant_tables
 ```
 
 La tabella `menu_items` contiene anche il campo `available`, usato per nascondere o bloccare i piatti non disponibili.
 
 La tabella `order_items` mantiene lo stato della singola portata, cosi il cuoco puo segnare un piatto come pronto senza chiudere subito tutto l'ordine.
+
+La tabella `restaurant_tables` contiene i tavoli fisici del ristorante, con numero tavolo, posti, zona, note e stato operativo.
+
+Le prenotazioni possono avere un `table_number` assegnato dall'admin. Quando una prenotazione viene confermata con tavolo, il tavolo passa a `prenotato`.
 
 Le immagini dei piatti non sono salvate nel database come file binari. Nel database viene salvato il nome del file, mentre le immagini stanno in:
 
@@ -266,9 +283,11 @@ Cameriere crea ordine
   -> POST /orders
   -> tabella orders
   -> tabella order_items
+  -> il tavolo passa a occupato
   -> Cuoco vede ordine e piatti in Area Cucina
   -> Cuoco puo segnare le singole portate come pronte
   -> Cuoco aggiorna stato ordine
+  -> se l'ordine diventa servito o annullato il tavolo torna libero
   -> Cameriere e Admin vedono stato e portate aggiornate
 ```
 
@@ -288,6 +307,15 @@ Stati prenotazione:
 in_attesa
 confermata
 annullata
+```
+
+Stati tavolo:
+
+```text
+libero
+occupato
+prenotato
+in_pulizia
 ```
 
 ## Struttura progetto
@@ -336,8 +364,8 @@ npm run build
 ## Note sviluppo
 
 - Se una tabella e' stata aggiunta dopo la creazione del database locale, bisogna eseguire manualmente la relativa parte di `schema.sql` in PgAdmin o ricreare il database.
-- Le pagine admin attualmente piu complete sono Dashboard, Prenotazioni, Menu, Clienti, Staff e Dipendenti.
-- Tavoli, Inventario e Cassa sono presenti come sezioni dell'interfaccia admin ma sono ancora da completare lato logica/database.
+- Le pagine admin attualmente piu complete sono Dashboard, Prenotazioni, Menu, Tavoli, Clienti, Staff e Dipendenti.
+- Inventario e Cassa sono presenti come sezioni dell'interfaccia admin ma sono ancora da completare lato logica/database.
 
 ## Autori
 

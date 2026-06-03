@@ -33,9 +33,21 @@ const formatDateTime = (dateValue) => {
   }).format(new Date(dateValue));
 };
 
+const getTableStatusLabel = (status) => {
+  const labels = {
+    libero: 'libero',
+    occupato: 'occupato',
+    prenotato: 'prenotato',
+    in_pulizia: 'in pulizia',
+  };
+
+  return labels[status] || status;
+};
+
 const WaiterOrders = () => {
   const [menuItems, setMenuItems] = useState([]);
   const [orders, setOrders] = useState([]);
+  const [tables, setTables] = useState([]);
   const [cartItems, setCartItems] = useState([]);
   const [selectedOrderId, setSelectedOrderId] = useState(null);
   const [tableNumber, setTableNumber] = useState('');
@@ -45,13 +57,15 @@ const WaiterOrders = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
   const [ordersErrorMessage, setOrdersErrorMessage] = useState('');
+  const [tablesErrorMessage, setTablesErrorMessage] = useState('');
   const [successMessage, setSuccessMessage] = useState('');
 
   useEffect(() => {
     const loadData = async () => {
-      const [menuResult, ordersResult] = await Promise.allSettled([
+      const [menuResult, ordersResult, tablesResult] = await Promise.allSettled([
         apiRequest('/menu'),
         apiRequest('/orders'),
+        apiRequest('/tables'),
       ]);
 
       if (menuResult.status === 'fulfilled') {
@@ -64,6 +78,12 @@ const WaiterOrders = () => {
         setOrders(ordersResult.value);
       } else {
         setOrdersErrorMessage(ordersResult.reason.message);
+      }
+
+      if (tablesResult.status === 'fulfilled') {
+        setTables(tablesResult.value);
+      } else {
+        setTablesErrorMessage(tablesResult.reason.message);
       }
 
       setIsLoading(false);
@@ -127,6 +147,12 @@ const WaiterOrders = () => {
   const cartTotal = cartItems.reduce((total, item) => {
     return total + Number(item.price) * item.quantity;
   }, 0);
+
+  const sortedTables = useMemo(() => {
+    return [...tables].sort((firstTable, secondTable) => {
+      return firstTable.table_number - secondTable.table_number;
+    });
+  }, [tables]);
 
   const recentOrders = useMemo(() => {
     return orders
@@ -236,6 +262,13 @@ const WaiterOrders = () => {
       });
 
       setOrders((currentOrders) => [createdOrder, ...currentOrders]);
+      setTables((currentTables) =>
+        currentTables.map((table) =>
+          table.table_number === createdOrder.table_number
+            ? { ...table, status: 'occupato' }
+            : table
+        )
+      );
       setCartItems([]);
       setTableNumber('');
       setOrdersErrorMessage('');
@@ -267,6 +300,11 @@ const WaiterOrders = () => {
       {ordersErrorMessage && (
         <p className="waiter-orders-message warning">
           Menu caricato, ma non riesco a recuperare gli ordini recenti: {ordersErrorMessage}
+        </p>
+      )}
+      {tablesErrorMessage && (
+        <p className="waiter-orders-message warning">
+          Menu caricato, ma non riesco a recuperare i tavoli: {tablesErrorMessage}
         </p>
       )}
       {successMessage && <p className="waiter-orders-message success">{successMessage}</p>}
@@ -360,14 +398,25 @@ const WaiterOrders = () => {
               <h2>Nuovo ordine</h2>
               <label htmlFor="waiter-table-number">
                 Tavolo
-                <input
+                <select
                   id="waiter-table-number"
-                  type="number"
-                  min="1"
                   value={tableNumber}
                   onChange={(event) => setTableNumber(event.target.value)}
                   required
-                />
+                >
+                  <option value="">Seleziona</option>
+                  {sortedTables.map((table) => (
+                    <option
+                      key={table.id}
+                      value={table.table_number}
+                      disabled={table.status === 'in_pulizia'}
+                    >
+                      {`Tavolo ${table.table_number} - ${table.seats} posti - ${getTableStatusLabel(
+                        table.status
+                      )}`}
+                    </option>
+                  ))}
+                </select>
               </label>
             </div>
 

@@ -25,8 +25,16 @@ const bookingStatuses = [
   { value: 'annullata', label: 'Annullata' },
 ];
 
+const tableStatusLabels = {
+  libero: 'libero',
+  occupato: 'occupato',
+  prenotato: 'prenotato',
+  in_pulizia: 'in pulizia',
+};
+
 const AdminBookings = () => {
   const [bookings, setBookings] = useState([]);
+  const [tables, setTables] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [errorMessage, setErrorMessage] = useState('');
   const [updatingBookingId, setUpdatingBookingId] = useState(null);
@@ -36,8 +44,13 @@ const AdminBookings = () => {
   useEffect(() => {
     const loadBookings = async () => {
       try {
-        const data = await apiRequest('/bookings');
-        setBookings(data);
+        const [bookingsData, tablesData] = await Promise.all([
+          apiRequest('/bookings'),
+          apiRequest('/tables'),
+        ]);
+
+        setBookings(bookingsData);
+        setTables(tablesData);
       } catch (error) {
         setErrorMessage(error.message);
       } finally {
@@ -48,20 +61,45 @@ const AdminBookings = () => {
     loadBookings();
   }, []);
 
-  const updateStatus = async (bookingId, status) => {
+  const sortedTables = [...tables].sort((firstTable, secondTable) => {
+    return firstTable.table_number - secondTable.table_number;
+  });
+
+  const updateBooking = async (booking, changes) => {
+    const bookingId = booking.id;
+    const nextStatus = changes.status || booking.status;
+    const nextTableNumber =
+      changes.table_number !== undefined ? changes.table_number : booking.table_number;
+
     setUpdatingBookingId(bookingId);
     setErrorMessage('');
 
     try {
       const updatedBooking = await apiRequest(`/bookings/${bookingId}/status`, {
         method: 'PUT',
-        body: JSON.stringify({ status }),
+        body: JSON.stringify({
+          status: nextStatus,
+          table_number: nextTableNumber ? Number(nextTableNumber) : null,
+        }),
       });
 
       setBookings((currentBookings) =>
         currentBookings.map((booking) =>
           booking.id === bookingId ? updatedBooking : booking
         )
+      );
+      setTables((currentTables) =>
+        currentTables.map((table) => {
+          if (booking.table_number && table.table_number === booking.table_number) {
+            return { ...table, status: 'libero' };
+          }
+
+          if (updatedBooking.table_number && table.table_number === updatedBooking.table_number) {
+            return { ...table, status: 'prenotato' };
+          }
+
+          return table;
+        })
       );
     } catch (error) {
       setErrorMessage(error.message);
@@ -130,6 +168,7 @@ const AdminBookings = () => {
                 <th>Ospiti</th>
                 <th>Occasione</th>
                 <th>Evento</th>
+                <th>Tavolo</th>
                 <th>Stato</th>
                 <th>Richieste</th>
                 <th>Azioni</th>
@@ -154,9 +193,47 @@ const AdminBookings = () => {
                   <td>{booking.event_title || '-'}</td>
                   <td>
                     <select
+                      className="admin-bookings-table-select"
+                      value={booking.table_number || ''}
+                      onChange={(event) =>
+                        updateBooking(booking, {
+                          table_number: event.target.value,
+                          status: event.target.value ? 'confermata' : booking.status,
+                        })
+                      }
+                      disabled={updatingBookingId === booking.id}
+                      aria-label={`Tavolo prenotazione ${booking.full_name}`}
+                    >
+                      <option value="">Non assegnato</option>
+                      {sortedTables.map((table) => {
+                        const isCurrentTable = table.table_number === booking.table_number;
+                        const isUnavailable =
+                          !isCurrentTable &&
+                          ['occupato', 'in_pulizia'].includes(table.status);
+
+                        return (
+                          <option
+                            key={table.id}
+                            value={table.table_number}
+                            disabled={isUnavailable}
+                          >
+                            {`Tavolo ${table.table_number} - ${table.seats} posti - ${
+                              tableStatusLabels[table.status] || table.status
+                            }`}
+                          </option>
+                        );
+                      })}
+                    </select>
+                  </td>
+                  <td>
+                    <select
                       className="admin-bookings-status-select"
                       value={booking.status}
-                      onChange={(event) => updateStatus(booking.id, event.target.value)}
+                      onChange={(event) =>
+                        updateBooking(booking, {
+                          status: event.target.value,
+                        })
+                      }
                       disabled={updatingBookingId === booking.id}
                       aria-label={`Stato prenotazione ${booking.full_name}`}
                     >

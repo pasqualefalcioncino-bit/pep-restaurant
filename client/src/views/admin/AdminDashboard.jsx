@@ -10,6 +10,13 @@ const bookingStatusLabels = {
   annullata: 'Annullata',
 };
 
+const tableStatusLabels = {
+  libero: 'Liberi',
+  occupato: 'Occupati',
+  prenotato: 'Prenotati',
+  in_pulizia: 'In pulizia',
+};
+
 const formatDate = (dateValue) => {
   if (!dateValue) {
     return '-';
@@ -46,6 +53,7 @@ const AdminDashboard = ({ onNavigate }) => {
     customers: [],
     staff: [],
     menuItems: [],
+    tables: [],
   });
   const [selectedOrderId, setSelectedOrderId] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -59,6 +67,7 @@ const AdminDashboard = ({ onNavigate }) => {
         ['customers', apiRequest('/users/customers')],
         ['staff', apiRequest('/users/staff')],
         ['menuItems', apiRequest('/menu')],
+        ['tables', apiRequest('/tables')],
       ];
 
       const results = await Promise.allSettled(requests.map(([, request]) => request));
@@ -68,6 +77,7 @@ const AdminDashboard = ({ onNavigate }) => {
         customers: [],
         staff: [],
         menuItems: [],
+        tables: [],
       };
       const nextErrors = [];
 
@@ -95,7 +105,7 @@ const AdminDashboard = ({ onNavigate }) => {
   }, []);
 
   const stats = useMemo(() => {
-    const { bookings, orders, customers, staff, menuItems } = dashboardData;
+    const { bookings, orders, customers, staff, menuItems, tables } = dashboardData;
 
     return [
       {
@@ -124,6 +134,11 @@ const AdminDashboard = ({ onNavigate }) => {
         value: menuItems.length,
         targetPage: 'admin-menu',
       },
+      {
+        label: 'Tavoli liberi',
+        value: buildCount(tables, (table) => table.status === 'libero'),
+        targetPage: 'admin-tavoli',
+      },
     ];
   }, [dashboardData]);
 
@@ -138,6 +153,19 @@ const AdminDashboard = ({ onNavigate }) => {
   }, [activeOrders, selectedOrderId]);
   const recentBookings = dashboardData.bookings.slice(0, 5);
   const recentOrders = activeOrders.slice(0, 5);
+  const tableStats = useMemo(() => {
+    return Object.entries(tableStatusLabels).map(([status, label]) => ({
+      status,
+      label,
+      count: buildCount(dashboardData.tables, (table) => table.status === status),
+    }));
+  }, [dashboardData.tables]);
+  const busyTables = useMemo(() => {
+    return dashboardData.tables
+      .filter((table) => table.status !== 'libero')
+      .sort((firstTable, secondTable) => firstTable.table_number - secondTable.table_number)
+      .slice(0, 6);
+  }, [dashboardData.tables]);
 
   if (isLoading) {
     return (
@@ -151,7 +179,7 @@ const AdminDashboard = ({ onNavigate }) => {
     <section className="admin-dashboard-page" aria-labelledby="admin-dashboard-title">
       <div className="admin-dashboard-header">
         <h1 id="admin-dashboard-title">Dashboard</h1>
-        <p>Riepilogo operativo di prenotazioni, ordini, utenti e menu.</p>
+        <p>Riepilogo operativo di prenotazioni, ordini, tavoli, utenti e menu.</p>
       </div>
 
       {loadErrors.length > 0 && (
@@ -250,6 +278,48 @@ const AdminDashboard = ({ onNavigate }) => {
                 </button>
               ))}
             </div>
+          )}
+        </article>
+
+        <article className="admin-dashboard-panel admin-dashboard-tables-panel">
+          <div className="admin-dashboard-panel-header">
+            <h2>Stato sala</h2>
+            <button type="button" onClick={() => onNavigate?.('admin-tavoli')}>
+              Gestisci tavoli
+            </button>
+          </div>
+
+          {dashboardData.tables.length === 0 ? (
+            <p className="admin-dashboard-empty">Nessun tavolo configurato.</p>
+          ) : (
+            <>
+              <div className="admin-dashboard-table-stats">
+                {tableStats.map((tableStat) => (
+                  <div className={`admin-dashboard-table-stat status-${tableStat.status}`} key={tableStat.status}>
+                    <span>{tableStat.label}</span>
+                    <strong>{tableStat.count}</strong>
+                  </div>
+                ))}
+              </div>
+
+              {busyTables.length > 0 && (
+                <div className="admin-dashboard-busy-tables">
+                  <span>Tavoli da seguire</span>
+                  <div>
+                    {busyTables.map((table) => (
+                      <button
+                        className={`admin-dashboard-table-chip status-${table.status}`}
+                        key={table.id}
+                        type="button"
+                        onClick={() => onNavigate?.('admin-tavoli')}
+                      >
+                        Tavolo {table.table_number} · {tableStatusLabels[table.status] || table.status}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </>
           )}
         </article>
       </div>

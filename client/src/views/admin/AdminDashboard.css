@@ -48,7 +48,7 @@
 
 .admin-dashboard-stats {
   display: grid;
-  grid-template-columns: repeat(5, minmax(0, 1fr));
+  grid-template-columns: repeat(6, minmax(0, 1fr));
   gap: 14px;
   margin-bottom: 22px;
 }
@@ -119,6 +119,24 @@ button.admin-dashboard-stat:hover {
   font-size: 0.86rem;
 }
 
+.admin-dashboard-panel-header button {
+  flex: 0 0 auto;
+  min-height: 36px;
+  padding: 0 12px;
+  border: 1px solid rgba(212, 163, 115, 0.4);
+  border-radius: 8px;
+  background: rgba(212, 163, 115, 0.08);
+  color: var(--gold-primary);
+  cursor: pointer;
+  font: inherit;
+  font-weight: 800;
+}
+
+.admin-dashboard-panel-header button:hover {
+  border-color: var(--gold-primary);
+  background: rgba(212, 163, 115, 0.14);
+}
+
 .admin-dashboard-list {
   display: grid;
   gap: 10px;
@@ -165,6 +183,96 @@ button.admin-dashboard-stat:hover {
 .admin-dashboard-order-row.status-pronto {
   border-color: rgba(48, 216, 120, 0.62);
   background: rgba(48, 216, 120, 0.08);
+}
+
+.admin-dashboard-tables-panel {
+  grid-column: 1 / -1;
+}
+
+.admin-dashboard-table-stats {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.admin-dashboard-table-stat {
+  padding: 14px;
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  background: #080808;
+}
+
+.admin-dashboard-table-stat span,
+.admin-dashboard-busy-tables > span {
+  display: block;
+  color: var(--text-muted);
+  font-size: 0.78rem;
+  font-weight: 800;
+  text-transform: uppercase;
+}
+
+.admin-dashboard-table-stat strong {
+  display: block;
+  margin-top: 8px;
+  color: var(--text-white);
+  font-size: 1.7rem;
+  line-height: 1;
+}
+
+.admin-dashboard-table-stat.status-libero {
+  border-color: rgba(81, 207, 102, 0.35);
+}
+
+.admin-dashboard-table-stat.status-occupato {
+  border-color: rgba(255, 138, 138, 0.35);
+}
+
+.admin-dashboard-table-stat.status-prenotato {
+  border-color: rgba(116, 192, 252, 0.35);
+}
+
+.admin-dashboard-table-stat.status-in_pulizia {
+  border-color: rgba(255, 212, 59, 0.35);
+}
+
+.admin-dashboard-busy-tables {
+  display: grid;
+  gap: 10px;
+  margin-top: 16px;
+}
+
+.admin-dashboard-busy-tables > div {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.admin-dashboard-table-chip {
+  min-height: 34px;
+  padding: 0 10px;
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  background: #080808;
+  color: var(--text-white);
+  cursor: pointer;
+  font: inherit;
+  font-size: 0.84rem;
+  font-weight: 800;
+}
+
+.admin-dashboard-table-chip.status-occupato {
+  border-color: rgba(255, 138, 138, 0.45);
+  color: #ffabab;
+}
+
+.admin-dashboard-table-chip.status-prenotato {
+  border-color: rgba(116, 192, 252, 0.45);
+  color: #91d2ff;
+}
+
+.admin-dashboard-table-chip.status-in_pulizia {
+  border-color: rgba(255, 212, 59, 0.45);
+  color: #ffe066;
 }
 
 .admin-dashboard-row strong,
@@ -392,7 +500,8 @@ button.admin-dashboard-stat:hover {
 }
 
 @media (max-width: 700px) {
-  .admin-dashboard-stats {
+  .admin-dashboard-stats,
+  .admin-dashboard-table-stats {
     grid-template-columns: 1fr;
   }
 

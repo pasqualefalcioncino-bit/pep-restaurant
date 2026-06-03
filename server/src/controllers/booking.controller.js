@@ -56,15 +56,28 @@ exports.getBookings = async (req, res) => {
 
 exports.updateBookingStatus = async (req, res) => {
   const { id } = req.params;
-  const { status } = req.body;
+  const { status, table_number } = req.body;
   const allowedStatuses = ["in_attesa", "confermata", "annullata"];
+  const tableNumber = table_number ? Number(table_number) : null;
 
   if (!allowedStatuses.includes(status)) {
     return res.status(400).send("Stato prenotazione non valido");
   }
 
+  if (table_number && (!Number.isInteger(tableNumber) || tableNumber <= 0)) {
+    return res.status(400).send("Numero tavolo non valido");
+  }
+
   try {
-    const result = await bookingModel.updateBookingStatus(id, status);
+    const result = await bookingModel.updateBookingStatus(id, status, tableNumber);
+
+    if (result.reason === "TABLE_NOT_FOUND") {
+      return res.status(404).send("Tavolo non trovato");
+    }
+
+    if (result.reason === "TABLE_NOT_AVAILABLE") {
+      return res.status(409).send("Il tavolo selezionato non e' disponibile");
+    }
 
     if (result.rows.length === 0) {
       return res.status(404).send("Prenotazione non trovata");
