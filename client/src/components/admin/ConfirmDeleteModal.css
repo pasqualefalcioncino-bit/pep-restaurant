@@ -74,7 +74,7 @@
 .confirm-delete-submit {
   border: 1px solid rgba(255, 138, 138, 0.65);
   background: rgba(255, 138, 138, 0.14);
-  color: #ff8a8a;
+  color: var(--status-red);
 }
 
 .confirm-delete-submit:hover {

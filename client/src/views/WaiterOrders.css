@@ -46,7 +46,7 @@
 
 .waiter-orders-message.error {
   border: 1px solid rgba(255, 138, 138, 0.35);
-  color: #ff8a8a;
+  color: var(--status-red);
   background-color: rgba(255, 138, 138, 0.1);
 }
 
@@ -58,7 +58,7 @@
 
 .waiter-orders-message.success {
   border: 1px solid rgba(138, 240, 178, 0.35);
-  color: #8af0b2;
+  color: var(--status-green);
   background-color: rgba(138, 240, 178, 0.1);
 }
 
@@ -97,12 +97,18 @@
 }
 
 .waiter-search-field span,
-.waiter-cart-header label,
+.waiter-cart-header label > span,
 .waiter-cart-controls label {
   display: block;
   margin-bottom: 7px;
   color: var(--text-white);
   font-size: 0.86rem;
+}
+
+.waiter-cart-header label {
+  display: grid;
+  gap: 7px;
+  min-width: 0;
 }
 
 .waiter-search-field input,
@@ -114,9 +120,24 @@
   padding: 11px 12px;
   border: 1px solid var(--border-color);
   border-radius: 8px;
-  background: #080808;
+  background: var(--bg-dark);
   color: var(--text-white);
   font: inherit;
+}
+
+.waiter-cart-header select {
+  appearance: none;
+  padding-right: 34px;
+  overflow: hidden;
+  background-image:
+    linear-gradient(45deg, transparent 50%, var(--gold-primary) 50%),
+    linear-gradient(135deg, var(--gold-primary) 50%, transparent 50%);
+  background-position:
+    calc(100% - 18px) 50%,
+    calc(100% - 12px) 50%;
+  background-repeat: no-repeat;
+  background-size: 6px 6px;
+  text-overflow: ellipsis;
 }
 
 .waiter-cart-header select option {
@@ -134,7 +155,7 @@
 .waiter-cart-item-top button {
   border: 1px solid var(--border-color);
   border-radius: 8px;
-  background: #080808;
+  background: var(--bg-dark);
   color: var(--text-white);
   cursor: pointer;
   font: inherit;
@@ -193,7 +214,7 @@
   padding: 16px;
   border: 1px solid var(--border-color);
   border-radius: 8px;
-  background-color: #080808;
+  background-color: var(--bg-dark);
 }
 
 .waiter-menu-item.unavailable,
@@ -282,7 +303,7 @@
 .waiter-menu-item-footer button:disabled {
   border-color: rgba(255, 138, 138, 0.7);
   background: rgba(255, 138, 138, 0.12);
-  color: #ff8a8a;
+  color: var(--status-red);
   cursor: not-allowed;
 }
 
@@ -292,7 +313,7 @@
 
 .waiter-cart-header {
   display: grid;
-  grid-template-columns: 1fr 110px;
+  grid-template-columns: minmax(0, 1fr) minmax(150px, 180px);
   gap: 14px;
   align-items: start;
   margin-bottom: 18px;
@@ -323,7 +344,7 @@
   padding: 14px;
   border: 1px solid var(--border-color);
   border-radius: 8px;
-  background-color: #080808;
+  background-color: var(--bg-dark);
 }
 
 .waiter-cart-item-top {
@@ -356,7 +377,7 @@
 .waiter-cart-dish span {
   display: block;
   margin-top: 3px;
-  color: #ff8a8a;
+  color: var(--status-red);
   font-size: 0.78rem;
   font-weight: 800;
 }
@@ -364,7 +385,7 @@
 .waiter-cart-item-top button {
   flex: 0 0 auto;
   padding: 6px 8px;
-  color: #ff8a8a;
+  color: var(--status-red);
 }
 
 .waiter-cart-controls {
@@ -392,7 +413,7 @@
   border: 1px solid rgba(255, 138, 138, 0.4);
   border-radius: 8px;
   background: rgba(255, 138, 138, 0.1);
-  color: #ff8a8a;
+  color: var(--status-red);
   font-size: 0.86rem;
   font-weight: 800;
 }
@@ -438,7 +459,7 @@
   padding: 10px 12px;
   border: 1px solid var(--border-color);
   border-radius: 8px;
-  background-color: #080808;
+  background-color: var(--bg-dark);
   color: inherit;
   cursor: pointer;
   font: inherit;
@@ -526,31 +547,31 @@
 
 .waiter-order-status.status-in_attesa {
   border-color: rgba(230, 181, 62, 0.45);
-  color: #e6b53e;
+  color: var(--gold-primary);
   background-color: rgba(230, 181, 62, 0.12);
 }
 
 .waiter-order-status.status-in_preparazione {
   border-color: rgba(103, 174, 255, 0.45);
-  color: #67aeff;
+  color: var(--status-blue);
   background-color: rgba(103, 174, 255, 0.12);
 }
 
 .waiter-order-status.status-pronto {
   border-color: rgba(48, 216, 120, 0.45);
-  color: #30d878;
+  color: var(--status-green);
   background-color: rgba(48, 216, 120, 0.12);
 }
 
 .waiter-order-status.status-servito {
   border-color: rgba(127, 215, 255, 0.45);
-  color: #7fd7ff;
+  color: var(--status-cyan);
   background-color: rgba(127, 215, 255, 0.12);
 }
 
 .waiter-order-status.status-annullato {
   border-color: rgba(255, 138, 138, 0.45);
-  color: #ff8a8a;
+  color: var(--status-red);
   background-color: rgba(255, 138, 138, 0.12);
 }
 
@@ -633,7 +654,7 @@
   padding: 12px;
   border: 1px solid var(--border-color);
   border-radius: 8px;
-  background-color: #080808;
+  background-color: var(--bg-dark);
 }
 
 .waiter-receipt-meta span {

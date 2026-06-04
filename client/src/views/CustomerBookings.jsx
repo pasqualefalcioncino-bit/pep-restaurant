@@ -67,7 +67,7 @@ const CustomerBookings = () => {
       ) : (
         <div className="customer-bookings-grid">
           {bookings.map((booking) => (
-            <article className="customer-booking-card" key={booking.id}>
+            <article className={`customer-booking-card status-${booking.status}`} key={booking.id}>
               <div className="customer-booking-card-header">
                 <div>
                   <span className="customer-booking-label">Prenotazione #{booking.id}</span>

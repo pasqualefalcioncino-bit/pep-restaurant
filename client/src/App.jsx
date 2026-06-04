@@ -22,7 +22,6 @@ import AdminCashRegister from './views/admin/AdminCashRegister';
 import CookDashboard from './views/CookDashboard';
 import WaiterOrders from './views/WaiterOrders';
 import { clearAuthSession, getAuthUser } from './api/client';
-import './index.css';
 
 const staticPages = {
   menu: <Menu />,

@@ -1,0 +1,383 @@
+:root {
+  --bg-dark: #0a0a0a;
+  --card-bg: #161310;
+  --card-bg-strong: #181410;
+  --card-bg-hover: #1d1814;
+  --surface-header: #26201c;
+  --gold-primary: #e6b53e;
+  --gold-hover: #d29d2e;
+  --text-white: #ffffff;
+  --text-dark: #17120f;
+  --text-muted: #bfb1a6;
+  --sidebar-bg: #10100f;
+  --border-color: rgba(212, 163, 115, 0.24);
+  --status-green: #30d878;
+  --status-blue: #67aeff;
+  --status-cyan: #7fd7ff;
+  --status-red: #ff8a8a;
+}
+
+.app-content.with-admin-sidebar .admin-sidebar {
+  border-color: var(--border-color);
+  background: var(--sidebar-bg);
+}
+
+.app-content.with-admin-sidebar .admin-sidebar-toggle,
+.app-content.with-admin-sidebar .admin-sidebar-link {
+  color: var(--gold-primary);
+}
+
+.app-content.with-admin-sidebar .admin-sidebar-toggle:hover,
+.app-content.with-admin-sidebar .admin-sidebar-link:hover {
+  border-color: rgba(230, 181, 62, 0.45);
+  background: rgba(230, 181, 62, 0.12);
+  color: var(--text-white);
+}
+
+.app-content.with-admin-sidebar .admin-sidebar-link.active {
+  border-color: rgba(230, 181, 62, 0.62);
+  background: rgba(230, 181, 62, 0.18);
+  color: var(--text-white);
+}
+
+.app-content.with-admin-sidebar :is(
+  .admin-bookings-state,
+  .admin-customers-state,
+  .admin-dashboard-empty,
+  .admin-dashboard-state,
+  .admin-inventory-state,
+  .admin-menu-state,
+  .admin-staff-state,
+  .admin-tables-state
+) {
+  border-color: var(--border-color);
+  background: var(--card-bg);
+}
+
+.app-content.with-admin-sidebar :is(
+  .admin-bookings-table-wrap,
+  .admin-customers-table-wrap,
+  .admin-dashboard-panel,
+  .admin-dashboard-stat,
+  .admin-employees-form,
+  .admin-inventory-form,
+  .admin-inventory-stat,
+  .admin-inventory-table-wrap,
+  .admin-menu-form,
+  .admin-menu-table-wrap,
+  .admin-menu-toolbar,
+  .admin-staff-table-wrap,
+  .admin-table-card,
+  .admin-tables-form,
+  .confirm-delete-modal
+) {
+  border-color: var(--border-color);
+  background: var(--card-bg);
+}
+
+.app-content.with-admin-sidebar :is(
+  .admin-dashboard-row,
+  .admin-dashboard-table-chip,
+  .admin-dashboard-table-stat,
+  .admin-dashboard-inventory-stat
+) {
+  border-color: var(--border-color);
+  background: var(--card-bg-strong);
+}
+
+.app-content.with-admin-sidebar :is(
+  .admin-bookings-table th,
+  .admin-customers-table th,
+  .admin-dashboard-modal-header span,
+  .admin-inventory-table th,
+  .admin-menu-table th,
+  .admin-staff-table th
+) {
+  color: var(--gold-primary);
+}
+
+.app-content.with-admin-sidebar :is(
+  .admin-bookings-table td,
+  .admin-customers-table td,
+  .admin-inventory-table td,
+  .admin-menu-table td,
+  .admin-staff-table td
+) {
+  border-color: rgba(212, 163, 115, 0.14);
+}
+
+.app-content.with-admin-sidebar :is(
+  .admin-bookings-status-select,
+  .admin-bookings-table-select,
+  .admin-employees-field input,
+  .admin-employees-field select,
+  .admin-inventory-form input,
+  .admin-inventory-form select,
+  .admin-inventory-form textarea,
+  .admin-menu-form input,
+  .admin-menu-form select,
+  .admin-menu-form textarea,
+  .admin-menu-search-field input,
+  .admin-search-field input,
+  .admin-table-status-select select,
+  .admin-tables-form input,
+  .admin-tables-form select,
+  .admin-tables-form textarea
+) {
+  border-color: var(--border-color);
+  background-color: var(--bg-dark);
+  color: var(--text-white);
+}
+
+.app-content.with-admin-sidebar :is(
+  .admin-employees-field input,
+  .admin-employees-field select,
+  .admin-inventory-form input,
+  .admin-inventory-form select,
+  .admin-inventory-form textarea,
+  .admin-menu-form input,
+  .admin-menu-form select,
+  .admin-menu-form textarea,
+  .admin-menu-search-field input,
+  .admin-search-field input,
+  .admin-table-status-select select,
+  .admin-tables-form input,
+  .admin-tables-form select,
+  .admin-tables-form textarea
+):focus {
+  border-color: var(--gold-primary);
+  outline: none;
+}
+
+.app-content.with-admin-sidebar :is(
+  .admin-dashboard-panel-header button,
+  .admin-inventory-secondary-btn,
+  .admin-inventory-actions button,
+  .admin-menu-actions button,
+  .admin-menu-form-header button,
+  .admin-table-actions button,
+  .admin-tables-secondary-btn,
+  .confirm-delete-cancel
+) {
+  border-color: rgba(230, 181, 62, 0.45);
+  background: rgba(230, 181, 62, 0.12);
+  color: var(--gold-primary);
+}
+
+.app-content.with-admin-sidebar :is(
+  .admin-dashboard-panel-header button,
+  .admin-inventory-secondary-btn,
+  .admin-inventory-actions button,
+  .admin-menu-actions button,
+  .admin-menu-form-header button,
+  .admin-table-actions button,
+  .admin-tables-secondary-btn,
+  .confirm-delete-cancel
+):hover {
+  background: rgba(230, 181, 62, 0.2);
+}
+
+.app-content.with-admin-sidebar :is(
+  .admin-employees-submit,
+  .admin-inventory-primary-btn,
+  .admin-menu-submit,
+  .admin-tables-primary-btn
+) {
+  border-color: var(--gold-primary);
+  background: var(--gold-primary);
+  color: var(--text-dark);
+}
+
+.app-content.with-admin-sidebar :is(
+  .admin-inventory-filters button,
+  .admin-menu-filter-group button,
+  .admin-menu-veg-filter
+) {
+  border-color: var(--border-color);
+  background: var(--card-bg-hover);
+  color: var(--text-muted);
+}
+
+.app-content.with-admin-sidebar :is(
+  .admin-inventory-filters button.active,
+  .admin-menu-filter-group button.active,
+  .admin-menu-filter-group button:hover,
+  .admin-menu-veg-filter.active,
+  .admin-menu-veg-filter:hover
+) {
+  border-color: var(--gold-primary);
+  background: var(--gold-primary);
+  color: var(--text-dark);
+}
+
+.app-content.with-admin-sidebar :is(
+  .admin-customers-role,
+  .admin-staff-role
+) {
+  border-color: rgba(230, 181, 62, 0.45);
+  background: rgba(230, 181, 62, 0.12);
+  color: var(--gold-primary);
+}
+
+.app-content.with-admin-sidebar :is(
+  .admin-dashboard-order-row.status-in_attesa,
+  .admin-dashboard-table-stat.status-in_pulizia,
+  .admin-dashboard-table-chip.status-in_pulizia,
+  .admin-inventory-stat.tone-warning,
+  .admin-inventory-table tr.status-monitorare,
+  .admin-table-card.status-in_pulizia,
+  .admin-tables-stat.status-in_pulizia
+) {
+  border-color: rgba(230, 181, 62, 0.62);
+  background: rgba(230, 181, 62, 0.12);
+}
+
+.app-content.with-admin-sidebar :is(
+  .admin-dashboard-table-stat.status-in_pulizia strong,
+  .admin-dashboard-table-chip.status-in_pulizia,
+  .admin-inventory-stat.tone-warning strong,
+  .admin-table-status.in_pulizia,
+  .admin-tables-stat.status-in_pulizia strong
+) {
+  color: var(--gold-primary);
+}
+
+.app-content.with-admin-sidebar :is(
+  .admin-dashboard-order-row.status-pronto,
+  .admin-dashboard-table-stat.status-libero,
+  .admin-dashboard-inventory-stat.status-ok,
+  .admin-inventory-stat.tone-ok,
+  .admin-inventory-table tr.status-ok,
+  .admin-table-card.status-libero,
+  .admin-tables-stat.status-libero
+) {
+  border-color: rgba(48, 216, 120, 0.62);
+  background: rgba(48, 216, 120, 0.12);
+}
+
+.app-content.with-admin-sidebar :is(
+  .admin-dashboard-table-stat.status-libero strong,
+  .admin-dashboard-inventory-stat.status-ok strong,
+  .admin-inventory-stat.tone-ok strong,
+  .admin-table-status.libero,
+  .admin-tables-stat.status-libero strong
+) {
+  color: var(--status-green);
+}
+
+.app-content.with-admin-sidebar :is(
+  .admin-dashboard-order-row.status-in_preparazione,
+  .admin-dashboard-table-stat.status-prenotato,
+  .admin-dashboard-table-chip.status-prenotato,
+  .admin-table-card.status-prenotato,
+  .admin-tables-stat.status-prenotato
+) {
+  border-color: rgba(103, 174, 255, 0.62);
+  background: rgba(103, 174, 255, 0.12);
+}
+
+.app-content.with-admin-sidebar :is(
+  .admin-dashboard-table-stat.status-prenotato strong,
+  .admin-dashboard-table-chip.status-prenotato,
+  .admin-table-status.prenotato,
+  .admin-tables-stat.status-prenotato strong
+) {
+  color: var(--status-blue);
+}
+
+.app-content.with-admin-sidebar :is(
+  .admin-dashboard-table-stat.status-occupato,
+  .admin-dashboard-table-chip.status-occupato,
+  .admin-dashboard-inventory-stat.status-comprare,
+  .admin-inventory-stat.tone-danger,
+  .admin-inventory-table tr.status-comprare,
+  .admin-table-card.status-occupato,
+  .admin-tables-stat.status-occupato
+) {
+  border-color: rgba(255, 138, 138, 0.62);
+  background: rgba(255, 138, 138, 0.12);
+}
+
+.app-content.with-admin-sidebar :is(
+  .admin-dashboard-table-stat.status-occupato strong,
+  .admin-dashboard-table-chip.status-occupato,
+  .admin-dashboard-inventory-stat.status-comprare strong,
+  .admin-inventory-stat.tone-danger strong,
+  .admin-table-status.occupato,
+  .admin-tables-stat.status-occupato strong
+) {
+  color: var(--status-red);
+}
+
+.app-content.with-admin-sidebar .admin-dashboard-inventory-stat.status-monitorare {
+  border-color: rgba(230, 181, 62, 0.62);
+  background: rgba(230, 181, 62, 0.12);
+}
+
+.app-content.with-admin-sidebar .admin-dashboard-inventory-stat.status-monitorare strong {
+  color: var(--gold-primary);
+}
+
+.app-content.with-admin-sidebar :is(
+  .admin-inventory-status.status-ok,
+  .admin-table-status.libero
+) {
+  border-color: rgba(48, 216, 120, 0.55);
+  background: rgba(48, 216, 120, 0.18);
+  color: var(--status-green);
+}
+
+.app-content.with-admin-sidebar :is(
+  .admin-inventory-status.status-monitorare,
+  .admin-table-status.in_pulizia
+) {
+  border-color: rgba(230, 181, 62, 0.55);
+  background: rgba(230, 181, 62, 0.18);
+  color: var(--gold-primary);
+}
+
+.app-content.with-admin-sidebar :is(
+  .admin-inventory-status.status-comprare,
+  .admin-table-status.occupato
+) {
+  border-color: rgba(255, 138, 138, 0.65);
+  background: rgba(255, 138, 138, 0.18);
+  color: var(--status-red);
+}
+
+.app-content.with-admin-sidebar .admin-table-status.prenotato {
+  border-color: rgba(103, 174, 255, 0.55);
+  background: rgba(103, 174, 255, 0.18);
+  color: var(--status-blue);
+}
+
+.app-content.with-admin-sidebar :is(
+  .admin-bookings-delete-btn,
+  .admin-customers-delete-btn,
+  .admin-inventory-actions button.danger,
+  .admin-menu-actions button.danger,
+  .admin-staff-delete-btn,
+  .admin-table-actions button.danger,
+  .confirm-delete-submit
+) {
+  border-color: rgba(255, 138, 138, 0.65);
+  background: rgba(255, 138, 138, 0.14);
+  color: var(--status-red);
+}
+
+.app-content.with-admin-sidebar :is(
+  .admin-bookings-delete-btn,
+  .admin-customers-delete-btn,
+  .admin-inventory-actions button.danger,
+  .admin-menu-actions button.danger,
+  .admin-staff-delete-btn,
+  .admin-table-actions button.danger,
+  .confirm-delete-submit
+):hover {
+  background: rgba(255, 138, 138, 0.22);
+}
+
+.app-content.with-admin-sidebar .confirm-delete-summary {
+  border-color: var(--border-color);
+  background: var(--card-bg-strong);
+}

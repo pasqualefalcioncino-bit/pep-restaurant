@@ -7,6 +7,7 @@ const AdminSearchToolbar = ({
   value,
   onChange,
   resultsCount,
+  showResults = true,
 }) => {
   return (
     <div className="admin-search-toolbar">
@@ -20,7 +21,7 @@ const AdminSearchToolbar = ({
           placeholder={placeholder}
         />
       </label>
-      <span className="admin-search-results">{resultsCount} risultati</span>
+      {showResults && <span className="admin-search-results">{resultsCount} risultati</span>}
     </div>
   );
 };

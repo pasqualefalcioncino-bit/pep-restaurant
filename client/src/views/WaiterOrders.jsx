@@ -7,6 +7,7 @@ import {
   sortByMenuCategory,
 } from '../utils/menuCatalog';
 import { getMenuImage } from '../utils/menuImages';
+import { formatEuroPrice } from '../utils/priceFormatter';
 import './WaiterOrders.css';
 
 const formatTime = (dateValue) => {
@@ -373,7 +374,7 @@ const WaiterOrders = () => {
                             </div>
                           </div>
                           <div className="waiter-menu-item-footer">
-                            <strong>EUR {item.price}</strong>
+                            <strong>{formatEuroPrice(item.price)}</strong>
                             <button
                               type="button"
                               onClick={() => addItem(item)}
@@ -397,7 +398,7 @@ const WaiterOrders = () => {
             <div className="waiter-cart-header">
               <h2>Nuovo ordine</h2>
               <label htmlFor="waiter-table-number">
-                Tavolo
+                <span>Tavolo</span>
                 <select
                   id="waiter-table-number"
                   value={tableNumber}
@@ -486,7 +487,7 @@ const WaiterOrders = () => {
 
             <div className="waiter-cart-footer">
               <span>Totale indicativo</span>
-              <strong>EUR {cartTotal.toFixed(2)}</strong>
+              <strong>{formatEuroPrice(cartTotal)}</strong>
             </div>
 
             {unavailableCartItems.length > 0 && (
@@ -605,9 +606,9 @@ const WaiterOrders = () => {
                       </div>
                       <div className="waiter-receipt-item-price">
                         <span>
-                          {itemQuantity} x EUR {itemPrice.toFixed(2)}
+                          {itemQuantity} x {formatEuroPrice(itemPrice)}
                         </span>
-                        <strong>EUR {rowTotal.toFixed(2)}</strong>
+                        <strong>{formatEuroPrice(rowTotal)}</strong>
                       </div>
                     </div>
                   );
@@ -617,7 +618,7 @@ const WaiterOrders = () => {
 
             <div className="waiter-receipt-total">
               <span>Totale conto</span>
-              <strong>EUR {selectedOrderTotal.toFixed(2)}</strong>
+              <strong>{formatEuroPrice(selectedOrderTotal)}</strong>
             </div>
           </div>
         </div>

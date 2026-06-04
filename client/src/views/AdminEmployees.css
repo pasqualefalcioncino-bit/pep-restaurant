@@ -44,7 +44,7 @@
   padding: 12px;
   border: 1px solid var(--border-color);
   border-radius: 8px;
-  background: #080808;
+  background: var(--bg-dark);
   color: var(--text-white);
   font: inherit;
 }
@@ -75,11 +75,11 @@
 }
 
 .admin-employees-message.error {
-  color: #ff8a8a;
+  color: var(--status-red);
 }
 
 .admin-employees-message.success {
-  color: #8af0b2;
+  color: var(--status-green);
 }
 
 .admin-employees-submit {

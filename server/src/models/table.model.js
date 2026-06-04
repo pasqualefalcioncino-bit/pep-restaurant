@@ -12,8 +12,26 @@ const createTable = ({ table_number, seats, area, status, notes }) => {
   return pool.query(
     `INSERT INTO restaurant_tables
       (table_number, seats, area, status, notes)
-     VALUES
-      ($1,$2,$3,$4,$5)
+     SELECT
+      COALESCE(
+        $1::int,
+        (
+          SELECT COALESCE(MIN(candidate_number), 1)
+          FROM generate_series(
+            1,
+            COALESCE((SELECT MAX(table_number) + 1 FROM restaurant_tables), 1)
+          ) AS candidate_number
+          WHERE NOT EXISTS (
+            SELECT 1
+            FROM restaurant_tables
+            WHERE table_number = candidate_number
+          )
+        )
+      ),
+      $2,
+      $3,
+      $4,
+      $5
      RETURNING *`,
     [table_number, seats, area || null, status || "libero", notes || null]
   );

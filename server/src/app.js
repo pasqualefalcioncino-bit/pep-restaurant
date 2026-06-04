@@ -14,6 +14,7 @@ const orderRoutes = require("./routes/order.routes");
 const userRoutes = require("./routes/user.routes");
 const bookingRoutes = require("./routes/booking.routes");
 const tableRoutes = require("./routes/table.routes");
+const inventoryRoutes = require("./routes/inventory.routes");
 
 app.use("/menu", menuRoutes);
 app.use("/auth", authRoutes);
@@ -21,6 +22,7 @@ app.use("/orders", orderRoutes);
 app.use("/users", userRoutes);
 app.use("/bookings", bookingRoutes);
 app.use("/tables", tableRoutes);
+app.use("/inventory", inventoryRoutes);
 
 // DATABASE CONNECTION
 pool.connect()

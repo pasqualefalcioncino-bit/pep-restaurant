@@ -34,7 +34,7 @@
 
 .admin-tables-state.error {
   margin-bottom: 18px;
-  color: #ff8a8a;
+  color: var(--status-red);
 }
 
 .admin-tables-stats {
@@ -49,6 +49,42 @@
   border: 1px solid var(--border-color);
   border-radius: 8px;
   background-color: var(--card-bg);
+}
+
+.admin-tables-stat.status-libero {
+  border-color: rgba(81, 207, 102, 0.38);
+  background: rgba(81, 207, 102, 0.08);
+}
+
+.admin-tables-stat.status-libero strong {
+  color: var(--status-green);
+}
+
+.admin-tables-stat.status-occupato {
+  border-color: rgba(255, 138, 138, 0.4);
+  background: rgba(255, 138, 138, 0.08);
+}
+
+.admin-tables-stat.status-occupato strong {
+  color: var(--status-red);
+}
+
+.admin-tables-stat.status-prenotato {
+  border-color: rgba(116, 192, 252, 0.4);
+  background: rgba(116, 192, 252, 0.08);
+}
+
+.admin-tables-stat.status-prenotato strong {
+  color: var(--status-blue);
+}
+
+.admin-tables-stat.status-in_pulizia {
+  border-color: rgba(255, 212, 59, 0.4);
+  background: rgba(255, 212, 59, 0.08);
+}
+
+.admin-tables-stat.status-in_pulizia strong {
+  color: var(--gold-primary);
 }
 
 .admin-tables-stat span {
@@ -81,6 +117,7 @@
   display: grid;
   gap: 16px;
   padding: 20px;
+  min-width: 0;
 }
 
 .admin-tables-form h2 {
@@ -91,7 +128,7 @@
 
 .admin-tables-form-grid {
   display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
+  grid-template-columns: 1fr;
   gap: 14px;
 }
 
@@ -99,6 +136,7 @@
 .admin-table-status-select {
   display: grid;
   gap: 7px;
+  min-width: 0;
   color: var(--text-muted);
   font-size: 0.82rem;
   font-weight: 700;
@@ -108,7 +146,9 @@
 .admin-tables-form select,
 .admin-tables-form textarea,
 .admin-table-status-select select {
+  box-sizing: border-box;
   width: 100%;
+  min-width: 0;
   border: 1px solid var(--border-color);
   border-radius: 8px;
   background-color: rgba(255, 255, 255, 0.04);
@@ -126,6 +166,11 @@
 .admin-tables-form textarea {
   resize: vertical;
   padding: 11px;
+}
+
+.admin-tables-form input[readonly] {
+  color: var(--gold-primary);
+  cursor: default;
 }
 
 .admin-tables-form option,
@@ -169,7 +214,7 @@
 .admin-table-actions button.danger {
   border-color: rgba(255, 138, 138, 0.45);
   background: rgba(255, 138, 138, 0.08);
-  color: #ff8a8a;
+  color: var(--status-red);
 }
 
 .admin-tables-primary-btn:disabled,
@@ -192,6 +237,26 @@
   display: grid;
   gap: 15px;
   padding: 18px;
+}
+
+.admin-table-card.status-libero {
+  border-color: rgba(81, 207, 102, 0.35);
+  background: linear-gradient(180deg, rgba(81, 207, 102, 0.08), var(--card-bg) 52%);
+}
+
+.admin-table-card.status-occupato {
+  border-color: rgba(255, 138, 138, 0.38);
+  background: linear-gradient(180deg, rgba(255, 138, 138, 0.08), var(--card-bg) 52%);
+}
+
+.admin-table-card.status-prenotato {
+  border-color: rgba(116, 192, 252, 0.38);
+  background: linear-gradient(180deg, rgba(116, 192, 252, 0.08), var(--card-bg) 52%);
+}
+
+.admin-table-card.status-in_pulizia {
+  border-color: rgba(255, 212, 59, 0.38);
+  background: linear-gradient(180deg, rgba(255, 212, 59, 0.08), var(--card-bg) 52%);
 }
 
 .admin-table-card-top {
@@ -226,23 +291,27 @@
 }
 
 .admin-table-status.libero {
+  border: 1px solid rgba(81, 207, 102, 0.28);
   background: rgba(81, 207, 102, 0.14);
-  color: #8ce99a;
+  color: var(--status-green);
 }
 
 .admin-table-status.occupato {
+  border: 1px solid rgba(255, 138, 138, 0.28);
   background: rgba(255, 138, 138, 0.14);
-  color: #ffabab;
+  color: var(--status-red);
 }
 
 .admin-table-status.prenotato {
+  border: 1px solid rgba(116, 192, 252, 0.28);
   background: rgba(116, 192, 252, 0.14);
-  color: #91d2ff;
+  color: var(--status-blue);
 }
 
 .admin-table-status.in_pulizia {
+  border: 1px solid rgba(255, 212, 59, 0.28);
   background: rgba(255, 212, 59, 0.14);
-  color: #ffe066;
+  color: var(--gold-primary);
 }
 
 .admin-table-details {
@@ -281,8 +350,7 @@
 
 @media (max-width: 760px) {
   .admin-tables-stats,
-  .admin-tables-grid,
-  .admin-tables-form-grid {
+  .admin-tables-grid {
     grid-template-columns: 1fr;
   }
 

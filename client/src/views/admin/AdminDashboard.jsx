@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import { apiRequest } from '../../api/client';
+import { getStockStatus, stockStatusLabels } from '../../utils/inventoryUtils';
 import { getOrderStatusLabel, sortByMenuCategory } from '../../utils/menuCatalog';
 import { getMenuImage } from '../../utils/menuImages';
 import './AdminDashboard.css';
@@ -54,6 +55,7 @@ const AdminDashboard = ({ onNavigate }) => {
     staff: [],
     menuItems: [],
     tables: [],
+    inventoryItems: [],
   });
   const [selectedOrderId, setSelectedOrderId] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -68,6 +70,7 @@ const AdminDashboard = ({ onNavigate }) => {
         ['staff', apiRequest('/users/staff')],
         ['menuItems', apiRequest('/menu')],
         ['tables', apiRequest('/tables')],
+        ['inventoryItems', apiRequest('/inventory')],
       ];
 
       const results = await Promise.allSettled(requests.map(([, request]) => request));
@@ -78,6 +81,7 @@ const AdminDashboard = ({ onNavigate }) => {
         staff: [],
         menuItems: [],
         tables: [],
+        inventoryItems: [],
       };
       const nextErrors = [];
 
@@ -166,6 +170,13 @@ const AdminDashboard = ({ onNavigate }) => {
       .sort((firstTable, secondTable) => firstTable.table_number - secondTable.table_number)
       .slice(0, 6);
   }, [dashboardData.tables]);
+  const inventoryStats = useMemo(() => {
+    return Object.entries(stockStatusLabels).map(([status, label]) => ({
+      status,
+      label,
+      count: buildCount(dashboardData.inventoryItems, (item) => getStockStatus(item) === status),
+    }));
+  }, [dashboardData.inventoryItems]);
 
   if (isLoading) {
     return (
@@ -179,7 +190,7 @@ const AdminDashboard = ({ onNavigate }) => {
     <section className="admin-dashboard-page" aria-labelledby="admin-dashboard-title">
       <div className="admin-dashboard-header">
         <h1 id="admin-dashboard-title">Dashboard</h1>
-        <p>Riepilogo operativo di prenotazioni, ordini, tavoli, utenti e menu.</p>
+        <p>Riepilogo operativo di prenotazioni, ordini, tavoli, inventario, utenti e menu.</p>
       </div>
 
       {loadErrors.length > 0 && (
@@ -319,6 +330,33 @@ const AdminDashboard = ({ onNavigate }) => {
                   </div>
                 </div>
               )}
+            </>
+          )}
+        </article>
+
+        <article className="admin-dashboard-panel admin-dashboard-inventory-panel">
+          <div className="admin-dashboard-panel-header">
+            <h2>Scorte inventario</h2>
+            <button type="button" onClick={() => onNavigate?.('admin-inventario')}>
+              Gestisci inventario
+            </button>
+          </div>
+
+          {dashboardData.inventoryItems.length === 0 ? (
+            <p className="admin-dashboard-empty">Nessun ingrediente configurato.</p>
+          ) : (
+            <>
+              <div className="admin-dashboard-inventory-stats">
+                {inventoryStats.map((inventoryStat) => (
+                  <div
+                    className={`admin-dashboard-inventory-stat status-${inventoryStat.status}`}
+                    key={inventoryStat.status}
+                  >
+                    <span>{inventoryStat.label}</span>
+                    <strong>{inventoryStat.count}</strong>
+                  </div>
+                ))}
+              </div>
             </>
           )}
         </article>

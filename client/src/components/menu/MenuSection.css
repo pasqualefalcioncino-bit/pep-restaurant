@@ -59,7 +59,7 @@
   padding: 10px 16px;
   border: 1px solid var(--border-color);
   border-radius: 999px;
-  background: #080808;
+  background: var(--bg-dark);
   color: var(--text-muted);
   cursor: pointer;
   font: inherit;
@@ -87,7 +87,7 @@
   padding: 0 14px;
   border: 1px solid var(--border-color);
   border-radius: 999px;
-  background: #080808;
+  background: var(--bg-dark);
   color: var(--text-muted);
 }
 

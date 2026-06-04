@@ -1,5 +1,14 @@
 import { useEffect, useMemo, useState } from 'react';
 import { apiRequest } from '../api/client';
+import AdminInventoryRow from '../components/admin/AdminInventoryRow';
+import AdminSearchToolbar from '../components/admin/AdminSearchToolbar';
+import {
+  filterInventoryItems,
+  formatQuantity,
+  getInventoryCategories,
+  getInventoryStats,
+  stockFilterOptions,
+} from '../utils/inventoryUtils';
 import {
   categoryLabels,
   getOrderStatusLabel,
@@ -8,6 +17,8 @@ import {
   sortByMenuCategory,
 } from '../utils/menuCatalog';
 import { getMenuImage } from '../utils/menuImages';
+import { formatEuroPrice } from '../utils/priceFormatter';
+import './admin/AdminInventory.css';
 import './CookDashboard.css';
 
 const kitchenCategories = ['Tutte', ...menuCategories];
@@ -194,7 +205,7 @@ const KitchenMenuRow = ({ item, isUpdating, onAvailabilityChange }) => {
         </div>
       </td>
       <td>{categoryLabels[item.category] || item.category}</td>
-      <td>EUR {Number(item.price).toFixed(2)}</td>
+      <td>{formatEuroPrice(item.price)}</td>
       <td>{item.prep_time || 0} min</td>
       <td>
         <span className={`cook-menu-status ${isAvailable ? 'available' : 'unavailable'}`}>
@@ -218,27 +229,36 @@ const KitchenMenuRow = ({ item, isUpdating, onAvailabilityChange }) => {
 const CookDashboard = () => {
   const [orders, setOrders] = useState([]);
   const [menuItems, setMenuItems] = useState([]);
+  const [inventoryItems, setInventoryItems] = useState([]);
   const [activeTab, setActiveTab] = useState('orders');
   const [activeCategory, setActiveCategory] = useState('Tutte');
+  const [activeInventoryCategory, setActiveInventoryCategory] = useState('Tutti');
+  const [activeInventoryStockFilter, setActiveInventoryStockFilter] = useState('Tutti');
   const [selectedMetricKey, setSelectedMetricKey] = useState(null);
   const [selectedMetricDate, setSelectedMetricDate] = useState('');
+  const [inventorySearchTerm, setInventorySearchTerm] = useState('');
+  const [editingInventoryItem, setEditingInventoryItem] = useState(null);
+  const [inventoryQuantity, setInventoryQuantity] = useState('');
   const [isLoading, setIsLoading] = useState(true);
   const [isDeletingOrders, setIsDeletingOrders] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
   const [updatingOrderId, setUpdatingOrderId] = useState(null);
   const [updatingOrderItemId, setUpdatingOrderItemId] = useState(null);
   const [updatingMenuItemId, setUpdatingMenuItemId] = useState(null);
+  const [updatingInventoryItemId, setUpdatingInventoryItemId] = useState(null);
 
   const loadKitchenData = async () => {
     setErrorMessage('');
 
     try {
-      const [ordersData, menuData] = await Promise.all([
+      const [ordersData, menuData, inventoryData] = await Promise.all([
         apiRequest('/orders'),
         apiRequest('/menu'),
+        apiRequest('/inventory'),
       ]);
       setOrders(ordersData);
       setMenuItems(menuData);
+      setInventoryItems(inventoryData);
     } catch (error) {
       setErrorMessage(error.message);
     } finally {
@@ -343,6 +363,19 @@ const CookDashboard = () => {
       .sort(sortByMenuCategory);
   }, [activeCategory, menuItems]);
 
+  const inventoryStats = useMemo(() => getInventoryStats(inventoryItems), [inventoryItems]);
+
+  const inventoryCategories = useMemo(() => getInventoryCategories(inventoryItems), [inventoryItems]);
+
+  const visibleInventoryItems = useMemo(() => {
+    return filterInventoryItems({
+      activeCategory: activeInventoryCategory,
+      activeStockFilter: activeInventoryStockFilter,
+      items: inventoryItems,
+      searchTerm: inventorySearchTerm,
+    });
+  }, [activeInventoryCategory, activeInventoryStockFilter, inventoryItems, inventorySearchTerm]);
+
   const updateOrderStatus = async (orderId, status) => {
     setUpdatingOrderId(orderId);
     setErrorMessage('');
@@ -410,6 +443,44 @@ const CookDashboard = () => {
       setErrorMessage(error.message);
     } finally {
       setUpdatingMenuItemId(null);
+    }
+  };
+
+  const startInventoryEdit = (item) => {
+    setEditingInventoryItem(item);
+    setInventoryQuantity(String(item.quantity ?? ''));
+    setErrorMessage('');
+  };
+
+  const resetInventoryEdit = () => {
+    setEditingInventoryItem(null);
+    setInventoryQuantity('');
+  };
+
+  const updateInventoryQuantity = async (event) => {
+    event.preventDefault();
+
+    if (!editingInventoryItem) {
+      return;
+    }
+
+    setUpdatingInventoryItemId(editingInventoryItem.id);
+    setErrorMessage('');
+
+    try {
+      const updatedItem = await apiRequest(`/inventory/${editingInventoryItem.id}/quantity`, {
+        method: 'PATCH',
+        body: JSON.stringify({ quantity: Number(inventoryQuantity) }),
+      });
+
+      setInventoryItems((currentItems) =>
+        currentItems.map((item) => (item.id === updatedItem.id ? updatedItem : item))
+      );
+      resetInventoryEdit();
+    } catch (error) {
+      setErrorMessage(error.message);
+    } finally {
+      setUpdatingInventoryItemId(null);
     }
   };
 
@@ -599,10 +670,130 @@ const CookDashboard = () => {
       )}
 
       {activeTab === 'inventory' && (
-        <div className="cook-placeholder-panel">
-          <h2>Inventario</h2>
-          <p>Qui potrai controllare scorte, ingredienti critici e prodotti da riordinare.</p>
-        </div>
+        <section className="cook-inventory-management" aria-labelledby="cook-inventory-title">
+          <div className="admin-inventory-header">
+            <div>
+              <h2 id="cook-inventory-title">Inventario</h2>
+              <p>Ingredienti e materie prime collegati al menu del ristorante.</p>
+            </div>
+          </div>
+
+          <div className="admin-inventory-stats" aria-label="Riepilogo inventario">
+            {inventoryStats.map((stat) => (
+              <article className={`admin-inventory-stat tone-${stat.tone}`} key={stat.label}>
+                <span>{stat.label}</span>
+                <strong>{stat.value}</strong>
+              </article>
+            ))}
+          </div>
+
+          {editingInventoryItem && (
+            <form className="cook-inventory-stock-editor" onSubmit={updateInventoryQuantity}>
+              <div>
+                <span>Modifica scorta</span>
+                <strong>{editingInventoryItem.name}</strong>
+                <small>
+                  Totale {formatQuantity(editingInventoryItem.total_quantity)}{' '}
+                  {editingInventoryItem.unit}
+                </small>
+              </div>
+              <label>
+                <span>Scorta attuale</span>
+                <input
+                  type="number"
+                  min="0"
+                  max={editingInventoryItem.total_quantity}
+                  step="0.01"
+                  value={inventoryQuantity}
+                  onChange={(event) => setInventoryQuantity(event.target.value)}
+                  required
+                />
+              </label>
+              <div className="cook-inventory-stock-actions">
+                <button type="button" onClick={resetInventoryEdit}>
+                  Annulla
+                </button>
+                <button
+                  className="primary"
+                  type="submit"
+                  disabled={updatingInventoryItemId === editingInventoryItem.id}
+                >
+                  {updatingInventoryItemId === editingInventoryItem.id ? 'Aggiorno...' : 'Salva'}
+                </button>
+              </div>
+            </form>
+          )}
+
+          <div className="admin-inventory-list">
+            <AdminSearchToolbar
+              id="cook-inventory-search"
+              placeholder="Ingrediente, categoria o piatto"
+              value={inventorySearchTerm}
+              onChange={setInventorySearchTerm}
+              resultsCount={visibleInventoryItems.length}
+              showResults={false}
+            />
+
+            <div className="admin-inventory-filters">
+              <div className="admin-inventory-category-filters" aria-label="Categorie inventario">
+                {inventoryCategories.map((category) => (
+                  <button
+                    key={category}
+                    className={activeInventoryCategory === category ? 'active' : ''}
+                    type="button"
+                    onClick={() => setActiveInventoryCategory(category)}
+                  >
+                    {category}
+                  </button>
+                ))}
+              </div>
+
+              <div className="admin-inventory-status-filters" aria-label="Stato scorte">
+                {stockFilterOptions.map((option) => (
+                  <button
+                    key={option}
+                    className={activeInventoryStockFilter === option ? 'active' : ''}
+                    type="button"
+                    onClick={() => setActiveInventoryStockFilter(option)}
+                  >
+                    {option}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {visibleInventoryItems.length === 0 ? (
+              <p className="admin-inventory-state">Nessun ingrediente trovato.</p>
+            ) : (
+              <div className="admin-inventory-table-wrap">
+                <table className="admin-inventory-table">
+                  <thead>
+                    <tr>
+                      <th>Ingrediente</th>
+                      <th>Categoria</th>
+                      <th>Totale</th>
+                      <th>Scorta</th>
+                      <th>Stato</th>
+                      <th>Azioni</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {visibleInventoryItems.map((item) => (
+                      <AdminInventoryRow
+                        editLabel="Modifica scorta"
+                        item={item}
+                        key={item.id}
+                        onEdit={startInventoryEdit}
+                        showDelete={false}
+                        updatingItemId={updatingInventoryItemId}
+                      />
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
+          </div>
+        </section>
       )}
 
       {selectedMetric && (

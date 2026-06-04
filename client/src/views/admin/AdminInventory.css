@@ -2,3 +2,351 @@
   width: min(1180px, 100%);
   margin: 0 auto;
 }
+
+.admin-inventory-header {
+  margin-bottom: 24px;
+}
+
+.admin-inventory-header h1 {
+  margin: 0 0 10px;
+  color: var(--text-white);
+  font-family: 'Playfair Display', serif;
+  font-size: 2.4rem;
+}
+
+.admin-inventory-header p,
+.admin-inventory-state {
+  margin: 0;
+  color: var(--text-muted);
+}
+
+.admin-inventory-state {
+  padding: 24px;
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  background-color: var(--card-bg);
+  text-align: center;
+}
+
+.admin-inventory-state.error {
+  margin-bottom: 18px;
+  color: var(--status-red);
+}
+
+.admin-inventory-stats {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 14px;
+  margin-bottom: 22px;
+}
+
+.admin-inventory-stat {
+  padding: 16px;
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  background-color: var(--card-bg);
+}
+
+.admin-inventory-stat span {
+  display: block;
+  margin-bottom: 8px;
+  color: var(--text-muted);
+  font-size: 0.82rem;
+}
+
+.admin-inventory-stat strong {
+  color: var(--text-white);
+  font-size: 1.8rem;
+}
+
+.admin-inventory-stat.tone-ok {
+  border-color: rgba(81, 207, 102, 0.38);
+  background: rgba(81, 207, 102, 0.08);
+}
+
+.admin-inventory-stat.tone-ok strong {
+  color: var(--status-green);
+}
+
+.admin-inventory-stat.tone-warning {
+  border-color: rgba(255, 212, 59, 0.38);
+  background: rgba(255, 212, 59, 0.08);
+}
+
+.admin-inventory-stat.tone-warning strong {
+  color: var(--gold-primary);
+}
+
+.admin-inventory-stat.tone-danger {
+  border-color: rgba(255, 138, 138, 0.4);
+  background: rgba(255, 138, 138, 0.08);
+}
+
+.admin-inventory-stat.tone-danger strong {
+  color: var(--status-red);
+}
+
+.admin-inventory-layout {
+  display: grid;
+  grid-template-columns: minmax(300px, 360px) minmax(0, 1fr);
+  gap: 22px;
+  align-items: start;
+}
+
+.admin-inventory-form,
+.admin-inventory-table-wrap {
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  background-color: var(--card-bg);
+}
+
+.admin-inventory-form {
+  display: grid;
+  gap: 15px;
+  min-width: 0;
+  padding: 20px;
+}
+
+.admin-inventory-form h2 {
+  margin: 0;
+  color: var(--text-white);
+  font-size: 1.2rem;
+}
+
+.admin-inventory-form-grid {
+  display: grid;
+  grid-template-columns: 1fr 110px;
+  gap: 12px;
+}
+
+.admin-inventory-form label {
+  display: grid;
+  gap: 7px;
+  min-width: 0;
+  color: var(--text-muted);
+  font-size: 0.82rem;
+  font-weight: 700;
+}
+
+.admin-inventory-form input,
+.admin-inventory-form select,
+.admin-inventory-form textarea {
+  box-sizing: border-box;
+  width: 100%;
+  min-width: 0;
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  background-color: rgba(255, 255, 255, 0.04);
+  color: var(--text-white);
+  font: inherit;
+}
+
+.admin-inventory-form input,
+.admin-inventory-form select {
+  min-height: 42px;
+  padding: 0 11px;
+}
+
+.admin-inventory-form textarea {
+  resize: vertical;
+  padding: 11px;
+}
+
+.admin-inventory-form option {
+  color: #1f1a17;
+}
+
+.admin-inventory-form-actions,
+.admin-inventory-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+}
+
+.admin-inventory-form-actions {
+  flex-wrap: wrap;
+}
+
+.admin-inventory-actions {
+  flex-wrap: nowrap;
+  white-space: nowrap;
+}
+
+.admin-inventory-primary-btn,
+.admin-inventory-secondary-btn,
+.admin-inventory-actions button {
+  min-height: 38px;
+  padding: 0 13px;
+  border-radius: 8px;
+  cursor: pointer;
+  font: inherit;
+  font-weight: 700;
+  transition: opacity 0.2s ease, background 0.2s ease, border-color 0.2s ease;
+}
+
+.admin-inventory-primary-btn {
+  border: 1px solid var(--gold-primary);
+  background: var(--gold-primary);
+  color: #1f1a17;
+}
+
+.admin-inventory-secondary-btn,
+.admin-inventory-actions button {
+  border: 1px solid var(--border-color);
+  background: rgba(255, 255, 255, 0.04);
+  color: var(--text-white);
+}
+
+.admin-inventory-actions button.danger {
+  border-color: rgba(255, 138, 138, 0.45);
+  background: rgba(255, 138, 138, 0.08);
+  color: var(--status-red);
+}
+
+.admin-inventory-primary-btn:disabled,
+.admin-inventory-actions button:disabled {
+  cursor: not-allowed;
+  opacity: 0.55;
+}
+
+.admin-inventory-list {
+  min-width: 0;
+}
+
+.admin-inventory-filters {
+  display: grid;
+  gap: 10px;
+  margin: 14px 0;
+}
+
+.admin-inventory-filters > div {
+  display: flex;
+  gap: 8px;
+}
+
+.admin-inventory-category-filters {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(104px, 1fr));
+}
+
+.admin-inventory-status-filters {
+  flex-wrap: wrap;
+}
+
+.admin-inventory-filters button {
+  min-height: 34px;
+  padding: 0 11px;
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.04);
+  color: var(--text-muted);
+  cursor: pointer;
+  font: inherit;
+  font-size: 0.82rem;
+  font-weight: 800;
+  text-align: center;
+}
+
+.admin-inventory-filters button.active {
+  border-color: var(--gold-primary);
+  background: rgba(212, 163, 115, 0.12);
+  color: var(--gold-primary);
+}
+
+.admin-inventory-table-wrap {
+  overflow-x: auto;
+}
+
+.admin-inventory-table {
+  width: 100%;
+  border-collapse: collapse;
+  min-width: 760px;
+}
+
+.admin-inventory-table th,
+.admin-inventory-table td {
+  padding: 14px;
+  border-bottom: 1px solid var(--border-color);
+  color: var(--text-white);
+  text-align: left;
+  vertical-align: middle;
+}
+
+.admin-inventory-table th {
+  color: var(--text-muted);
+  font-size: 0.76rem;
+  text-transform: uppercase;
+}
+
+.admin-inventory-table tr:last-child td {
+  border-bottom: 0;
+}
+
+.admin-inventory-table tr.status-ok {
+  background: rgba(81, 207, 102, 0.05);
+}
+
+.admin-inventory-table tr.status-comprare {
+  background: rgba(255, 138, 138, 0.05);
+}
+
+.admin-inventory-table tr.status-monitorare {
+  background: rgba(255, 212, 59, 0.05);
+}
+
+.admin-inventory-table strong,
+.admin-inventory-table small {
+  display: block;
+}
+
+.admin-inventory-table small {
+  margin-top: 5px;
+  color: var(--text-muted);
+  overflow-wrap: anywhere;
+}
+
+.admin-inventory-status {
+  display: inline-flex;
+  align-items: center;
+  min-height: 28px;
+  padding: 0 10px;
+  border-radius: 8px;
+  font-size: 0.78rem;
+  font-weight: 800;
+  white-space: nowrap;
+}
+
+.admin-inventory-status.status-ok {
+  border: 1px solid rgba(81, 207, 102, 0.28);
+  background: rgba(81, 207, 102, 0.14);
+  color: var(--status-green);
+}
+
+.admin-inventory-status.status-monitorare {
+  border: 1px solid rgba(255, 212, 59, 0.28);
+  background: rgba(255, 212, 59, 0.14);
+  color: var(--gold-primary);
+}
+
+.admin-inventory-status.status-comprare {
+  border: 1px solid rgba(255, 138, 138, 0.28);
+  background: rgba(255, 138, 138, 0.14);
+  color: var(--status-red);
+}
+
+@media (max-width: 980px) {
+  .admin-inventory-layout {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 760px) {
+  .admin-inventory-stats,
+  .admin-inventory-form-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .admin-inventory-actions {
+    flex-wrap: wrap;
+  }
+}

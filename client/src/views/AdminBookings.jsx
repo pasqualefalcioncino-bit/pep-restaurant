@@ -124,6 +124,15 @@ const AdminBookings = () => {
       setBookings((currentBookings) =>
         currentBookings.filter((currentBooking) => currentBooking.id !== bookingToDelete.id)
       );
+      if (bookingToDelete.table_number) {
+        setTables((currentTables) =>
+          currentTables.map((table) =>
+            table.table_number === bookingToDelete.table_number
+              ? { ...table, status: 'libero' }
+              : table
+          )
+        );
+      }
       setBookingToDelete(null);
     } catch (error) {
       setErrorMessage(error.message);
@@ -176,7 +185,7 @@ const AdminBookings = () => {
             </thead>
             <tbody>
               {bookings.map((booking) => (
-                <tr key={booking.id}>
+                <tr className={`status-${booking.status}`} key={booking.id}>
                   <td>
                     <strong>{booking.full_name}</strong>
                   </td>
@@ -227,7 +236,7 @@ const AdminBookings = () => {
                   </td>
                   <td>
                     <select
-                      className="admin-bookings-status-select"
+                      className={`admin-bookings-status-select status-${booking.status}`}
                       value={booking.status}
                       onChange={(event) =>
                         updateBooking(booking, {

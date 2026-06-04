@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import { apiRequest } from '../../api/client';
 import AdminSearchToolbar from '../../components/admin/AdminSearchToolbar';
+import AdminTableCard from '../../components/admin/AdminTableCard';
 import ConfirmDeleteModal from '../../components/admin/ConfirmDeleteModal';
 import './AdminTables.css';
 
@@ -11,16 +12,39 @@ const TABLE_STATUSES = [
   { value: 'in_pulizia', label: 'In pulizia' },
 ];
 
+const TABLE_AREAS = [
+  'Sala principale',
+  'Veranda',
+  'Terrazza',
+  'Giardino',
+  'Sala privata',
+];
+
 const emptyForm = {
   table_number: '',
   seats: '',
-  area: '',
+  area: TABLE_AREAS[0],
   status: 'libero',
   notes: '',
 };
 
 const getStatusLabel = (status) => {
   return TABLE_STATUSES.find((item) => item.value === status)?.label || status;
+};
+
+const getNextAvailableTableNumber = (tables) => {
+  const usedTableNumbers = new Set(
+    tables
+      .map((table) => Number(table.table_number))
+      .filter((tableNumber) => Number.isInteger(tableNumber) && tableNumber > 0)
+  );
+  let nextTableNumber = 1;
+
+  while (usedTableNumbers.has(nextTableNumber)) {
+    nextTableNumber += 1;
+  }
+
+  return nextTableNumber;
 };
 
 const AdminTables = () => {
@@ -55,6 +79,14 @@ const AdminTables = () => {
       count: tables.filter((table) => table.status === status.value).length,
     }));
   }, [tables]);
+
+  const nextTableNumber = useMemo(() => {
+    return getNextAvailableTableNumber(tables);
+  }, [tables]);
+
+  const displayedTableNumber = editingTableId
+    ? formData.table_number
+    : String(nextTableNumber);
 
   const normalizedSearch = searchTerm.trim().toLowerCase();
   const filteredTables = tables.filter((table) => {
@@ -98,12 +130,15 @@ const AdminTables = () => {
     setErrorMessage('');
 
     const payload = {
-      table_number: Number(formData.table_number),
       seats: Number(formData.seats),
       area: formData.area,
       status: formData.status,
       notes: formData.notes,
     };
+
+    if (editingTableId) {
+      payload.table_number = Number(displayedTableNumber);
+    }
 
     try {
       const savedTable = await apiRequest(
@@ -199,7 +234,7 @@ const AdminTables = () => {
 
       <div className="admin-tables-stats" aria-label="Riepilogo stato tavoli">
         {stats.map((status) => (
-          <article className="admin-tables-stat" key={status.value}>
+          <article className={`admin-tables-stat status-${status.value}`} key={status.value}>
             <span>{status.label}</span>
             <strong>{status.count}</strong>
           </article>
@@ -218,8 +253,8 @@ const AdminTables = () => {
               <input
                 type="number"
                 min="1"
-                value={formData.table_number}
-                onChange={(event) => updateFormField('table_number', event.target.value)}
+                value={displayedTableNumber}
+                readOnly
                 required
               />
             </label>
@@ -237,12 +272,19 @@ const AdminTables = () => {
 
             <label>
               <span>Zona</span>
-              <input
-                type="text"
+              <select
                 value={formData.area}
                 onChange={(event) => updateFormField('area', event.target.value)}
-                placeholder="Sala principale"
-              />
+              >
+                {TABLE_AREAS.includes(formData.area) ? null : (
+                  <option value={formData.area}>{formData.area}</option>
+                )}
+                {TABLE_AREAS.map((area) => (
+                  <option key={area} value={area}>
+                    {area}
+                  </option>
+                ))}
+              </select>
             </label>
 
             <label>
@@ -296,58 +338,16 @@ const AdminTables = () => {
           ) : (
             <div className="admin-tables-grid">
               {filteredTables.map((table) => (
-                <article className="admin-table-card" key={table.id}>
-                  <div className="admin-table-card-top">
-                    <div>
-                      <span>Tavolo</span>
-                      <strong>{table.table_number}</strong>
-                    </div>
-                    <span className={`admin-table-status ${table.status}`}>
-                      {getStatusLabel(table.status)}
-                    </span>
-                  </div>
-
-                  <dl className="admin-table-details">
-                    <div>
-                      <dt>Posti</dt>
-                      <dd>{table.seats}</dd>
-                    </div>
-                    <div>
-                      <dt>Zona</dt>
-                      <dd>{table.area || 'Non indicata'}</dd>
-                    </div>
-                  </dl>
-
-                  {table.notes && <p className="admin-table-notes">{table.notes}</p>}
-
-                  <label className="admin-table-status-select">
-                    <span>Cambia stato</span>
-                    <select
-                      value={table.status}
-                      onChange={(event) => changeTableStatus(table.id, event.target.value)}
-                    >
-                      {TABLE_STATUSES.map((status) => (
-                        <option key={status.value} value={status.value}>
-                          {status.label}
-                        </option>
-                      ))}
-                    </select>
-                  </label>
-
-                  <div className="admin-table-actions">
-                    <button type="button" onClick={() => startEdit(table)}>
-                      Modifica
-                    </button>
-                    <button
-                      className="danger"
-                      type="button"
-                      onClick={() => setTableToDelete(table)}
-                      disabled={deletingTableId === table.id}
-                    >
-                      {deletingTableId === table.id ? 'Elimino...' : 'Elimina'}
-                    </button>
-                  </div>
-                </article>
+                <AdminTableCard
+                  deletingTableId={deletingTableId}
+                  getStatusLabel={getStatusLabel}
+                  key={table.id}
+                  onDelete={setTableToDelete}
+                  onEdit={startEdit}
+                  onStatusChange={changeTableStatus}
+                  statuses={TABLE_STATUSES}
+                  table={table}
+                />
               ))}
             </div>
           )}

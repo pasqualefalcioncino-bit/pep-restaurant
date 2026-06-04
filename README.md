@@ -38,6 +38,14 @@ client/src/api/client.js
 
 Questo file centralizza la base URL del backend e aggiunge automaticamente il token JWT alle richieste protette.
 
+I colori principali dell'interfaccia sono centralizzati in:
+
+```text
+client/src/styles/appTheme.css
+```
+
+Le pagine richiamano i token CSS globali, ad esempio `--gold-primary`, `--status-green`, `--status-red`, `--card-bg` e `--border-color`, cosi gli stati grafici restano coerenti tra cliente, cameriere, cuoco e admin.
+
 ## Funzionalita
 
 ### Cliente
@@ -64,6 +72,7 @@ Questo file centralizza la base URL del backend e aggiunge automaticamente il to
 - Aggiornamento stato ordine.
 - Segnalazione delle singole portate pronte.
 - Gestione disponibilita piatti.
+- Consultazione inventario con filtri e aggiornamento della sola scorta attuale.
 - Riepiloghi per stato ordine con filtro data ed eliminazione.
 
 ### Admin
@@ -73,7 +82,8 @@ Questo file centralizza la base URL del backend e aggiunge automaticamente il to
 - Gestione prenotazioni.
 - Assegnazione tavoli alle prenotazioni confermate.
 - Gestione menu: creazione, modifica, eliminazione piatti, immagini e disponibilita.
-- Gestione tavoli: creazione, modifica, stato sala ed eliminazione.
+- Gestione tavoli: creazione con numero automatico, zona predefinita, modifica, stato sala ed eliminazione.
+- Gestione inventario: ingredienti, scorte totali e stati acquisto automatici.
 - Creazione utenze dipendente.
 - Visualizzazione ed eliminazione clienti.
 - Visualizzazione ed eliminazione staff.
@@ -243,6 +253,16 @@ Gli account `cameriere`, `cuoco` e altri `admin` possono essere creati dall'area
 | PATCH | `/tables/:id/status` | Admin, cameriere | Aggiorna stato tavolo |
 | DELETE | `/tables/:id` | Admin | Elimina tavolo |
 
+### Inventario
+
+| Metodo | Endpoint | Accesso | Descrizione |
+| --- | --- | --- | --- |
+| GET | `/inventory` | Admin, cuoco | Lista ingredienti |
+| POST | `/inventory` | Admin | Crea ingrediente |
+| PATCH | `/inventory/:id/quantity` | Admin, cuoco | Aggiorna solo la scorta attuale |
+| PUT | `/inventory/:id` | Admin | Modifica ingrediente |
+| DELETE | `/inventory/:id` | Admin | Elimina ingrediente |
+
 ## Database
 
 Tabelle principali:
@@ -254,13 +274,16 @@ bookings
 orders
 order_items
 restaurant_tables
+inventory_items
 ```
 
 La tabella `menu_items` contiene anche il campo `available`, usato per nascondere o bloccare i piatti non disponibili.
 
 La tabella `order_items` mantiene lo stato della singola portata, cosi il cuoco puo segnare un piatto come pronto senza chiudere subito tutto l'ordine.
 
-La tabella `restaurant_tables` contiene i tavoli fisici del ristorante, con numero tavolo, posti, zona, note e stato operativo.
+La tabella `restaurant_tables` contiene i tavoli fisici del ristorante, con numero tavolo, posti, zona, note e stato operativo. La creazione assegna il primo numero tavolo disponibile, riempiendo eventuali numeri mancanti prima di proseguire.
+
+La tabella `inventory_items` contiene gli ingredienti coerenti con il menu, con categoria, quantita attuale, scorta totale, unita di misura e note operative. Lo stato e' `Ok` sopra i due terzi della scorta totale, `Da monitorare` sopra un terzo e `Da comprare` sotto o pari a un terzo. Il cuoco puo consultare l'inventario e aggiornare solo la scorta attuale.
 
 Le prenotazioni possono avere un `table_number` assegnato dall'admin. Quando una prenotazione viene confermata con tavolo, il tavolo passa a `prenotato`.
 
@@ -364,8 +387,8 @@ npm run build
 ## Note sviluppo
 
 - Se una tabella e' stata aggiunta dopo la creazione del database locale, bisogna eseguire manualmente la relativa parte di `schema.sql` in PgAdmin o ricreare il database.
-- Le pagine admin attualmente piu complete sono Dashboard, Prenotazioni, Menu, Tavoli, Clienti, Staff e Dipendenti.
-- Inventario e Cassa sono presenti come sezioni dell'interfaccia admin ma sono ancora da completare lato logica/database.
+- Le pagine admin attualmente piu complete sono Dashboard, Prenotazioni, Menu, Tavoli, Inventario, Clienti, Staff e Dipendenti.
+- Cassa e' presente come sezione dell'interfaccia admin ma e' ancora da completare lato logica/database.
 
 ## Autori
 

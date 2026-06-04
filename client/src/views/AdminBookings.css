@@ -29,7 +29,7 @@
 }
 
 .admin-bookings-state.error {
-  color: #ff8a8a;
+  color: var(--status-red);
 }
 
 .admin-bookings-table-wrap {
@@ -79,6 +79,18 @@
   border-bottom: none;
 }
 
+.admin-bookings-table tbody tr.status-in_attesa {
+  background: rgba(230, 181, 62, 0.1);
+}
+
+.admin-bookings-table tbody tr.status-confermata {
+  background: rgba(48, 216, 120, 0.1);
+}
+
+.admin-bookings-table tbody tr.status-annullata {
+  background: rgba(255, 138, 138, 0.1);
+}
+
 .admin-bookings-status-select,
 .admin-bookings-table-select {
   width: 140px;
@@ -88,6 +100,24 @@
   color: var(--gold-primary);
   background-color: rgba(212, 163, 115, 0.1);
   font: inherit;
+}
+
+.admin-bookings-status-select.status-in_attesa {
+  border-color: rgba(230, 181, 62, 0.55);
+  background-color: rgba(230, 181, 62, 0.16);
+  color: var(--gold-primary);
+}
+
+.admin-bookings-status-select.status-confermata {
+  border-color: rgba(48, 216, 120, 0.55);
+  background-color: rgba(48, 216, 120, 0.16);
+  color: var(--status-green);
+}
+
+.admin-bookings-status-select.status-annullata {
+  border-color: rgba(255, 138, 138, 0.55);
+  background-color: rgba(255, 138, 138, 0.16);
+  color: var(--status-red);
 }
 
 .admin-bookings-table-select {
@@ -110,7 +140,7 @@
   border: 1px solid rgba(255, 138, 138, 0.45);
   border-radius: 8px;
   background: rgba(255, 138, 138, 0.08);
-  color: #ff8a8a;
+  color: var(--status-red);
   cursor: pointer;
   font: inherit;
   font-weight: 700;

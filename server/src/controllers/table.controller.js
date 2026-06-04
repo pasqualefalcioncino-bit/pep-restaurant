@@ -2,16 +2,21 @@ const tableModel = require("../models/table.model");
 
 const allowedStatuses = ["libero", "occupato", "prenotato", "in_pulizia"];
 
-const normalizeTablePayload = (body) => {
-  const tableNumber = Number(body.table_number);
+const isValidPositiveInteger = (value) => {
+  return Number.isInteger(value) && value > 0;
+};
+
+const normalizeTablePayload = (body, { requireTableNumber = true } = {}) => {
+  const hasTableNumber = body.table_number !== undefined && body.table_number !== null && body.table_number !== "";
+  const tableNumber = hasTableNumber ? Number(body.table_number) : null;
   const seats = Number(body.seats);
   const status = body.status || "libero";
 
-  if (!Number.isInteger(tableNumber) || tableNumber <= 0) {
+  if ((requireTableNumber || hasTableNumber) && !isValidPositiveInteger(tableNumber)) {
     return { error: "Numero tavolo non valido" };
   }
 
-  if (!Number.isInteger(seats) || seats <= 0) {
+  if (!isValidPositiveInteger(seats)) {
     return { error: "Numero posti non valido" };
   }
 
@@ -38,7 +43,7 @@ exports.getTables = async (req, res) => {
 };
 
 exports.createTable = async (req, res) => {
-  const payload = normalizeTablePayload(req.body);
+  const payload = normalizeTablePayload(req.body, { requireTableNumber: false });
 
   if (payload.error) {
     return res.status(400).send(payload.error);

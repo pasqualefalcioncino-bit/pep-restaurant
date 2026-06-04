@@ -48,7 +48,7 @@
 
 .home-dish-image {
   height: 250px;
-  background: #080808;
+  background: var(--bg-dark);
 }
 
 .home-dish-image img {

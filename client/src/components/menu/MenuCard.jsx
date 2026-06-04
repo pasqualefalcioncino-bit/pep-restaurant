@@ -1,3 +1,4 @@
+import { formatPrice } from '../../utils/priceFormatter';
 import './MenuCard.css';
 
 const MenuCard = ({ piatto }) => {
@@ -26,7 +27,7 @@ const MenuCard = ({ piatto }) => {
         <p className="menu-prep-time">🕒 {piatto.tempo} min</p>
 
         <div className="menu-card-footer">
-          <span className="menu-price">€{piatto.prezzo}</span>
+          <span className="menu-price">€{formatPrice(piatto.prezzo)}</span>
         </div>
       </div>
     </article>

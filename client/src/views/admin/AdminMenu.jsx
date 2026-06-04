@@ -3,6 +3,7 @@ import { API_URL, apiRequest, getAuthToken } from '../../api/client';
 import ConfirmDeleteModal from '../../components/admin/ConfirmDeleteModal';
 import { menuCategories } from '../../utils/menuCatalog';
 import { getMenuImage } from '../../utils/menuImages';
+import { formatEuroPrice } from '../../utils/priceFormatter';
 import './AdminMenu.css';
 
 const emptyForm = {
@@ -414,7 +415,7 @@ const AdminMenu = () => {
                       </div>
                     </td>
                     <td>{item.category}</td>
-                    <td>EUR {Number(item.price).toFixed(2)}</td>
+                    <td>{formatEuroPrice(item.price)}</td>
                     <td>{item.prep_time || 0} min</td>
                     <td>{item.image || '-'}</td>
                     <td>{item.veg ? 'Si' : 'No'}</td>
@@ -447,7 +448,7 @@ const AdminMenu = () => {
           summaryItems={[
             itemToDelete.name,
             itemToDelete.category,
-            `EUR ${Number(itemToDelete.price).toFixed(2)}`,
+            formatEuroPrice(itemToDelete.price),
           ]}
           isDeleting={deletingItemId === itemToDelete.id}
           onCancel={() => setItemToDelete(null)}

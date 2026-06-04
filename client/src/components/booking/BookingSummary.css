@@ -55,7 +55,7 @@
   margin: 30px 0;
   border: 1px solid var(--border-color);
   border-radius: 12px;
-  background-color: #080808;
+  background-color: var(--bg-dark);
   text-align: left;
 }
 
@@ -148,7 +148,7 @@
   border: 1px solid rgba(255, 138, 138, 0.4);
   border-radius: 10px;
   background-color: rgba(255, 138, 138, 0.1);
-  color: #ff8a8a;
+  color: var(--status-red);
   font-weight: 700;
   text-align: center;
 }

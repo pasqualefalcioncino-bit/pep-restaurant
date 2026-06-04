@@ -29,7 +29,7 @@
 }
 
 .admin-staff-state.error {
-  color: #ff8a8a;
+  color: var(--status-red);
 }
 
 .admin-staff-table-wrap {
@@ -107,7 +107,7 @@
   border: 1px solid rgba(255, 138, 138, 0.45);
   border-radius: 8px;
   background: rgba(255, 138, 138, 0.08);
-  color: #ff8a8a;
+  color: var(--status-red);
   cursor: pointer;
   font: inherit;
   font-weight: 700;

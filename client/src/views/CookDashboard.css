@@ -29,15 +29,15 @@
   padding: 18px 20px;
   border: 1px solid rgba(212, 163, 115, 0.2);
   border-radius: 8px;
-  background: #161310;
+  background: var(--card-bg);
   cursor: pointer;
   font: inherit;
   text-align: left;
 }
 
 .cook-metric-card:hover {
-  border-color: #e6b53e;
-  background: #1d1814;
+  border-color: var(--gold-primary);
+  background: var(--card-bg-hover);
 }
 
 .cook-metric-card.active,
@@ -76,23 +76,23 @@
 .cook-metric-icon.active,
 .cook-metric-icon.wait,
 .cook-metric-icon.prep {
-  color: #e6b53e;
+  color: var(--gold-primary);
 }
 
 .cook-metric-icon.prep {
-  color: #67aeff;
+  color: var(--status-blue);
 }
 
 .cook-metric-icon.ready {
-  color: #30d878;
+  color: var(--status-green);
 }
 
 .cook-metric-icon.served {
-  color: #7fd7ff;
+  color: var(--status-cyan);
 }
 
 .cook-metric-icon.cancelled {
-  color: #ff8a8a;
+  color: var(--status-red);
 }
 
 .cook-metric-card strong {
@@ -128,9 +128,9 @@
 }
 
 .cook-tabs button.active {
-  background: #17120f;
+  background: var(--text-dark);
   color: var(--text-white);
-  box-shadow: inset 0 0 0 2px #e6b53e;
+  box-shadow: inset 0 0 0 2px var(--gold-primary);
 }
 
 .cook-filters {
@@ -146,15 +146,15 @@
   border: 1px solid rgba(212, 163, 115, 0.22);
   border-radius: 999px;
   background: transparent;
-  color: #bfb1a6;
+  color: var(--text-muted);
   cursor: pointer;
   font: inherit;
 }
 
 .cook-filters button.active {
-  border-color: #e6b53e;
-  background: #e6b53e;
-  color: #17120f;
+  border-color: var(--gold-primary);
+  background: var(--gold-primary);
+  color: var(--text-dark);
 }
 
 .cook-dashboard-state {
@@ -168,7 +168,7 @@
 
 .cook-dashboard-state.error {
   margin-bottom: 18px;
-  color: #ff8a8a;
+  color: var(--status-red);
 }
 
 .cook-orders-grid {
@@ -181,7 +181,7 @@
   overflow: hidden;
   border: 1px solid rgba(212, 163, 115, 0.22);
   border-radius: 12px;
-  background: #181410;
+  background: var(--card-bg-strong);
 }
 
 .cook-order-card-header {
@@ -190,7 +190,7 @@
   justify-content: space-between;
   gap: 12px;
   padding: 14px 16px;
-  background: #26201c;
+  background: var(--surface-header);
 }
 
 .cook-order-card.status-in_attesa {
@@ -315,7 +315,7 @@
   border: 1px solid rgba(48, 216, 120, 0.55);
   border-radius: 8px;
   background: rgba(48, 216, 120, 0.12);
-  color: #30d878;
+  color: var(--status-green);
   cursor: pointer;
   font: inherit;
   font-size: 0.78rem;
@@ -340,7 +340,7 @@
   border: 1px solid rgba(212, 163, 115, 0.22);
   border-radius: 8px;
   background-color: rgba(212, 163, 115, 0.08);
-  color: #e6b53e;
+  color: var(--gold-primary);
   font-weight: 800;
 }
 
@@ -351,7 +351,7 @@
 }
 
 .cook-order-item strong {
-  color: #e6b53e;
+  color: var(--gold-primary);
   font-family: 'Playfair Display', serif;
   font-size: 1.35rem;
 }
@@ -394,24 +394,6 @@
   opacity: 0.7;
 }
 
-.cook-placeholder-panel {
-  padding: 28px;
-  border: 1px solid rgba(212, 163, 115, 0.22);
-  border-radius: 8px;
-  background: var(--card-bg);
-}
-
-.cook-placeholder-panel h2 {
-  margin: 0 0 8px;
-  color: var(--text-white);
-  font-family: 'Playfair Display', serif;
-}
-
-.cook-placeholder-panel p {
-  margin: 0;
-  color: var(--text-muted);
-}
-
 .cook-menu-management {
   display: grid;
   gap: 18px;
@@ -446,7 +428,7 @@
   border: 1px solid rgba(255, 138, 138, 0.45);
   border-radius: 8px;
   background: rgba(255, 138, 138, 0.1);
-  color: #ff8a8a;
+  color: var(--status-red);
   font-family: 'Playfair Display', serif;
   font-size: 1.8rem;
   line-height: 1;
@@ -487,7 +469,7 @@
 }
 
 .cook-menu-table th {
-  color: #e6b53e;
+  color: var(--gold-primary);
   font-size: 0.78rem;
   text-transform: uppercase;
 }
@@ -522,7 +504,7 @@
   border: 1px solid rgba(212, 163, 115, 0.22);
   border-radius: 8px;
   background-color: rgba(212, 163, 115, 0.08);
-  color: #e6b53e;
+  color: var(--gold-primary);
   font-weight: 800;
 }
 
@@ -554,7 +536,7 @@
   border: 1px solid rgba(48, 216, 120, 0.45);
   border-radius: 999px;
   background: rgba(48, 216, 120, 0.1);
-  color: #30d878;
+  color: var(--status-green);
   font-size: 0.78rem;
   font-weight: 900;
 }
@@ -562,16 +544,16 @@
 .cook-menu-status.unavailable {
   border-color: rgba(255, 138, 138, 0.65);
   background: rgba(255, 138, 138, 0.12);
-  color: #ff8a8a;
+  color: var(--status-red);
 }
 
 .cook-menu-availability {
   min-height: 36px;
   padding: 0 12px;
-  border: 1px solid #30d878;
+  border: 1px solid var(--status-green);
   border-radius: 8px;
   background: rgba(48, 216, 120, 0.1);
-  color: #30d878;
+  color: var(--status-green);
   cursor: pointer;
   font: inherit;
   font-weight: 900;
@@ -580,7 +562,7 @@
 .cook-menu-table tr.unavailable .cook-menu-availability {
   border-color: rgba(255, 138, 138, 0.7);
   background: rgba(255, 138, 138, 0.14);
-  color: #ff8a8a;
+  color: var(--status-red);
 }
 
 .cook-menu-availability:hover {
@@ -590,6 +572,216 @@
 .cook-menu-availability:disabled {
   cursor: not-allowed;
   opacity: 0.7;
+}
+
+.cook-inventory-management {
+  display: grid;
+  gap: 18px;
+}
+
+.cook-inventory-management .admin-inventory-stat {
+  border-color: rgba(212, 163, 115, 0.24);
+  background: var(--card-bg);
+}
+
+.cook-inventory-management .admin-inventory-stat.tone-ok {
+  border-color: rgba(48, 216, 120, 0.62);
+  background: rgba(48, 216, 120, 0.12);
+}
+
+.cook-inventory-management .admin-inventory-stat.tone-ok strong {
+  color: var(--status-green);
+}
+
+.cook-inventory-management .admin-inventory-stat.tone-warning {
+  border-color: rgba(230, 181, 62, 0.62);
+  background: rgba(230, 181, 62, 0.12);
+}
+
+.cook-inventory-management .admin-inventory-stat.tone-warning strong {
+  color: var(--gold-primary);
+}
+
+.cook-inventory-management .admin-inventory-stat.tone-danger {
+  border-color: rgba(255, 138, 138, 0.62);
+  background: rgba(255, 138, 138, 0.12);
+}
+
+.cook-inventory-management .admin-inventory-stat.tone-danger strong {
+  color: var(--status-red);
+}
+
+.cook-inventory-management .admin-inventory-header {
+  margin-bottom: 0;
+}
+
+.cook-inventory-management .admin-inventory-header h2 {
+  margin: 0 0 10px;
+  color: var(--text-white);
+  font-family: 'Playfair Display', serif;
+  font-size: 2rem;
+}
+
+.cook-inventory-stock-editor {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(180px, 240px) auto;
+  gap: 14px;
+  align-items: end;
+  padding: 18px;
+  border: 1px solid rgba(212, 163, 115, 0.24);
+  border-radius: 8px;
+  background: var(--card-bg);
+}
+
+.cook-inventory-management .admin-search-toolbar input,
+.cook-inventory-management .admin-inventory-table-wrap,
+.cook-inventory-management .admin-inventory-state {
+  border-color: rgba(212, 163, 115, 0.24);
+  background: var(--card-bg);
+}
+
+.cook-inventory-management .admin-inventory-filters button {
+  border-color: rgba(212, 163, 115, 0.24);
+  background: var(--card-bg-hover);
+  color: var(--text-muted);
+}
+
+.cook-inventory-management .admin-inventory-filters button.active {
+  border-color: var(--gold-primary);
+  background: var(--gold-primary);
+  color: var(--text-dark);
+}
+
+.cook-inventory-management .admin-inventory-table th,
+.cook-inventory-management .admin-inventory-table td {
+  border-color: rgba(212, 163, 115, 0.14);
+}
+
+.cook-inventory-management .admin-inventory-table th {
+  color: var(--gold-primary);
+}
+
+.cook-inventory-management .admin-inventory-table tr.status-ok {
+  background: rgba(48, 216, 120, 0.12);
+}
+
+.cook-inventory-management .admin-inventory-table tr.status-monitorare {
+  background: rgba(230, 181, 62, 0.12);
+}
+
+.cook-inventory-management .admin-inventory-table tr.status-comprare {
+  background: rgba(255, 138, 138, 0.12);
+}
+
+.cook-inventory-management .admin-inventory-status.status-ok {
+  border-color: rgba(48, 216, 120, 0.55);
+  background: rgba(48, 216, 120, 0.18);
+  color: var(--status-green);
+}
+
+.cook-inventory-management .admin-inventory-status.status-monitorare {
+  border-color: rgba(230, 181, 62, 0.55);
+  background: rgba(230, 181, 62, 0.18);
+  color: var(--gold-primary);
+}
+
+.cook-inventory-management .admin-inventory-status.status-comprare {
+  border-color: rgba(255, 138, 138, 0.65);
+  background: rgba(255, 138, 138, 0.18);
+  color: var(--status-red);
+}
+
+.cook-inventory-management .admin-inventory-actions button {
+  border-color: rgba(230, 181, 62, 0.55);
+  background: rgba(230, 181, 62, 0.12);
+  color: var(--gold-primary);
+}
+
+.cook-inventory-management .admin-inventory-actions button:hover {
+  background: rgba(230, 181, 62, 0.2);
+}
+
+.cook-inventory-management .admin-inventory-table th:last-child,
+.cook-inventory-management .admin-inventory-table td:last-child {
+  text-align: left;
+}
+
+.cook-inventory-management .admin-inventory-actions {
+  justify-content: flex-start;
+}
+
+.cook-inventory-stock-editor > div:first-child {
+  min-width: 0;
+}
+
+.cook-inventory-stock-editor span,
+.cook-inventory-stock-editor small {
+  display: block;
+  color: var(--text-muted);
+}
+
+.cook-inventory-stock-editor span {
+  margin-bottom: 6px;
+  font-size: 0.78rem;
+  font-weight: 800;
+  text-transform: uppercase;
+}
+
+.cook-inventory-stock-editor strong {
+  display: block;
+  color: var(--text-white);
+  font-family: 'Playfair Display', serif;
+  font-size: 1.28rem;
+  line-height: 1.15;
+}
+
+.cook-inventory-stock-editor label {
+  display: grid;
+  gap: 7px;
+  color: var(--text-muted);
+  font-size: 0.82rem;
+  font-weight: 800;
+}
+
+.cook-inventory-stock-editor input {
+  box-sizing: border-box;
+  width: 100%;
+  min-height: 40px;
+  padding: 0 11px;
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  background-color: rgba(255, 255, 255, 0.04);
+  color: var(--text-white);
+  font: inherit;
+}
+
+.cook-inventory-stock-actions {
+  display: flex;
+  gap: 10px;
+  justify-content: flex-end;
+}
+
+.cook-inventory-stock-actions button {
+  min-height: 40px;
+  padding: 0 13px;
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.04);
+  color: var(--text-white);
+  cursor: pointer;
+  font: inherit;
+  font-weight: 800;
+}
+
+.cook-inventory-stock-actions button.primary {
+  border-color: var(--gold-primary);
+  background: var(--gold-primary);
+  color: #1f1a17;
+}
+
+.cook-inventory-stock-actions button:disabled {
+  cursor: not-allowed;
+  opacity: 0.55;
 }
 
 .cook-metric-backdrop {
@@ -635,7 +827,7 @@
   border: 1px solid rgba(212, 163, 115, 0.4);
   border-radius: 8px;
   background: transparent;
-  color: #e6b53e;
+  color: var(--gold-primary);
   cursor: pointer;
   font: inherit;
   font-weight: 800;
@@ -654,7 +846,7 @@
   padding: 14px;
   border: 1px solid rgba(212, 163, 115, 0.18);
   border-radius: 8px;
-  background: #161310;
+  background: var(--card-bg);
 }
 
 .cook-metric-modal-total-copy {
@@ -714,10 +906,10 @@
   appearance: none;
   padding: 0 36px 0 12px;
   border: 1px solid rgba(212, 163, 115, 0.35);
-  background-color: #080808;
+  background-color: var(--bg-dark);
   background-image:
-    linear-gradient(45deg, transparent 50%, #e6b53e 50%),
-    linear-gradient(135deg, #e6b53e 50%, transparent 50%);
+    linear-gradient(45deg, transparent 50%, var(--gold-primary) 50%),
+    linear-gradient(135deg, var(--gold-primary) 50%, transparent 50%);
   background-position:
     calc(100% - 18px) 50%,
     calc(100% - 12px) 50%;
@@ -730,7 +922,7 @@
   padding: 0 14px;
   border: 1px solid rgba(255, 138, 138, 0.55);
   background: rgba(255, 138, 138, 0.12);
-  color: #ff8a8a;
+  color: var(--status-red);
   cursor: pointer;
 }
 
@@ -752,7 +944,7 @@
   overflow: hidden;
   border: 1px solid rgba(212, 163, 115, 0.2);
   border-radius: 8px;
-  background: #181410;
+  background: var(--card-bg-strong);
 }
 
 .cook-metric-modal-order-head {
@@ -761,7 +953,7 @@
   justify-content: space-between;
   gap: 12px;
   padding: 12px 14px;
-  background: #26201c;
+  background: var(--surface-header);
 }
 
 .cook-metric-modal-order-head h3 {
@@ -821,7 +1013,7 @@
 }
 
 .cook-metric-modal-item strong {
-  color: #e6b53e;
+  color: var(--gold-primary);
   font-family: 'Playfair Display', serif;
   font-size: 1.05rem;
 }
@@ -867,6 +1059,18 @@
 
   .cook-menu-management-header {
     flex-direction: column;
+  }
+
+  .cook-inventory-stock-editor {
+    grid-template-columns: 1fr;
+  }
+
+  .cook-inventory-stock-actions {
+    justify-content: stretch;
+  }
+
+  .cook-inventory-stock-actions button {
+    flex: 1;
   }
 
   .cook-order-item {

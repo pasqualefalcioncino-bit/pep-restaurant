@@ -152,7 +152,7 @@ button.admin-dashboard-stat:hover {
   padding: 13px;
   border: 1px solid var(--border-color);
   border-radius: 8px;
-  background-color: #080808;
+  background-color: var(--bg-dark);
   color: inherit;
   font: inherit;
   text-align: left;
@@ -185,24 +185,28 @@ button.admin-dashboard-stat:hover {
   background: rgba(48, 216, 120, 0.08);
 }
 
-.admin-dashboard-tables-panel {
+.admin-dashboard-tables-panel,
+.admin-dashboard-inventory-panel {
   grid-column: 1 / -1;
 }
 
-.admin-dashboard-table-stats {
+.admin-dashboard-table-stats,
+.admin-dashboard-inventory-stats {
   display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
   gap: 12px;
 }
 
-.admin-dashboard-table-stat {
+.admin-dashboard-table-stat,
+.admin-dashboard-inventory-stat {
   padding: 14px;
   border: 1px solid var(--border-color);
   border-radius: 8px;
-  background: #080808;
+  background: var(--bg-dark);
 }
 
 .admin-dashboard-table-stat span,
+.admin-dashboard-inventory-stat span,
 .admin-dashboard-busy-tables > span {
   display: block;
   color: var(--text-muted);
@@ -211,7 +215,8 @@ button.admin-dashboard-stat:hover {
   text-transform: uppercase;
 }
 
-.admin-dashboard-table-stat strong {
+.admin-dashboard-table-stat strong,
+.admin-dashboard-inventory-stat strong {
   display: block;
   margin-top: 8px;
   color: var(--text-white);
@@ -221,18 +226,65 @@ button.admin-dashboard-stat:hover {
 
 .admin-dashboard-table-stat.status-libero {
   border-color: rgba(81, 207, 102, 0.35);
+  background: rgba(81, 207, 102, 0.08);
+}
+
+.admin-dashboard-table-stat.status-libero strong {
+  color: var(--status-green);
 }
 
 .admin-dashboard-table-stat.status-occupato {
   border-color: rgba(255, 138, 138, 0.35);
+  background: rgba(255, 138, 138, 0.08);
+}
+
+.admin-dashboard-table-stat.status-occupato strong {
+  color: var(--status-red);
 }
 
 .admin-dashboard-table-stat.status-prenotato {
   border-color: rgba(116, 192, 252, 0.35);
+  background: rgba(116, 192, 252, 0.08);
+}
+
+.admin-dashboard-table-stat.status-prenotato strong {
+  color: var(--status-blue);
 }
 
 .admin-dashboard-table-stat.status-in_pulizia {
   border-color: rgba(255, 212, 59, 0.35);
+  background: rgba(255, 212, 59, 0.08);
+}
+
+.admin-dashboard-table-stat.status-in_pulizia strong {
+  color: var(--gold-primary);
+}
+
+.admin-dashboard-inventory-stat.status-ok {
+  border-color: rgba(81, 207, 102, 0.35);
+  background: rgba(81, 207, 102, 0.08);
+}
+
+.admin-dashboard-inventory-stat.status-ok strong {
+  color: var(--status-green);
+}
+
+.admin-dashboard-inventory-stat.status-monitorare {
+  border-color: rgba(255, 212, 59, 0.35);
+  background: rgba(255, 212, 59, 0.08);
+}
+
+.admin-dashboard-inventory-stat.status-monitorare strong {
+  color: var(--gold-primary);
+}
+
+.admin-dashboard-inventory-stat.status-comprare {
+  border-color: rgba(255, 138, 138, 0.35);
+  background: rgba(255, 138, 138, 0.08);
+}
+
+.admin-dashboard-inventory-stat.status-comprare strong {
+  color: var(--status-red);
 }
 
 .admin-dashboard-busy-tables {
@@ -252,27 +304,31 @@ button.admin-dashboard-stat:hover {
   padding: 0 10px;
   border: 1px solid var(--border-color);
   border-radius: 8px;
-  background: #080808;
+  background: var(--bg-dark);
   color: var(--text-white);
   cursor: pointer;
   font: inherit;
   font-size: 0.84rem;
   font-weight: 800;
+  white-space: nowrap;
 }
 
 .admin-dashboard-table-chip.status-occupato {
   border-color: rgba(255, 138, 138, 0.45);
-  color: #ffabab;
+  background: rgba(255, 138, 138, 0.1);
+  color: var(--status-red);
 }
 
 .admin-dashboard-table-chip.status-prenotato {
   border-color: rgba(116, 192, 252, 0.45);
-  color: #91d2ff;
+  background: rgba(116, 192, 252, 0.1);
+  color: var(--status-blue);
 }
 
 .admin-dashboard-table-chip.status-in_pulizia {
   border-color: rgba(255, 212, 59, 0.45);
-  color: #ffe066;
+  background: rgba(255, 212, 59, 0.1);
+  color: var(--gold-primary);
 }
 
 .admin-dashboard-row strong,
@@ -296,7 +352,7 @@ button.admin-dashboard-stat:hover {
   padding: 6px 9px;
   border: 1px solid rgba(230, 181, 62, 0.45);
   border-radius: 8px;
-  color: #e6b53e;
+  color: var(--gold-primary);
   background-color: rgba(230, 181, 62, 0.12);
   font-size: 0.78rem;
   font-weight: 800;
@@ -304,26 +360,26 @@ button.admin-dashboard-stat:hover {
 
 .admin-dashboard-pill.status-confermata {
   border-color: rgba(138, 240, 178, 0.45);
-  color: #8af0b2;
+  color: var(--status-green);
   background-color: rgba(138, 240, 178, 0.1);
 }
 
 .admin-dashboard-pill.status-in_preparazione {
   border-color: rgba(103, 174, 255, 0.45);
-  color: #67aeff;
+  color: var(--status-blue);
   background-color: rgba(103, 174, 255, 0.12);
 }
 
 .admin-dashboard-pill.status-pronto {
   border-color: rgba(48, 216, 120, 0.45);
-  color: #30d878;
+  color: var(--status-green);
   background-color: rgba(48, 216, 120, 0.12);
 }
 
 .admin-dashboard-pill.status-annullata,
 .admin-dashboard-pill.status-annullato {
   border-color: rgba(255, 138, 138, 0.45);
-  color: #ff8a8a;
+  color: var(--status-red);
   background-color: rgba(255, 138, 138, 0.1);
 }
 
@@ -401,7 +457,7 @@ button.admin-dashboard-stat:hover {
   padding: 12px;
   border: 1px solid rgba(212, 163, 115, 0.16);
   border-radius: 8px;
-  background: #161310;
+  background: var(--card-bg);
 }
 
 .admin-dashboard-order-meta span,
@@ -436,7 +492,7 @@ button.admin-dashboard-stat:hover {
   padding: 10px 12px;
   border: 1px solid rgba(212, 163, 115, 0.14);
   border-radius: 8px;
-  background: #181410;
+  background: var(--card-bg-strong);
 }
 
 .admin-dashboard-order-item.ready {

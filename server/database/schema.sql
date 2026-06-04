@@ -72,6 +72,20 @@ CREATE TABLE restaurant_tables (
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
+-- INVENTORY ITEMS TABLE
+CREATE TABLE inventory_items (
+  id SERIAL PRIMARY KEY,
+  name VARCHAR(100) NOT NULL,
+  category VARCHAR(50) NOT NULL,
+  quantity NUMERIC(10,2) NOT NULL DEFAULT 0,
+  total_quantity NUMERIC(10,2) NOT NULL DEFAULT 0,
+  unit VARCHAR(20) NOT NULL,
+  min_quantity NUMERIC(10,2) NOT NULL DEFAULT 0,
+  notes TEXT,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
 -- ORDER ITEMS STATUS CONSTRAINT
 ALTER TABLE order_items
 ADD CONSTRAINT order_items_status_check
@@ -118,6 +132,21 @@ CHECK (
     'occupato',
     'prenotato',
     'in_pulizia'
+  )
+);
+
+-- INVENTORY UNIT CONSTRAINT
+ALTER TABLE inventory_items
+ADD CONSTRAINT inventory_items_unit_check
+CHECK (
+  unit IN (
+    'kg',
+    'g',
+    'l',
+    'ml',
+    'pz',
+    'bottiglie',
+    'vasetti'
   )
 );
 
@@ -188,3 +217,38 @@ ON CONFLICT (table_number) DO UPDATE SET
   area = EXCLUDED.area,
   status = EXCLUDED.status,
   notes = EXCLUDED.notes;
+
+-- DEFAULT INVENTORY ITEMS
+INSERT INTO inventory_items (id, name, category, quantity, total_quantity, unit, min_quantity, notes)
+VALUES
+  (1, 'Riso Carnaroli', 'Cereali e pasta', 18.00, 24.00, 'kg', 8.00, 'Base per risotto allo zafferano'),
+  (2, 'Zafferano di Navelli', 'Spezie', 120.00, 180.00, 'g', 60.00, 'Ingrediente chiave del risotto'),
+  (3, 'Pasta fresca ripiena ricotta e limone', 'Pasta fresca', 9.00, 12.00, 'kg', 4.00, 'Ravioli di ricotta e limone'),
+  (4, 'Pappardelle fresche', 'Pasta fresca', 12.00, 18.00, 'kg', 6.00, 'Pappardelle al ragu bianco'),
+  (5, 'Spaghettoni trafilati al bronzo', 'Cereali e pasta', 16.00, 20.00, 'kg', 6.67, 'Cacio e pepe'),
+  (6, 'Pecorino romano DOP', 'Latticini', 7.50, 12.00, 'kg', 4.00, 'Cacio e pepe'),
+  (7, 'Parmigiano Reggiano', 'Latticini', 8.00, 12.00, 'kg', 4.00, 'Lasagnetta, parmigiana e antipasti'),
+  (8, 'Burrata pugliese', 'Latticini', 18.00, 30.00, 'pz', 10.00, 'Burrata e pomodorini'),
+  (9, 'Mascarpone', 'Latticini', 6.00, 9.00, 'kg', 3.00, 'Tiramisu d''Autore'),
+  (10, 'Pistacchio in crema', 'Dolci', 4.00, 9.00, 'kg', 3.00, 'Crostata al pistacchio'),
+  (11, 'Carne di vitello per ossobuco', 'Carni', 14.00, 20.00, 'kg', 6.67, 'Ossobuco alla Milanese'),
+  (12, 'Filetto di manzo', 'Carni', 10.00, 18.00, 'kg', 6.00, 'Filetto al pepe verde'),
+  (13, 'Guancia di manzo', 'Carni', 9.00, 15.00, 'kg', 5.00, 'Guancia brasata'),
+  (14, 'Branzino fresco', 'Pesce', 12.00, 42.00, 'kg', 14.00, 'Branzino agli agrumi'),
+  (15, 'Polpo', 'Pesce', 10.00, 18.00, 'kg', 6.00, 'Polpo croccante'),
+  (16, 'Pomodori San Marzano', 'Verdure', 22.00, 30.00, 'kg', 10.00, 'Parmigiana, gnocchi e burrata'),
+  (17, 'Melanzane', 'Verdure', 14.00, 24.00, 'kg', 8.00, 'Melanzana alla parmigiana'),
+  (18, 'Fiori di zucca', 'Verdure', 45.00, 150.00, 'pz', 50.00, 'Fiori di zucca ripieni'),
+  (19, 'Nebbiolo', 'Vini', 18.00, 24.00, 'bottiglie', 8.00, 'Calici al banco'),
+  (20, 'Franciacorta Brut', 'Vini', 14.00, 30.00, 'bottiglie', 10.00, 'Calici e aperitivo'),
+  (21, 'Chianti Classico', 'Vini', 16.00, 24.00, 'bottiglie', 8.00, 'Calici e secondi')
+ON CONFLICT (id) DO UPDATE SET
+  name = EXCLUDED.name,
+  category = EXCLUDED.category,
+  quantity = EXCLUDED.quantity,
+  total_quantity = EXCLUDED.total_quantity,
+  unit = EXCLUDED.unit,
+  min_quantity = EXCLUDED.min_quantity,
+  notes = EXCLUDED.notes;
+
+SELECT setval('inventory_items_id_seq', (SELECT MAX(id) FROM inventory_items));

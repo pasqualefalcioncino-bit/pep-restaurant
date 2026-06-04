@@ -1,4 +1,5 @@
 import { getMenuImage } from '../../utils/menuImages';
+import { formatPrice } from '../../utils/priceFormatter';
 import './HomeSpecialties.css';
 
 const HomeSpecialties = ({ specialita, onNavigate }) => {
@@ -31,7 +32,7 @@ const HomeSpecialties = ({ specialita, onNavigate }) => {
                 <h3>{piatto.nome}</h3>
                 <p>{piatto.descrizione}</p>
                 <div className="home-dish-footer">
-                  <span className="home-dish-price">€{piatto.prezzo}</span>
+                  <span className="home-dish-price">€{formatPrice(piatto.prezzo)}</span>
                   <button className="home-discover-btn" type="button" onClick={() => onNavigate('menu')}>
                     Scopri <span aria-hidden="true">›</span>
                   </button>

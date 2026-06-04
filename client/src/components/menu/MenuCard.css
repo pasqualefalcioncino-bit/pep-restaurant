@@ -15,7 +15,7 @@
 .menu-card-image-container {
   position: relative;
   min-height: 250px;
-  background-color: #080808;
+  background-color: var(--bg-dark);
 }
 
 .menu-card-image-container img {
@@ -32,7 +32,7 @@
   place-items: center;
   background:
     linear-gradient(135deg, rgba(212, 163, 115, 0.14), rgba(20, 20, 20, 0.95)),
-    #080808;
+    var(--bg-dark);
   color: rgba(255, 255, 255, 0.72);
   font-size: 0.8rem;
   font-weight: 800;

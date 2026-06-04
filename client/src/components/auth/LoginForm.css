@@ -38,7 +38,7 @@
 .input-group input {
   width: 100%;
   padding: 12px;
-  background: #080808;
+  background: var(--bg-dark);
   border: 1px solid var(--border-color);
   border-radius: 8px;
   color: white;
@@ -70,11 +70,11 @@
 }
 
 .auth-message.error {
-  color: #ff8a8a;
+  color: var(--status-red);
 }
 
 .auth-message.success {
-  color: #8af0b2;
+  color: var(--status-green);
 }
 
 .forgot-link {
