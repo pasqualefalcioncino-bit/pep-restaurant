@@ -1,9 +1,9 @@
 import BookingForm from '../components/booking/BookingForm';
 
-const Prenota = ({ eventBookingDraft, onBookingSuccess }) => {
+const Prenota = ({ onBookingSuccess }) => {
   return (
     <div className="prenota-page">
-      <BookingForm eventBookingDraft={eventBookingDraft} onBookingSuccess={onBookingSuccess} />
+      <BookingForm onBookingSuccess={onBookingSuccess} />
     </div>
   );
 };

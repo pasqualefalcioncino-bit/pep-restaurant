@@ -10,13 +10,12 @@ const createBooking = ({
   guests,
   occasion,
   special_requests,
-  event_title,
 }) => {
   return pool.query(
     `INSERT INTO bookings
-      (user_id, full_name, email, phone, booking_date, booking_time, guests, occasion, special_requests, event_title)
+      (user_id, full_name, email, phone, booking_date, booking_time, guests, occasion, special_requests)
      VALUES
-      ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10)
+      ($1,$2,$3,$4,$5,$6,$7,$8,$9)
      RETURNING *`,
     [
       user_id,
@@ -28,7 +27,6 @@ const createBooking = ({
       guests,
       occasion,
       special_requests,
-      event_title,
     ]
   );
 };

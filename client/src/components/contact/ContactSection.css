@@ -4,6 +4,7 @@
   padding: 0 20px;
   display: flex;
   gap: 80px;
+  align-items: stretch;
   color: var(--text-white);
   text-align: left;
 }
@@ -38,105 +39,50 @@
 
 .info-item strong { color: var(--text-white); }
 
-/* Stile Mappa */
-.map-placeholder {
-  position: relative;
-  border-radius: 15px;
-  overflow: hidden;
-  border: 1px solid var(--border-color);
-}
-
-.map-placeholder-content {
-  display: grid;
-  min-height: 280px;
-  place-items: center;
-  background:
-    linear-gradient(135deg, rgba(212, 163, 115, 0.12), rgba(20, 20, 20, 0.96)),
-    var(--bg-dark);
-  color: var(--text-muted);
-  text-align: center;
-}
-
-.map-placeholder-content span {
-  display: block;
-  color: var(--gold-primary);
-  font-family: 'Playfair Display', serif;
-  font-size: 2.5rem;
-}
-
-.map-placeholder-content strong {
-  display: block;
-  margin-top: 8px;
-  color: var(--text-white);
-}
-
-.map-controls {
-  position: absolute;
-  top: 10px;
-  right: 10px;
+.contact-map-card {
+  flex: 1;
+  min-height: 520px;
   display: flex;
   flex-direction: column;
-  gap: 5px;
-}
-
-.map-controls button {
-  width: 30px;
-  height: 30px;
-  background: var(--text-white);
-  border: none;
-  border-radius: 4px;
-  font-weight: bold;
-  cursor: pointer;
-}
-
-/* Stile Card Form */
-.contact-card {
-  flex: 1;
   background-color: var(--card-bg);
   border: 1px solid var(--border-color);
-  border-radius: 20px;
-  padding: 40px;
+  border-radius: 8px;
+  overflow: hidden;
 }
 
-.contact-card h2 {
-  font-family: 'Playfair Display', serif;
-  margin-bottom: 30px;
+.contact-map {
+  width: 100%;
+  min-height: 0;
+  flex: 1;
+  border: 0;
 }
 
-.input-group {
-  margin-bottom: 20px;
-}
-
-.input-group label {
+.contact-map-link {
   display: block;
-  margin-bottom: 8px;
-  font-size: 0.9rem;
-  color: var(--text-white);
-}
-
-.input-group input, .input-group textarea {
-  width: 100%;
-  padding: 12px;
-  background-color: var(--bg-dark);
-  border: 1px solid var(--border-color);
-  border-radius: 8px;
-  color: var(--text-white);
-  box-sizing: border-box;
-}
-
-.input-group textarea {
-  height: 150px;
-  resize: none;
-}
-
-.btn-send {
-  width: 100%;
-  padding: 15px;
-  background-color: var(--gold-primary);
-  border: none;
-  border-radius: 8px;
+  padding: 14px 18px;
+  border-top: 1px solid var(--border-color);
+  color: var(--gold-primary);
   font-weight: bold;
-  font-size: 1rem;
-  cursor: pointer;
-  margin-top: 10px;
+  text-align: center;
+  text-decoration: none;
+}
+
+.contact-map-link:hover,
+.contact-map-link:focus-visible {
+  background: rgba(212, 163, 115, 0.12);
+}
+
+@media (max-width: 860px) {
+  .contact-container {
+    flex-direction: column;
+    gap: 36px;
+  }
+
+  .title-contatti {
+    font-size: 3.2rem;
+  }
+
+  .contact-map-card {
+    min-height: 420px;
+  }
 }

@@ -7,7 +7,6 @@ import Login from './views/Login';
 import Register from './views/Register';
 import Menu from './views/Menu';
 import Prenota from './views/Prenota';
-import Eventi from './views/Eventi';
 import Contatti from './views/Contatti';
 import AdminBookings from './views/AdminBookings';
 import AdminEmployees from './views/AdminEmployees';
@@ -22,6 +21,7 @@ import AdminCashRegister from './views/admin/AdminCashRegister';
 import CookDashboard from './views/CookDashboard';
 import WaiterOrders from './views/WaiterOrders';
 import { clearAuthSession, getAuthUser } from './api/client';
+import Profile from './views/Profile';
 
 const staticPages = {
   menu: <Menu />,
@@ -47,7 +47,6 @@ const roleLandingPages = {
 function App() {
   const [page, setPage] = useState('home');
   const [pageRefreshKey, setPageRefreshKey] = useState(0);
-  const [eventBookingDraft, setEventBookingDraft] = useState(null);
   const [currentUser, setCurrentUser] = useState(() => getAuthUser());
   const [isAdminSidebarOpen, setIsAdminSidebarOpen] = useState(true);
   const [pageAfterLogin, setPageAfterLogin] = useState(null);
@@ -67,8 +66,6 @@ function App() {
     }
 
     if (nextPage === 'prenota') {
-      setEventBookingDraft(null);
-
       if (!currentUser) {
         setPageAfterLogin('prenota');
         setPage('login');
@@ -81,24 +78,7 @@ function App() {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
-  const startEventBooking = (bookingDraft) => {
-    if (!currentUser) {
-      setEventBookingDraft(bookingDraft);
-      setPageAfterLogin('prenota');
-      setPage('login');
-      setPageRefreshKey((currentKey) => currentKey + 1);
-      window.scrollTo({ top: 0, behavior: 'smooth' });
-      return;
-    }
-
-    setEventBookingDraft(bookingDraft);
-    setPage('prenota');
-    setPageRefreshKey((currentKey) => currentKey + 1);
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-  };
-
   const completeBooking = () => {
-    setEventBookingDraft(null);
     setPage('home');
     setPageRefreshKey((currentKey) => currentKey + 1);
     window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -124,16 +104,11 @@ function App() {
   }
 
   if (page === 'prenota') {
-    content = (
-      <Prenota
-        eventBookingDraft={eventBookingDraft}
-        onBookingSuccess={completeBooking}
-      />
-    );
+    content = <Prenota onBookingSuccess={completeBooking} />;
   }
 
-  if (page === 'eventi') {
-    content = <Eventi onBookEvent={startEventBooking} />;
+  if (page === 'profilo') {
+    content = <Profile onProfileUpdate={setCurrentUser} />;
   }
 
   if (page === 'admin-dashboard') {
@@ -151,6 +126,7 @@ function App() {
         onNavigate={navigateTo}
         currentPage={page}
         currentUser={currentUser}
+        onProfileClick={() => setPage('profilo')}
         onLogout={() => {
           clearAuthSession();
           setCurrentUser(null);

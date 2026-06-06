@@ -1,9 +1,6 @@
 import './ContactSection.css';
 
 const ContactSection = () => {
-  const handleSubmit = (e) => {
-    e.preventDefault();
-  };
 
   return (
     <section className="contact-container">
@@ -35,40 +32,24 @@ const ContactSection = () => {
             </div>
           </div>
         </div>
-
-        <div className="map-placeholder">
-          <div className="map-placeholder-content" aria-label="Mappa indicativa di Milano">
-            <span>Milano</span>
-            <strong>Via dei Sapori 12</strong>
-          </div>
-          <div className="map-controls">
-            <button type="button">+</button>
-            <button type="button">-</button>
-          </div>
-        </div>
       </div>
 
-      <div className="contact-card">
-        <h2>Inviaci un messaggio</h2>
-        <form className="message-form" onSubmit={handleSubmit}>
-          <div className="input-group">
-            <label>Nome</label>
-            <input type="text" required />
-          </div>
-          <div className="input-group">
-            <label>Email</label>
-            <input type="email" required />
-          </div>
-          <div className="input-group">
-            <label>Oggetto</label>
-            <input type="text" required />
-          </div>
-          <div className="input-group">
-            <label>Messaggio</label>
-            <textarea required></textarea>
-          </div>
-          <button type="submit" className="btn-send">Invia messaggio</button>
-        </form>
+      <div className="contact-map-card">
+        <iframe
+          title="Mappa di Pep Restaurant a Milano"
+          className="contact-map"
+          src="https://www.openstreetmap.org/export/embed.html?bbox=9.1790%2C45.4580%2C9.2010%2C45.4700&layer=mapnik&marker=45.4642%2C9.1900"
+          loading="lazy"
+          referrerPolicy="no-referrer-when-downgrade"
+        />
+        <a
+          className="contact-map-link"
+          href="https://www.openstreetmap.org/directions?to=Via%20dei%20Sapori%2012%2C%20Milano%2C%20Italia"
+          target="_blank"
+          rel="noreferrer"
+        >
+          Apri indicazioni
+        </a>
       </div>
     </section>
   );

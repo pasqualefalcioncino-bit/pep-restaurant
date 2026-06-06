@@ -15,6 +15,35 @@ exports.getCurrentUser = async (req, res) => {
   }
 };
 
+exports.updateCurrentUser = async (req, res) => {
+  const { name, email, phone, avatar_url } = req.body;
+
+  if (!name || !email) {
+    return res.status(400).send("Nome ed email sono obbligatori");
+  }
+
+  try {
+    const result = await userModel.updateProfile(req.user.id, {
+      name: name.trim(),
+      email: email.trim(),
+      phone: phone?.trim() || null,
+      avatar_url: avatar_url || null,
+    });
+
+    if (result.rows.length === 0) {
+      return res.status(404).send("Utente non trovato");
+    }
+
+    res.json(result.rows[0]);
+  } catch (err) {
+    if (err.code === "23505") {
+      return res.status(409).send("Email gia' in uso");
+    }
+
+    res.status(500).send("Errore aggiornamento profilo");
+  }
+};
+
 exports.getStaffUsers = async (req, res) => {
   try {
     const result = await userModel.getStaffUsers();

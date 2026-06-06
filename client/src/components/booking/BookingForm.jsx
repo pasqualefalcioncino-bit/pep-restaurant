@@ -5,7 +5,7 @@ import BookingSummary from './BookingSummary';
 import bookingOptions from '../../data/bookingOptions.json';
 import './BookingForm.css';
 
-const { availableTimes } = bookingOptions;
+const { availableTimes, countryPrefixes } = bookingOptions;
 
 const getTodayValue = () => {
   const today = new Date();
@@ -14,37 +14,45 @@ const getTodayValue = () => {
   return new Date(today.getTime() - timezoneOffset).toISOString().split('T')[0];
 };
 
-const getEventDateValue = (eventDate) => {
-  return eventDate?.split(' · ')[0] || getTodayValue();
+const getPhoneParts = (phoneValue = '') => {
+  const phone = phoneValue.trim();
+  const matchingPrefix = countryPrefixes.find((countryPrefix) =>
+    phone.startsWith(countryPrefix.value)
+  )?.value;
+
+  if (!matchingPrefix) {
+    return {
+      phonePrefix: '+39',
+      phone: phone.replace(/\D/g, '').slice(0, 10),
+    };
+  }
+
+  return {
+    phonePrefix: matchingPrefix,
+    phone: phone.slice(matchingPrefix.length).replace(/\D/g, '').slice(0, 10),
+  };
 };
 
-const getEventTimeValue = (eventDate) => {
-  return eventDate?.split(' · ')[1] || '20:00';
-};
-
-const BookingForm = ({ eventBookingDraft, onBookingSuccess }) => {
+const BookingForm = ({ onBookingSuccess }) => {
   const currentUser = getAuthUser();
+  const currentUserPhone = getPhoneParts(currentUser?.phone);
   const [currentStep, setCurrentStep] = useState(1);
   const [bookingData, setBookingData] = useState({
-    date: getEventDateValue(eventBookingDraft?.date),
-    guests: eventBookingDraft?.guests || 2,
-    time: getEventTimeValue(eventBookingDraft?.date),
-    eventTitle: eventBookingDraft?.title || '',
-    eventSeatsRemaining: eventBookingDraft?.seatsRemaining || null,
+    date: getTodayValue(),
+    guests: 2,
+    time: '20:00',
     occasion: 'lavoro',
     specialRequests: '',
     fullName: currentUser?.role === 'cliente' ? currentUser.name || '' : '',
-    phonePrefix: '+39',
-    phone: '',
+    phonePrefix: currentUserPhone.phonePrefix,
+    phone: currentUserPhone.phone,
     email: currentUser?.role === 'cliente' ? currentUser.email || '' : '',
   });
   const [isConfirmed, setIsConfirmed] = useState(false);
   const [isSubmittingBooking, setIsSubmittingBooking] = useState(false);
   const [bookingErrorMessage, setBookingErrorMessage] = useState('');
   const todayValue = getTodayValue();
-  const dateMin = bookingData.eventTitle && bookingData.date < todayValue ? bookingData.date : todayValue;
-  const timesToShow = bookingData.eventTitle ? [bookingData.time] : availableTimes;
-  const maxGuests = bookingData.eventSeatsRemaining || 12;
+  const maxGuests = 12;
 
   useEffect(() => {
     if (currentUser?.role !== 'cliente' || currentUser.email) {
@@ -64,6 +72,8 @@ const BookingForm = ({ eventBookingDraft, onBookingSuccess }) => {
           ...currentData,
           fullName: currentData.fullName || user.name || '',
           email: currentData.email || user.email || '',
+          phonePrefix: currentData.phone ? currentData.phonePrefix : getPhoneParts(user.phone).phonePrefix,
+          phone: currentData.phone || getPhoneParts(user.phone).phone,
         }));
       } catch {
         // Se il recupero fallisce, il cliente puo' comunque compilare i campi manualmente.
@@ -108,7 +118,6 @@ const BookingForm = ({ eventBookingDraft, onBookingSuccess }) => {
           guests: bookingData.guests,
           occasion: bookingData.occasion,
           special_requests: bookingData.specialRequests,
-          event_title: bookingData.eventTitle,
         }),
       });
 
@@ -153,7 +162,7 @@ const BookingForm = ({ eventBookingDraft, onBookingSuccess }) => {
                 <input
                   id="booking-date"
                   type="date"
-                  min={dateMin}
+                  min={todayValue}
                   value={bookingData.date}
                   onChange={(event) => updateField('date', event.target.value)}
                   required
@@ -190,28 +199,13 @@ const BookingForm = ({ eventBookingDraft, onBookingSuccess }) => {
                     +
                   </button>
                 </div>
-                {bookingData.eventSeatsRemaining && (
-                  <span className="booking-guest-limit">
-                    Massimo {bookingData.eventSeatsRemaining} posti disponibili per questo evento.
-                  </span>
-                )}
               </div>
-            </div>
-
-            <div className="booking-form-group booking-event-field">
-              <label htmlFor="booking-event">Evento</label>
-              <input
-                id="booking-event"
-                type="text"
-                value={bookingData.eventTitle || 'Nessun evento'}
-                readOnly
-              />
             </div>
 
             <div className="booking-times-section">
               <span className="booking-field-label">Orario disponibile</span>
               <div className="booking-times-grid">
-                {timesToShow.map((time) => (
+                {availableTimes.map((time) => (
                   <button
                     key={time}
                     className={`booking-time-btn${bookingData.time === time ? ' selected' : ''}`}

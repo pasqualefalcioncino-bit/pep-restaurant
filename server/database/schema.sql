@@ -6,6 +6,8 @@ CREATE TABLE users (
   name VARCHAR(100),
   email VARCHAR(100) UNIQUE,
   password TEXT,
+  phone VARCHAR(30),
+  avatar_url TEXT,
   role VARCHAR(20) DEFAULT 'cliente'
 );
 
@@ -56,7 +58,6 @@ CREATE TABLE bookings (
   table_number INT,
   occasion VARCHAR(50),
   special_requests TEXT,
-  event_title VARCHAR(100),
   status VARCHAR(20) DEFAULT 'in_attesa',
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );

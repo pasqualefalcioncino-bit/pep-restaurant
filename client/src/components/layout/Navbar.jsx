@@ -9,15 +9,15 @@ const Navbar = ({
   onNavigate,
   currentPage,
   currentUser,
+  onProfileClick,
   onLogout,
 }) => {
   const displayUserName = currentUser?.name || currentUser?.role || '';
-  const userAvatar = getRoleAvatar(currentUser?.role);
+  const userAvatar = currentUser?.avatar_url || getRoleAvatar(currentUser?.role);
   const menuItems = [
     { label: 'Home', page: 'home' },
     { label: 'Menu', page: 'menu' },
     { label: 'Prenota', page: 'prenota' },
-    { label: 'Eventi', page: 'eventi' },
     { label: 'Contatti', page: 'contatti' },
   ];
   const roleMenuItems = [];
@@ -73,6 +73,11 @@ const Navbar = ({
         <div className="navbar-menu">
           {currentUser ? (
             <div className="navbar-user">
+              <button
+                className={`navbar-profile-btn${currentPage === 'profilo' ? ' active' : ''}`}
+                type="button"
+                onClick={onProfileClick}
+              >
               <span className="navbar-user-name">
                 {displayUserName}
               </span>
@@ -83,6 +88,7 @@ const Navbar = ({
                   alt={`Avatar ${currentUser.role}`}
                 />
               )}
+              </button>
               <button className="navbar-button" type="button" onClick={onLogout}>
                 Esci
               </button>

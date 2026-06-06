@@ -18,6 +18,8 @@ exports.register = async (req, res) => {
       id: user.id,
       name: user.name,
       email: user.email,
+      phone: user.phone,
+      avatar_url: user.avatar_url,
       role: user.role
     });
   } catch (err) {
@@ -42,6 +44,8 @@ exports.createEmployee = async (req, res) => {
       id: user.id,
       name: user.name,
       email: user.email,
+      phone: user.phone,
+      avatar_url: user.avatar_url,
       role: user.role
     });
   } catch (err) {
@@ -80,6 +84,8 @@ exports.login = async (req, res) => {
         id: user.id,
         name: user.name,
         email: user.email,
+        phone: user.phone,
+        avatar_url: user.avatar_url,
         role: user.role
       }
     });

@@ -172,21 +172,6 @@
   text-align: center;
 }
 
-.booking-guest-limit {
-  display: block;
-  margin-top: 8px;
-  color: var(--text-muted);
-  font-size: 0.82rem;
-}
-
-.booking-event-field {
-  margin-bottom: 30px;
-}
-
-.booking-event-field input {
-  color: var(--text-muted);
-}
-
 .booking-times-grid {
   display: grid;
   grid-template-columns: repeat(5, minmax(0, 1fr));

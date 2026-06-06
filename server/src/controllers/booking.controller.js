@@ -10,7 +10,6 @@ exports.createBooking = async (req, res) => {
     guests,
     occasion,
     special_requests,
-    event_title,
   } = req.body;
 
   try {
@@ -24,7 +23,6 @@ exports.createBooking = async (req, res) => {
       guests,
       occasion,
       special_requests,
-      event_title,
     });
 
     res.status(201).json(result.rows[0]);

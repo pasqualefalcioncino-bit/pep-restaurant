@@ -176,7 +176,6 @@ const AdminBookings = () => {
                 <th>Data</th>
                 <th>Ospiti</th>
                 <th>Occasione</th>
-                <th>Evento</th>
                 <th>Tavolo</th>
                 <th>Stato</th>
                 <th>Richieste</th>
@@ -199,7 +198,6 @@ const AdminBookings = () => {
                   </td>
                   <td>{booking.guests}</td>
                   <td>{booking.occasion || '-'}</td>
-                  <td>{booking.event_title || '-'}</td>
                   <td>
                     <select
                       className="admin-bookings-table-select"

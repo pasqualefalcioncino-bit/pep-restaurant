@@ -24,6 +24,51 @@ const formatTime = (timeValue) => {
   return timeValue ? timeValue.slice(0, 5) : '-';
 };
 
+const CustomerBookingCard = ({ booking }) => (
+  <article className={`customer-booking-card status-${booking.status}`}>
+    <div className="customer-booking-card-header">
+      <div>
+        <span className="customer-booking-label">Prenotazione #{booking.id}</span>
+        <h2>{booking.full_name}</h2>
+      </div>
+      <span className={`customer-booking-status status-${booking.status}`}>
+        {bookingStatuses[booking.status] || booking.status}
+      </span>
+    </div>
+
+    <dl className="customer-booking-details">
+      <div>
+        <dt>Data</dt>
+        <dd>{formatDate(booking.booking_date)}</dd>
+      </div>
+      <div>
+        <dt>Orario</dt>
+        <dd>{formatTime(booking.booking_time)}</dd>
+      </div>
+      <div>
+        <dt>Ospiti</dt>
+        <dd>{booking.guests}</dd>
+      </div>
+      <div>
+        <dt>Telefono</dt>
+        <dd>{booking.phone}</dd>
+      </div>
+      <div>
+        <dt>Email</dt>
+        <dd>{booking.email}</dd>
+      </div>
+      <div>
+        <dt>Occasione</dt>
+        <dd>{booking.occasion || '-'}</dd>
+      </div>
+      <div>
+        <dt>Richieste</dt>
+        <dd>{booking.special_requests || '-'}</dd>
+      </div>
+    </dl>
+  </article>
+);
+
 const CustomerBookings = () => {
   const [bookings, setBookings] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -67,52 +112,7 @@ const CustomerBookings = () => {
       ) : (
         <div className="customer-bookings-grid">
           {bookings.map((booking) => (
-            <article className={`customer-booking-card status-${booking.status}`} key={booking.id}>
-              <div className="customer-booking-card-header">
-                <div>
-                  <span className="customer-booking-label">Prenotazione #{booking.id}</span>
-                  <h2>{booking.full_name}</h2>
-                </div>
-                <span className={`customer-booking-status status-${booking.status}`}>
-                  {bookingStatuses[booking.status] || booking.status}
-                </span>
-              </div>
-
-              <dl className="customer-booking-details">
-                <div>
-                  <dt>Data</dt>
-                  <dd>{formatDate(booking.booking_date)}</dd>
-                </div>
-                <div>
-                  <dt>Orario</dt>
-                  <dd>{formatTime(booking.booking_time)}</dd>
-                </div>
-                <div>
-                  <dt>Ospiti</dt>
-                  <dd>{booking.guests}</dd>
-                </div>
-                <div>
-                  <dt>Telefono</dt>
-                  <dd>{booking.phone}</dd>
-                </div>
-                <div>
-                  <dt>Email</dt>
-                  <dd>{booking.email}</dd>
-                </div>
-                <div>
-                  <dt>Occasione</dt>
-                  <dd>{booking.occasion || '-'}</dd>
-                </div>
-                <div>
-                  <dt>Evento</dt>
-                  <dd>{booking.event_title || '-'}</dd>
-                </div>
-                <div>
-                  <dt>Richieste</dt>
-                  <dd>{booking.special_requests || '-'}</dd>
-                </div>
-              </dl>
-            </article>
+            <CustomerBookingCard booking={booking} key={booking.id} />
           ))}
         </div>
       )}

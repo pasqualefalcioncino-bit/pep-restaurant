@@ -73,6 +73,23 @@
   white-space: nowrap;
 }
 
+.navbar-profile-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+  padding: 2px;
+  border: 1px solid transparent;
+  border-radius: 999px;
+  background: transparent;
+  cursor: pointer;
+}
+
+.navbar-profile-btn:hover,
+.navbar-profile-btn.active {
+  border-color: rgba(212, 163, 115, 0.5);
+}
+
 .navbar-user-avatar {
   display: block;
   width: 38px;

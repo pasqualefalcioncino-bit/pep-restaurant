@@ -60,25 +60,5 @@
       "rating": 4.9,
       "immagine": "tiramisu-d-autore.jpg"
     }
-  ],
-  "recensioni": [
-    {
-      "id": 1,
-      "autore": "Elena M.",
-      "testo": "Esperienza indimenticabile. Il risotto allo zafferano e poesia.",
-      "data": "2026-04-12"
-    },
-    {
-      "id": 2,
-      "autore": "Davide T.",
-      "testo": "Servizio impeccabile, ambiente raffinato, materie prime eccellenti.",
-      "data": "2026-04-08"
-    },
-    {
-      "id": 3,
-      "autore": "Chiara F.",
-      "testo": "Ottima cena di anniversario, tornero sicuramente per il tiramisu.",
-      "data": "2026-04-02"
-    }
   ]
 }

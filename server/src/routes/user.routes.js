@@ -6,6 +6,7 @@ const verifyToken = require("../middleware/auth.middleware");
 const checkRole = require("../middleware/role.middleware");
 
 router.get("/me", verifyToken, userController.getCurrentUser);
+router.put("/me", verifyToken, userController.updateCurrentUser);
 router.get("/staff", verifyToken, checkRole("admin"), userController.getStaffUsers);
 router.get("/customers", verifyToken, checkRole("admin"), userController.getCustomerUsers);
 router.delete("/:id", verifyToken, checkRole("admin"), userController.deleteUser);

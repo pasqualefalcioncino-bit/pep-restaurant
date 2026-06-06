@@ -5,7 +5,7 @@ const pool = require("./config/db");
 const app = express();
 
 app.use(cors());
-app.use(express.json());
+app.use(express.json({ limit: "2mb" }));
 
 // ROUTES
 const menuRoutes = require("./routes/menu.routes");
@@ -30,6 +30,12 @@ pool.connect()
     try {
       await client.query(
         "ALTER TABLE menu_items ADD COLUMN IF NOT EXISTS available BOOLEAN DEFAULT true"
+      );
+      await client.query(
+        "ALTER TABLE users ADD COLUMN IF NOT EXISTS phone VARCHAR(30)"
+      );
+      await client.query(
+        "ALTER TABLE users ADD COLUMN IF NOT EXISTS avatar_url TEXT"
       );
       console.log("Database collegato con successo --OK--");
     } finally {

@@ -146,14 +146,6 @@ const BookingSummary = ({
             </div>
 
             <div className="booking-summary-row">
-              <span aria-hidden="true">✨</span>
-              <div>
-                <small>Evento</small>
-                <strong>{bookingData.eventTitle || 'Nessun evento'}</strong>
-              </div>
-            </div>
-
-            <div className="booking-summary-row">
               <span aria-hidden="true">▣</span>
               <div>
                 <small>Occasione</small>
