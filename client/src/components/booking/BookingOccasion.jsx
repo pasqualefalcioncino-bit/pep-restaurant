@@ -29,8 +29,6 @@ const BookingOccasion = ({
       </div>
 
       <form className="booking-card" onSubmit={handleSubmit}>
-        <h2 className="booking-card-title booking-occasion-title">Occasione</h2>
-
         <div className="booking-occasion-grid">
           {occasions.map((occasion) => (
             <button

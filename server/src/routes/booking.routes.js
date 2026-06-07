@@ -7,6 +7,8 @@ const checkRole = require("../middleware/role.middleware");
 
 router.post("/", verifyToken, bookingController.createBooking);
 router.get("/my", verifyToken, checkRole("cliente"), bookingController.getMyBookings);
+router.put("/:id", verifyToken, checkRole("cliente"), bookingController.updateMyBooking);
+router.patch("/:id/cancel", verifyToken, checkRole("cliente"), bookingController.cancelMyBooking);
 router.get("/", verifyToken, checkRole("admin"), bookingController.getBookings);
 router.put("/:id/status", verifyToken, checkRole("admin"), bookingController.updateBookingStatus);
 router.delete("/:id", verifyToken, checkRole("admin"), bookingController.deleteBooking);

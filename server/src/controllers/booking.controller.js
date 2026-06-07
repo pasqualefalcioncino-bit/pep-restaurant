@@ -1,5 +1,57 @@
 const bookingModel = require("../models/booking.model");
 
+const isValidBookingPayload = ({
+  full_name,
+  email,
+  phone,
+  booking_date,
+  booking_time,
+  guests,
+}) => {
+  const guestCount = Number(guests);
+
+  return (
+    full_name &&
+    email &&
+    phone &&
+    booking_date &&
+    booking_time &&
+    Number.isInteger(guestCount) &&
+    guestCount > 0 &&
+    guestCount <= 12
+  );
+};
+
+const isFutureBookingDateTime = (bookingDate, bookingTime) => {
+  return new Date(`${bookingDate}T${bookingTime}`) > new Date();
+};
+
+const bookingFailureMessages = {
+  create: {
+    SAME_DATE_TIME:
+      "Impossibile prenotare: esiste gia' una prenotazione per lo stesso giorno e orario",
+    NO_TABLE_AVAILABLE:
+      "Impossibile prenotare: nessun tavolo disponibile per il numero di persone indicato",
+  },
+  update: {
+    SAME_DATE_TIME:
+      "Impossibile modificare: esiste gia' una prenotazione per lo stesso giorno e orario",
+    NO_TABLE_AVAILABLE:
+      "Impossibile modificare: nessun tavolo disponibile per il numero di persone indicato",
+  },
+};
+
+const sendBookingFailure = (res, action, reason) => {
+  const message = bookingFailureMessages[action]?.[reason];
+
+  if (!message) {
+    return false;
+  }
+
+  res.status(409).send(message);
+  return true;
+};
+
 exports.createBooking = async (req, res) => {
   const {
     full_name,
@@ -12,6 +64,25 @@ exports.createBooking = async (req, res) => {
     special_requests,
   } = req.body;
 
+  if (
+    !isValidBookingPayload({
+      full_name,
+      email,
+      phone,
+      booking_date,
+      booking_time,
+      guests: Number(guests),
+    })
+  ) {
+    return res.status(400).send("Dati prenotazione non validi");
+  }
+
+  if (!isFutureBookingDateTime(booking_date, booking_time)) {
+    return res
+      .status(400)
+      .send("Impossibile prenotare: data e orario selezionati sono gia' passati");
+  }
+
   try {
     const result = await bookingModel.createBooking({
       user_id: req.user.id,
@@ -20,10 +91,14 @@ exports.createBooking = async (req, res) => {
       phone,
       booking_date,
       booking_time,
-      guests,
+      guests: Number(guests),
       occasion,
       special_requests,
     });
+
+    if (sendBookingFailure(res, "create", result.reason)) {
+      return;
+    }
 
     res.status(201).json(result.rows[0]);
   } catch (err) {
@@ -39,6 +114,86 @@ exports.getMyBookings = async (req, res) => {
   } catch (err) {
     console.error(err);
     res.status(500).send("Errore recupero prenotazioni cliente");
+  }
+};
+
+exports.updateMyBooking = async (req, res) => {
+  const { id } = req.params;
+  const {
+    full_name,
+    email,
+    phone,
+    booking_date,
+    booking_time,
+    guests,
+    occasion,
+    special_requests,
+  } = req.body;
+
+  if (
+    !isValidBookingPayload({
+      full_name,
+      email,
+      phone,
+      booking_date,
+      booking_time,
+      guests: Number(guests),
+    })
+  ) {
+    return res.status(400).send("Dati prenotazione non validi");
+  }
+
+  if (!isFutureBookingDateTime(booking_date, booking_time)) {
+    return res
+      .status(400)
+      .send("Impossibile modificare: data e orario selezionati sono gia' passati");
+  }
+
+  try {
+    const result = await bookingModel.updateCustomerBooking(id, req.user.id, {
+      full_name,
+      email,
+      phone,
+      booking_date,
+      booking_time,
+      guests: Number(guests),
+      occasion,
+      special_requests,
+    });
+
+    if (sendBookingFailure(res, "update", result.reason)) {
+      return;
+    }
+
+    if (result.rows.length === 0) {
+      return res
+        .status(403)
+        .send("La prenotazione non puo' essere modificata");
+    }
+
+    res.json(result.rows[0]);
+  } catch (err) {
+    console.error(err);
+    res.status(500).send("Errore modifica prenotazione");
+  }
+};
+
+exports.cancelMyBooking = async (req, res) => {
+  const { id } = req.params;
+
+  try {
+    const result = await bookingModel.cancelCustomerBooking(id, req.user.id);
+
+    if (result.rows.length === 0) {
+      return res
+        .status(403)
+        .send("La prenotazione non puo' essere annullata");
+    }
+
+    res.json(result.rows[0]);
+  } catch (err) {
+    console.error(err);
+    res.status(500).send("Errore annullamento prenotazione");
   }
 };
 

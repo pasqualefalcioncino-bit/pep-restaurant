@@ -154,8 +154,6 @@ const BookingForm = ({ onBookingSuccess }) => {
           </div>
 
           <form className="booking-card" onSubmit={handleSubmit}>
-            <h2 className="booking-card-title">Quando?</h2>
-
             <div className="booking-form-row">
               <div className="booking-form-group">
                 <label htmlFor="booking-date">Data</label>

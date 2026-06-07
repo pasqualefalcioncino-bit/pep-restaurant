@@ -61,8 +61,6 @@ const BookingSummary = ({
       </div>
 
       <form className="booking-card" onSubmit={handleSubmit}>
-        <h2 className="booking-card-title booking-summary-title">I tuoi contatti</h2>
-
         <div className="booking-form-row">
           <div className="booking-form-group">
             <label htmlFor="booking-full-name">Nome e cognome</label>
@@ -181,7 +179,7 @@ const BookingSummary = ({
 
         {errorMessage && (
           <p className="booking-error-message" role="alert">
-            Errore invio prenotazione: {errorMessage}
+            {errorMessage}
           </p>
         )}
 
