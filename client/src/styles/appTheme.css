@@ -17,30 +17,7 @@
   --status-red: #ff8a8a;
 }
 
-.app-content.with-admin-sidebar .admin-sidebar {
-  border-color: var(--border-color);
-  background: var(--sidebar-bg);
-}
-
-.app-content.with-admin-sidebar .admin-sidebar-toggle,
-.app-content.with-admin-sidebar .admin-sidebar-link {
-  color: var(--gold-primary);
-}
-
-.app-content.with-admin-sidebar .admin-sidebar-toggle:hover,
-.app-content.with-admin-sidebar .admin-sidebar-link:hover {
-  border-color: rgba(230, 181, 62, 0.45);
-  background: rgba(230, 181, 62, 0.12);
-  color: var(--text-white);
-}
-
-.app-content.with-admin-sidebar .admin-sidebar-link.active {
-  border-color: rgba(230, 181, 62, 0.62);
-  background: rgba(230, 181, 62, 0.18);
-  color: var(--text-white);
-}
-
-.app-content.with-admin-sidebar :is(
+.app-content.with-admin-theme :is(
   .admin-bookings-state,
   .admin-customers-state,
   .admin-dashboard-empty,
@@ -54,12 +31,11 @@
   background: var(--card-bg);
 }
 
-.app-content.with-admin-sidebar :is(
+.app-content.with-admin-theme :is(
   .admin-bookings-table-wrap,
   .admin-customers-table-wrap,
   .admin-dashboard-panel,
   .admin-dashboard-stat,
-  .admin-employees-form,
   .admin-inventory-form,
   .admin-inventory-stat,
   .admin-inventory-table-wrap,
@@ -75,7 +51,7 @@
   background: var(--card-bg);
 }
 
-.app-content.with-admin-sidebar :is(
+.app-content.with-admin-theme :is(
   .admin-dashboard-row,
   .admin-dashboard-table-chip,
   .admin-dashboard-table-stat,
@@ -85,7 +61,7 @@
   background: var(--card-bg-strong);
 }
 
-.app-content.with-admin-sidebar :is(
+.app-content.with-admin-theme :is(
   .admin-bookings-table th,
   .admin-customers-table th,
   .admin-dashboard-modal-header span,
@@ -96,7 +72,7 @@
   color: var(--gold-primary);
 }
 
-.app-content.with-admin-sidebar :is(
+.app-content.with-admin-theme :is(
   .admin-bookings-table td,
   .admin-customers-table td,
   .admin-inventory-table td,
@@ -106,11 +82,9 @@
   border-color: rgba(212, 163, 115, 0.14);
 }
 
-.app-content.with-admin-sidebar :is(
+.app-content.with-admin-theme :is(
   .admin-bookings-status-select,
   .admin-bookings-table-select,
-  .admin-employees-field input,
-  .admin-employees-field select,
   .admin-inventory-form input,
   .admin-inventory-form select,
   .admin-inventory-form textarea,
@@ -119,7 +93,6 @@
   .admin-menu-form textarea,
   .admin-menu-search-field input,
   .admin-search-field input,
-  .admin-table-status-select select,
   .admin-tables-form input,
   .admin-tables-form select,
   .admin-tables-form textarea
@@ -129,9 +102,7 @@
   color: var(--text-white);
 }
 
-.app-content.with-admin-sidebar :is(
-  .admin-employees-field input,
-  .admin-employees-field select,
+.app-content.with-admin-theme :is(
   .admin-inventory-form input,
   .admin-inventory-form select,
   .admin-inventory-form textarea,
@@ -140,7 +111,6 @@
   .admin-menu-form textarea,
   .admin-menu-search-field input,
   .admin-search-field input,
-  .admin-table-status-select select,
   .admin-tables-form input,
   .admin-tables-form select,
   .admin-tables-form textarea
@@ -149,13 +119,10 @@
   outline: none;
 }
 
-.app-content.with-admin-sidebar :is(
+.app-content.with-admin-theme :is(
   .admin-dashboard-panel-header button,
   .admin-inventory-secondary-btn,
-  .admin-inventory-actions button,
-  .admin-menu-actions button,
   .admin-menu-form-header button,
-  .admin-table-actions button,
   .admin-tables-secondary-btn,
   .confirm-delete-cancel
 ) {
@@ -164,21 +131,17 @@
   color: var(--gold-primary);
 }
 
-.app-content.with-admin-sidebar :is(
+.app-content.with-admin-theme :is(
   .admin-dashboard-panel-header button,
   .admin-inventory-secondary-btn,
-  .admin-inventory-actions button,
-  .admin-menu-actions button,
   .admin-menu-form-header button,
-  .admin-table-actions button,
   .admin-tables-secondary-btn,
   .confirm-delete-cancel
 ):hover {
   background: rgba(230, 181, 62, 0.2);
 }
 
-.app-content.with-admin-sidebar :is(
-  .admin-employees-submit,
+.app-content.with-admin-theme :is(
   .admin-inventory-primary-btn,
   .admin-menu-submit,
   .admin-tables-primary-btn
@@ -188,7 +151,7 @@
   color: var(--text-dark);
 }
 
-.app-content.with-admin-sidebar :is(
+.app-content.with-admin-theme :is(
   .admin-inventory-filters button,
   .admin-menu-filter-group button,
   .admin-menu-veg-filter
@@ -198,7 +161,7 @@
   color: var(--text-muted);
 }
 
-.app-content.with-admin-sidebar :is(
+.app-content.with-admin-theme :is(
   .admin-inventory-filters button.active,
   .admin-menu-filter-group button.active,
   .admin-menu-filter-group button:hover,
@@ -210,7 +173,7 @@
   color: var(--text-dark);
 }
 
-.app-content.with-admin-sidebar :is(
+.app-content.with-admin-theme :is(
   .admin-customers-role,
   .admin-staff-role
 ) {
@@ -219,7 +182,7 @@
   color: var(--gold-primary);
 }
 
-.app-content.with-admin-sidebar :is(
+.app-content.with-admin-theme :is(
   .admin-dashboard-order-row.status-in_attesa,
   .admin-dashboard-table-stat.status-in_pulizia,
   .admin-dashboard-table-chip.status-in_pulizia,
@@ -232,7 +195,7 @@
   background: rgba(230, 181, 62, 0.12);
 }
 
-.app-content.with-admin-sidebar :is(
+.app-content.with-admin-theme :is(
   .admin-dashboard-table-stat.status-in_pulizia strong,
   .admin-dashboard-table-chip.status-in_pulizia,
   .admin-inventory-stat.tone-warning strong,
@@ -242,7 +205,7 @@
   color: var(--gold-primary);
 }
 
-.app-content.with-admin-sidebar :is(
+.app-content.with-admin-theme :is(
   .admin-dashboard-order-row.status-pronto,
   .admin-dashboard-table-stat.status-libero,
   .admin-dashboard-inventory-stat.status-ok,
@@ -255,7 +218,7 @@
   background: rgba(48, 216, 120, 0.12);
 }
 
-.app-content.with-admin-sidebar :is(
+.app-content.with-admin-theme :is(
   .admin-dashboard-table-stat.status-libero strong,
   .admin-dashboard-inventory-stat.status-ok strong,
   .admin-inventory-stat.tone-ok strong,
@@ -265,7 +228,7 @@
   color: var(--status-green);
 }
 
-.app-content.with-admin-sidebar :is(
+.app-content.with-admin-theme :is(
   .admin-dashboard-order-row.status-in_preparazione,
   .admin-dashboard-table-stat.status-prenotato,
   .admin-dashboard-table-chip.status-prenotato,
@@ -276,7 +239,7 @@
   background: rgba(103, 174, 255, 0.12);
 }
 
-.app-content.with-admin-sidebar :is(
+.app-content.with-admin-theme :is(
   .admin-dashboard-table-stat.status-prenotato strong,
   .admin-dashboard-table-chip.status-prenotato,
   .admin-table-status.prenotato,
@@ -285,7 +248,7 @@
   color: var(--status-blue);
 }
 
-.app-content.with-admin-sidebar :is(
+.app-content.with-admin-theme :is(
   .admin-dashboard-table-stat.status-occupato,
   .admin-dashboard-table-chip.status-occupato,
   .admin-dashboard-inventory-stat.status-comprare,
@@ -298,7 +261,7 @@
   background: rgba(255, 138, 138, 0.12);
 }
 
-.app-content.with-admin-sidebar :is(
+.app-content.with-admin-theme :is(
   .admin-dashboard-table-stat.status-occupato strong,
   .admin-dashboard-table-chip.status-occupato,
   .admin-dashboard-inventory-stat.status-comprare strong,
@@ -309,16 +272,16 @@
   color: var(--status-red);
 }
 
-.app-content.with-admin-sidebar .admin-dashboard-inventory-stat.status-monitorare {
+.app-content.with-admin-theme .admin-dashboard-inventory-stat.status-monitorare {
   border-color: rgba(230, 181, 62, 0.62);
   background: rgba(230, 181, 62, 0.12);
 }
 
-.app-content.with-admin-sidebar .admin-dashboard-inventory-stat.status-monitorare strong {
+.app-content.with-admin-theme .admin-dashboard-inventory-stat.status-monitorare strong {
   color: var(--gold-primary);
 }
 
-.app-content.with-admin-sidebar :is(
+.app-content.with-admin-theme :is(
   .admin-inventory-status.status-ok,
   .admin-table-status.libero
 ) {
@@ -327,7 +290,7 @@
   color: var(--status-green);
 }
 
-.app-content.with-admin-sidebar :is(
+.app-content.with-admin-theme :is(
   .admin-inventory-status.status-monitorare,
   .admin-table-status.in_pulizia
 ) {
@@ -336,7 +299,7 @@
   color: var(--gold-primary);
 }
 
-.app-content.with-admin-sidebar :is(
+.app-content.with-admin-theme :is(
   .admin-inventory-status.status-comprare,
   .admin-table-status.occupato
 ) {
@@ -345,19 +308,18 @@
   color: var(--status-red);
 }
 
-.app-content.with-admin-sidebar .admin-table-status.prenotato {
+.app-content.with-admin-theme .admin-table-status.prenotato {
   border-color: rgba(103, 174, 255, 0.55);
   background: rgba(103, 174, 255, 0.18);
   color: var(--status-blue);
 }
 
-.app-content.with-admin-sidebar :is(
-  .admin-bookings-delete-btn,
-  .admin-customers-delete-btn,
-  .admin-inventory-actions button.danger,
-  .admin-menu-actions button.danger,
-  .admin-staff-delete-btn,
-  .admin-table-actions button.danger,
+.app-content.with-admin-theme :is(
+  .admin-customers-actions button,
+  .admin-inventory-bulk-actions button.danger,
+  .admin-menu-bulk-actions button.danger,
+  .admin-staff-actions button,
+  .admin-tables-bulk-actions button.danger,
   .confirm-delete-submit
 ) {
   border-color: rgba(255, 138, 138, 0.65);
@@ -365,19 +327,18 @@
   color: var(--status-red);
 }
 
-.app-content.with-admin-sidebar :is(
-  .admin-bookings-delete-btn,
-  .admin-customers-delete-btn,
-  .admin-inventory-actions button.danger,
-  .admin-menu-actions button.danger,
-  .admin-staff-delete-btn,
-  .admin-table-actions button.danger,
+.app-content.with-admin-theme :is(
+  .admin-customers-actions button,
+  .admin-inventory-bulk-actions button.danger,
+  .admin-menu-bulk-actions button.danger,
+  .admin-staff-actions button,
+  .admin-tables-bulk-actions button.danger,
   .confirm-delete-submit
 ):hover {
   background: rgba(255, 138, 138, 0.22);
 }
 
-.app-content.with-admin-sidebar .confirm-delete-summary {
+.app-content.with-admin-theme .confirm-delete-summary {
   border-color: var(--border-color);
   background: var(--card-bg-strong);
 }

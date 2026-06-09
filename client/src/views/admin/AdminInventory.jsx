@@ -1,6 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
 import { apiRequest } from '../../api/client';
-import AdminInventoryRow from '../../components/admin/AdminInventoryRow';
 import AdminSearchToolbar from '../../components/admin/AdminSearchToolbar';
 import ConfirmDeleteModal from '../../components/admin/ConfirmDeleteModal';
 import {
@@ -10,7 +9,9 @@ import {
   formatQuantity,
   getInventoryCategories,
   getInventoryStats,
+  getStockStatus,
   stockFilterOptions,
+  stockStatusLabels,
 } from '../../utils/inventoryUtils';
 import './AdminInventory.css';
 
@@ -28,6 +29,7 @@ const AdminInventory = () => {
   const [formData, setFormData] = useState(emptyForm);
   const [editingItemId, setEditingItemId] = useState(null);
   const [itemToDelete, setItemToDelete] = useState(null);
+  const [selectedItemIds, setSelectedItemIds] = useState([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [activeCategory, setActiveCategory] = useState('Tutti');
   const [activeStockFilter, setActiveStockFilter] = useState('Tutti');
@@ -63,6 +65,9 @@ const AdminInventory = () => {
       searchTerm,
     });
   }, [activeCategory, activeStockFilter, items, searchTerm]);
+  const selectedItems = items.filter((item) => selectedItemIds.includes(item.id));
+  const areAllFilteredItemsSelected =
+    filteredItems.length > 0 && filteredItems.every((item) => selectedItemIds.includes(item.id));
 
   const updateField = (field, value) => {
     setFormData((currentForm) => ({
@@ -88,6 +93,32 @@ const AdminInventory = () => {
       unit: item.unit || 'kg',
       notes: item.notes || '',
     });
+  };
+
+  const toggleItemSelection = (itemId) => {
+    setSelectedItemIds((currentIds) =>
+      currentIds.includes(itemId)
+        ? currentIds.filter((id) => id !== itemId)
+        : [...currentIds, itemId]
+    );
+  };
+
+  const toggleAllFilteredItems = () => {
+    setSelectedItemIds((currentIds) => {
+      if (areAllFilteredItemsSelected) {
+        return currentIds.filter((id) => !filteredItems.some((item) => item.id === id));
+      }
+
+      return [...new Set([...currentIds, ...filteredItems.map((item) => item.id)])];
+    });
+  };
+
+  const startSelectedItemEdit = () => {
+    if (selectedItems.length !== 1) {
+      return;
+    }
+
+    startEdit(selectedItems[0]);
   };
 
   const saveItem = async (event) => {
@@ -125,23 +156,28 @@ const AdminInventory = () => {
     }
   };
 
-  const deleteItem = async () => {
-    if (!itemToDelete) {
+  const deleteSelectedItems = async () => {
+    if (selectedItems.length === 0) {
       return;
     }
 
-    setDeletingItemId(itemToDelete.id);
+    setDeletingItemId(selectedItems[0].id);
     setErrorMessage('');
 
     try {
-      await apiRequest(`/inventory/${itemToDelete.id}`, {
-        method: 'DELETE',
-      });
+      await Promise.all(
+        selectedItems.map((item) =>
+          apiRequest(`/inventory/${item.id}`, {
+            method: 'DELETE',
+          })
+        )
+      );
 
-      setItems((currentItems) => currentItems.filter((item) => item.id !== itemToDelete.id));
+      setItems((currentItems) => currentItems.filter((item) => !selectedItemIds.includes(item.id)));
+      setSelectedItemIds([]);
       setItemToDelete(null);
 
-      if (editingItemId === itemToDelete.id) {
+      if (selectedItemIds.includes(editingItemId)) {
         resetForm();
       }
     } catch (error) {
@@ -307,6 +343,21 @@ const AdminInventory = () => {
             </div>
           </div>
 
+          <div className="admin-inventory-bulk-actions">
+            <span>{selectedItemIds.length} selezionati</span>
+            <button type="button" onClick={startSelectedItemEdit} disabled={selectedItemIds.length !== 1}>
+              Modifica selezionato
+            </button>
+            <button
+              className="danger"
+              type="button"
+              onClick={() => setItemToDelete({ bulk: true })}
+              disabled={selectedItemIds.length === 0}
+            >
+              Elimina selezionati
+            </button>
+          </div>
+
           {filteredItems.length === 0 ? (
             <p className="admin-inventory-state">Nessun ingrediente trovato.</p>
           ) : (
@@ -314,24 +365,54 @@ const AdminInventory = () => {
               <table className="admin-inventory-table">
                 <thead>
                   <tr>
+                    <th>
+                      <input
+                        type="checkbox"
+                        checked={areAllFilteredItemsSelected}
+                        onChange={toggleAllFilteredItems}
+                        aria-label="Seleziona tutti gli ingredienti filtrati"
+                      />
+                    </th>
                     <th>Ingrediente</th>
                     <th>Categoria</th>
                     <th>Totale</th>
                     <th>Scorta</th>
                     <th>Stato</th>
-                    <th>Azioni</th>
                   </tr>
                 </thead>
                 <tbody>
-                  {filteredItems.map((item) => (
-                    <AdminInventoryRow
-                      deletingItemId={deletingItemId}
-                      item={item}
-                      key={item.id}
-                      onDelete={setItemToDelete}
-                      onEdit={startEdit}
-                    />
-                  ))}
+                  {filteredItems.map((item) => {
+                    const stockStatus = getStockStatus(item);
+
+                    return (
+                      <tr className={`status-${stockStatus}`} key={item.id}>
+                        <td>
+                          <input
+                            type="checkbox"
+                            checked={selectedItemIds.includes(item.id)}
+                            onChange={() => toggleItemSelection(item.id)}
+                            aria-label={`Seleziona ${item.name}`}
+                          />
+                        </td>
+                        <td>
+                          <strong>{item.name}</strong>
+                          {item.notes && <small>{item.notes}</small>}
+                        </td>
+                        <td>{item.category}</td>
+                        <td>
+                          {formatQuantity(item.total_quantity)} {item.unit}
+                        </td>
+                        <td>
+                          {formatQuantity(item.quantity)} {item.unit}
+                        </td>
+                        <td>
+                          <span className={`admin-inventory-status status-${stockStatus}`}>
+                            {stockStatusLabels[stockStatus]}
+                          </span>
+                        </td>
+                      </tr>
+                    );
+                  })}
                 </tbody>
               </table>
             </div>
@@ -341,17 +422,16 @@ const AdminInventory = () => {
 
       {itemToDelete && (
         <ConfirmDeleteModal
-          title="Vuoi eliminare definitivamente questo ingrediente?"
-          summaryItems={[
-            itemToDelete.name,
-            itemToDelete.category,
-            `${formatQuantity(itemToDelete.quantity)} / ${formatQuantity(itemToDelete.total_quantity)} ${
-              itemToDelete.unit
-            }`,
-          ]}
-          isDeleting={deletingItemId === itemToDelete.id}
+          title="Vuoi eliminare definitivamente gli ingredienti selezionati?"
+          summaryItems={selectedItems.map(
+            (item) =>
+              `${item.name} - ${formatQuantity(item.quantity)} / ${formatQuantity(
+                item.total_quantity
+              )} ${item.unit}`
+          )}
+          isDeleting={deletingItemId !== null}
           onCancel={() => setItemToDelete(null)}
-          onConfirm={deleteItem}
+          onConfirm={deleteSelectedItems}
         />
       )}
     </section>

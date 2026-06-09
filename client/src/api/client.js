@@ -9,7 +9,16 @@ export const getAuthToken = () => {
 export const getAuthUser = () => {
   const storedUser = localStorage.getItem(AUTH_USER_KEY);
 
-  return storedUser ? JSON.parse(storedUser) : null;
+  if (!storedUser) {
+    return null;
+  }
+
+  try {
+    return JSON.parse(storedUser);
+  } catch (error) {
+    clearAuthSession();
+    return null;
+  }
 };
 
 export const saveAuthSession = ({ token, user }) => {

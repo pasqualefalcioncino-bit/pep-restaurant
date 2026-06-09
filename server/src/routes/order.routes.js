@@ -16,6 +16,6 @@ router.patch(
   checkRole(["admin", "cuoco"]),
   orderController.markItemReady
 );
-router.put("/:id", verifyToken, checkRole(["admin", "cuoco"]), orderController.updateStatus);
+router.put("/:id", verifyToken, checkRole(["admin", "cuoco", "cameriere"]), orderController.updateStatus);
 
 module.exports = router;

@@ -12,6 +12,7 @@ const AdminCustomers = () => {
   const [errorMessage, setErrorMessage] = useState('');
   const [deletingCustomerId, setDeletingCustomerId] = useState(null);
   const [customerToDelete, setCustomerToDelete] = useState(null);
+  const [selectedCustomerIds, setSelectedCustomerIds] = useState([]);
   const currentUser = getAuthUser();
 
   useEffect(() => {
@@ -41,22 +42,57 @@ const AdminCustomers = () => {
     );
   });
 
-  const deleteCustomer = async () => {
-    if (!customerToDelete) {
+  const selectableFilteredCustomers = filteredCustomers.filter((customer) => {
+    return currentUser?.id !== customer.id;
+  });
+  const selectedCustomers = customers.filter((customer) =>
+    selectedCustomerIds.includes(customer.id)
+  );
+  const areAllFilteredCustomersSelected =
+    selectableFilteredCustomers.length > 0 &&
+    selectableFilteredCustomers.every((customer) => selectedCustomerIds.includes(customer.id));
+
+  const toggleCustomerSelection = (customerId) => {
+    setSelectedCustomerIds((currentIds) =>
+      currentIds.includes(customerId)
+        ? currentIds.filter((id) => id !== customerId)
+        : [...currentIds, customerId]
+    );
+  };
+
+  const toggleAllFilteredCustomers = () => {
+    setSelectedCustomerIds((currentIds) => {
+      if (areAllFilteredCustomersSelected) {
+        return currentIds.filter(
+          (id) => !selectableFilteredCustomers.some((customer) => customer.id === id)
+        );
+      }
+
+      return [...new Set([...currentIds, ...selectableFilteredCustomers.map((customer) => customer.id)])];
+    });
+  };
+
+  const deleteSelectedCustomers = async () => {
+    if (selectedCustomers.length === 0) {
       return;
     }
 
-    setDeletingCustomerId(customerToDelete.id);
+    setDeletingCustomerId(selectedCustomers[0].id);
     setErrorMessage('');
 
     try {
-      await apiRequest(`/users/${customerToDelete.id}`, {
-        method: 'DELETE',
-      });
+      await Promise.all(
+        selectedCustomers.map((customer) =>
+          apiRequest(`/users/${customer.id}`, {
+            method: 'DELETE',
+          })
+        )
+      );
 
       setCustomers((currentCustomers) =>
-        currentCustomers.filter((customer) => customer.id !== customerToDelete.id)
+        currentCustomers.filter((customer) => !selectedCustomerIds.includes(customer.id))
       );
+      setSelectedCustomerIds([]);
       setCustomerToDelete(null);
     } catch (error) {
       setErrorMessage(error.message);
@@ -94,6 +130,17 @@ const AdminCustomers = () => {
             resultsCount={filteredCustomers.length}
           />
 
+          <div className="admin-customers-actions">
+            <span>{selectedCustomerIds.length} selezionati</span>
+            <button
+              type="button"
+              onClick={() => setCustomerToDelete({ bulk: true })}
+              disabled={selectedCustomerIds.length === 0}
+            >
+              Elimina selezionati
+            </button>
+          </div>
+
           {filteredCustomers.length === 0 ? (
             <p className="admin-customers-state">Nessun cliente trovato.</p>
           ) : (
@@ -101,15 +148,30 @@ const AdminCustomers = () => {
               <table className="admin-customers-table">
                 <thead>
                   <tr>
+                    <th>
+                      <input
+                        type="checkbox"
+                        checked={areAllFilteredCustomersSelected}
+                        onChange={toggleAllFilteredCustomers}
+                        aria-label="Seleziona tutti i clienti filtrati"
+                      />
+                    </th>
                     <th>Nome</th>
                     <th>Email</th>
-                    <th>Ruolo</th>
-                    <th>Azioni</th>
                   </tr>
                 </thead>
                 <tbody>
                   {filteredCustomers.map((customer) => (
                     <tr key={customer.id}>
+                      <td>
+                        <input
+                          type="checkbox"
+                          checked={selectedCustomerIds.includes(customer.id)}
+                          onChange={() => toggleCustomerSelection(customer.id)}
+                          disabled={currentUser?.id === customer.id}
+                          aria-label={`Seleziona ${customer.name}`}
+                        />
+                      </td>
                       <td>
                         <div className="admin-customers-person">
                           {getRoleAvatar(customer.role) && (
@@ -119,22 +181,6 @@ const AdminCustomers = () => {
                         </div>
                       </td>
                       <td>{customer.email}</td>
-                      <td>
-                        <span className="admin-customers-role">{customer.role}</span>
-                      </td>
-                      <td>
-                        <button
-                          className="admin-customers-delete-btn"
-                          type="button"
-                          onClick={() => setCustomerToDelete(customer)}
-                          disabled={
-                            deletingCustomerId === customer.id ||
-                            currentUser?.id === customer.id
-                          }
-                        >
-                          {deletingCustomerId === customer.id ? 'Elimino...' : 'Elimina'}
-                        </button>
-                      </td>
                     </tr>
                   ))}
                 </tbody>
@@ -146,15 +192,11 @@ const AdminCustomers = () => {
 
       {customerToDelete && (
         <ConfirmDeleteModal
-          title="Vuoi eliminare definitivamente questa utenza?"
-          summaryItems={[
-            customerToDelete.name,
-            customerToDelete.email,
-            customerToDelete.role,
-          ]}
-          isDeleting={deletingCustomerId === customerToDelete.id}
+          title="Vuoi eliminare definitivamente i clienti selezionati?"
+          summaryItems={selectedCustomers.map((customer) => `${customer.name} - ${customer.email}`)}
+          isDeleting={deletingCustomerId !== null}
           onCancel={() => setCustomerToDelete(null)}
-          onConfirm={deleteCustomer}
+          onConfirm={deleteSelectedCustomers}
         />
       )}
     </section>

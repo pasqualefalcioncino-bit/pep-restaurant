@@ -52,13 +52,18 @@ exports.getOrders = async (req, res) => {
 exports.updateStatus = async (req, res) => {
   const { id } = req.params;
   const { status } = req.body;
-  const allowedStatuses = [
+  const cookStatuses = [
     "in_attesa",
     "in_preparazione",
     "pronto",
-    "servito",
     "annullato"
   ];
+  const allowedStatusesByRole = {
+    admin: [...cookStatuses, "servito"],
+    cuoco: cookStatuses,
+    cameriere: ["servito"],
+  };
+  const allowedStatuses = allowedStatusesByRole[req.user.role] || [];
 
   if (!allowedStatuses.includes(status)) {
     return res.status(400).send("Stato ordine non valido");

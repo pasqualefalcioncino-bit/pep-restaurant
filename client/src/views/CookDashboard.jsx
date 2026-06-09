@@ -1,19 +1,19 @@
 import { useEffect, useMemo, useState } from 'react';
 import { apiRequest } from '../api/client';
-import AdminInventoryRow from '../components/admin/AdminInventoryRow';
 import AdminSearchToolbar from '../components/admin/AdminSearchToolbar';
 import {
   filterInventoryItems,
   formatQuantity,
+  getStockStatus,
   getInventoryCategories,
   getInventoryStats,
   stockFilterOptions,
+  stockStatusLabels,
 } from '../utils/inventoryUtils';
 import {
   categoryLabels,
   getOrderStatusLabel,
   menuCategories,
-  orderStatuses,
   sortByMenuCategory,
 } from '../utils/menuCatalog';
 import { getMenuImage } from '../utils/menuImages';
@@ -22,8 +22,13 @@ import './admin/AdminInventory.css';
 import './CookDashboard.css';
 
 const kitchenCategories = ['Tutte', ...menuCategories];
-const activeStatuses = ['in_attesa', 'in_preparazione'];
 const itemReadyStatuses = ['in_attesa', 'in_preparazione'];
+const cookOrderStatuses = [
+  { value: 'in_attesa', label: 'In attesa' },
+  { value: 'in_preparazione', label: 'In preparazione' },
+  { value: 'pronto', label: 'Pronto' },
+  { value: 'annullato', label: 'Annullato' },
+];
 
 const formatTime = (dateValue) => {
   if (!dateValue) {
@@ -172,7 +177,7 @@ const KitchenOrderCard = ({
           disabled={updatingOrderId === order.id}
           aria-label={`Stato ordine tavolo ${order.table_number}`}
         >
-          {orderStatuses.map((status) => (
+          {cookOrderStatuses.map((status) => (
             <option key={status.value} value={status.value}>
               {status.label}
             </option>
@@ -183,12 +188,18 @@ const KitchenOrderCard = ({
   );
 };
 
-const KitchenMenuRow = ({ item, isUpdating, onAvailabilityChange }) => {
+const KitchenMenuRow = ({
+  item,
+  isEditingAvailability,
+  availabilityDraft,
+  onAvailabilityDraftChange,
+}) => {
   const menuImage = getMenuImage(item.image);
   const isAvailable = item.available !== false;
+  const draftAvailable = availabilityDraft ?? isAvailable;
 
   return (
-    <tr className={isAvailable ? '' : 'unavailable'}>
+    <tr className={draftAvailable ? '' : 'unavailable'}>
       <td>
         <div className="cook-menu-dish">
           <div className="cook-menu-dish-image">
@@ -208,44 +219,91 @@ const KitchenMenuRow = ({ item, isUpdating, onAvailabilityChange }) => {
       <td>{formatEuroPrice(item.price)}</td>
       <td>{item.prep_time || 0} min</td>
       <td>
-        <span className={`cook-menu-status ${isAvailable ? 'available' : 'unavailable'}`}>
-          {isAvailable ? 'Disponibile' : 'Non disponibile'}
+        <span className={`cook-menu-status ${draftAvailable ? 'available' : 'unavailable'}`}>
+          {draftAvailable ? 'Disponibile' : 'Non disponibile'}
         </span>
       </td>
+      {isEditingAvailability && (
+        <td>
+          <label className="cook-menu-availability-toggle">
+            <input
+              type="checkbox"
+              checked={draftAvailable}
+              onChange={(event) => onAvailabilityDraftChange(item.id, event.target.checked)}
+            />
+            <span>{draftAvailable ? 'Disponibile' : 'Non disponibile'}</span>
+          </label>
+        </td>
+      )}
+    </tr>
+  );
+};
+
+const KitchenInventoryRow = ({
+  item,
+  isEditingQuantities,
+  quantityDraft,
+  onQuantityDraftChange,
+}) => {
+  const stockStatus = getStockStatus(item);
+
+  return (
+    <tr className={`status-${stockStatus}`}>
       <td>
-        <button
-          className="cook-menu-availability"
-          type="button"
-          onClick={() => onAvailabilityChange(item.id, !isAvailable)}
-          disabled={isUpdating}
-        >
-          {isUpdating ? 'Aggiorno...' : isAvailable ? 'Rendi non disponibile' : 'Rendi disponibile'}
-        </button>
+        <strong>{item.name}</strong>
+        {item.notes && <small>{item.notes}</small>}
+      </td>
+      <td>{item.category}</td>
+      <td>
+        {formatQuantity(item.total_quantity)} {item.unit}
+      </td>
+      <td>
+        {isEditingQuantities ? (
+          <input
+            className="cook-inventory-quantity-input"
+            type="number"
+            min="0"
+            max={item.total_quantity}
+            step="0.01"
+            value={quantityDraft ?? item.quantity ?? ''}
+            onChange={(event) => onQuantityDraftChange(item.id, event.target.value)}
+          />
+        ) : (
+          `${formatQuantity(item.quantity)} ${item.unit}`
+        )}
+      </td>
+      <td>
+        <span className={`admin-inventory-status status-${stockStatus}`}>
+          {stockStatusLabels[stockStatus]}
+        </span>
       </td>
     </tr>
   );
 };
 
-const CookDashboard = () => {
+const CookDashboard = ({ mode = 'orders' }) => {
   const [orders, setOrders] = useState([]);
   const [menuItems, setMenuItems] = useState([]);
   const [inventoryItems, setInventoryItems] = useState([]);
-  const [activeTab, setActiveTab] = useState('orders');
+  const [activeTab, setActiveTab] = useState(mode === 'management' ? 'eightySix' : 'orders');
   const [activeCategory, setActiveCategory] = useState('Tutte');
   const [activeInventoryCategory, setActiveInventoryCategory] = useState('Tutti');
   const [activeInventoryStockFilter, setActiveInventoryStockFilter] = useState('Tutti');
   const [selectedMetricKey, setSelectedMetricKey] = useState(null);
   const [selectedMetricDate, setSelectedMetricDate] = useState('');
   const [inventorySearchTerm, setInventorySearchTerm] = useState('');
-  const [editingInventoryItem, setEditingInventoryItem] = useState(null);
-  const [inventoryQuantity, setInventoryQuantity] = useState('');
+  const [isEditingMenuAvailability, setIsEditingMenuAvailability] = useState(false);
+  const [menuAvailabilityDrafts, setMenuAvailabilityDrafts] = useState({});
+  const [isEditingInventoryQuantities, setIsEditingInventoryQuantities] = useState(false);
+  const [inventoryQuantityDrafts, setInventoryQuantityDrafts] = useState({});
   const [isLoading, setIsLoading] = useState(true);
   const [isDeletingOrders, setIsDeletingOrders] = useState(false);
+  const [isSavingMenuAvailability, setIsSavingMenuAvailability] = useState(false);
+  const [isSavingInventoryQuantities, setIsSavingInventoryQuantities] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
   const [updatingOrderId, setUpdatingOrderId] = useState(null);
   const [updatingOrderItemId, setUpdatingOrderItemId] = useState(null);
-  const [updatingMenuItemId, setUpdatingMenuItemId] = useState(null);
-  const [updatingInventoryItemId, setUpdatingInventoryItemId] = useState(null);
+  const isManagementMode = mode === 'management';
 
   const loadKitchenData = async () => {
     setErrorMessage('');
@@ -278,11 +336,14 @@ const CookDashboard = () => {
     setSelectedMetricDate('');
   }, [selectedMetricKey]);
 
+  useEffect(() => {
+    setActiveTab(mode === 'management' ? 'eightySix' : 'orders');
+  }, [mode]);
+
   const menuItemsById = useMemo(() => {
     return Object.fromEntries(menuItems.map((item) => [item.id, item]));
   }, [menuItems]);
 
-  const activeOrders = orders.filter((order) => activeStatuses.includes(order.status));
   const readyOrders = orders.filter((order) => order.status === 'pronto');
   const waitingOrders = orders.filter((order) => order.status === 'in_attesa');
   const preparingOrders = orders.filter((order) => order.status === 'in_preparazione');
@@ -290,13 +351,6 @@ const CookDashboard = () => {
   const cancelledOrders = orders.filter((order) => order.status === 'annullato');
 
   const metricCards = [
-    {
-      key: 'active',
-      tone: 'active',
-      label: 'Attivi',
-      value: activeOrders.length,
-      orders: activeOrders,
-    },
     {
       key: 'waiting',
       tone: 'wait',
@@ -426,61 +480,107 @@ const CookDashboard = () => {
     }
   };
 
-  const updateMenuAvailability = async (menuItemId, available) => {
-    setUpdatingMenuItemId(menuItemId);
+  const startMenuAvailabilityEdit = () => {
+    setMenuAvailabilityDrafts(
+      Object.fromEntries(menuItems.map((item) => [item.id, item.available !== false]))
+    );
+    setIsEditingMenuAvailability(true);
+    setErrorMessage('');
+  };
+
+  const cancelMenuAvailabilityEdit = () => {
+    setIsEditingMenuAvailability(false);
+    setMenuAvailabilityDrafts({});
+  };
+
+  const updateMenuAvailabilityDraft = (menuItemId, available) => {
+    setMenuAvailabilityDrafts((currentDrafts) => ({
+      ...currentDrafts,
+      [menuItemId]: available,
+    }));
+  };
+
+  const saveMenuAvailability = async () => {
+    const changedItems = menuItems.filter((item) => {
+      const currentAvailable = item.available !== false;
+      return menuAvailabilityDrafts[item.id] !== undefined && menuAvailabilityDrafts[item.id] !== currentAvailable;
+    });
+
+    setIsSavingMenuAvailability(true);
     setErrorMessage('');
 
     try {
-      const updatedMenuItem = await apiRequest(`/menu/${menuItemId}/availability`, {
-        method: 'PATCH',
-        body: JSON.stringify({ available }),
-      });
+      const updatedItems = await Promise.all(
+        changedItems.map((item) =>
+          apiRequest(`/menu/${item.id}/availability`, {
+            method: 'PATCH',
+            body: JSON.stringify({ available: menuAvailabilityDrafts[item.id] }),
+          })
+        )
+      );
+
+      const updatedItemsById = Object.fromEntries(updatedItems.map((item) => [item.id, item]));
 
       setMenuItems((currentItems) =>
-        currentItems.map((item) => (item.id === menuItemId ? updatedMenuItem : item))
+        currentItems.map((item) => updatedItemsById[item.id] || item)
       );
+      cancelMenuAvailabilityEdit();
     } catch (error) {
       setErrorMessage(error.message);
     } finally {
-      setUpdatingMenuItemId(null);
+      setIsSavingMenuAvailability(false);
     }
   };
 
-  const startInventoryEdit = (item) => {
-    setEditingInventoryItem(item);
-    setInventoryQuantity(String(item.quantity ?? ''));
+  const startInventoryQuantitiesEdit = () => {
+    setInventoryQuantityDrafts(
+      Object.fromEntries(inventoryItems.map((item) => [item.id, String(item.quantity ?? '')]))
+    );
+    setIsEditingInventoryQuantities(true);
     setErrorMessage('');
   };
 
-  const resetInventoryEdit = () => {
-    setEditingInventoryItem(null);
-    setInventoryQuantity('');
+  const cancelInventoryQuantitiesEdit = () => {
+    setIsEditingInventoryQuantities(false);
+    setInventoryQuantityDrafts({});
   };
 
-  const updateInventoryQuantity = async (event) => {
-    event.preventDefault();
+  const updateInventoryQuantityDraft = (itemId, quantity) => {
+    setInventoryQuantityDrafts((currentDrafts) => ({
+      ...currentDrafts,
+      [itemId]: quantity,
+    }));
+  };
 
-    if (!editingInventoryItem) {
-      return;
-    }
+  const saveInventoryQuantities = async () => {
+    const changedItems = inventoryItems.filter((item) => {
+      const draftQuantity = inventoryQuantityDrafts[item.id];
+      return draftQuantity !== undefined && Number(draftQuantity) !== Number(item.quantity);
+    });
 
-    setUpdatingInventoryItemId(editingInventoryItem.id);
+    setIsSavingInventoryQuantities(true);
     setErrorMessage('');
 
     try {
-      const updatedItem = await apiRequest(`/inventory/${editingInventoryItem.id}/quantity`, {
-        method: 'PATCH',
-        body: JSON.stringify({ quantity: Number(inventoryQuantity) }),
-      });
+      const updatedItems = await Promise.all(
+        changedItems.map((item) =>
+          apiRequest(`/inventory/${item.id}/quantity`, {
+            method: 'PATCH',
+            body: JSON.stringify({ quantity: Number(inventoryQuantityDrafts[item.id]) }),
+          })
+        )
+      );
+
+      const updatedItemsById = Object.fromEntries(updatedItems.map((item) => [item.id, item]));
 
       setInventoryItems((currentItems) =>
-        currentItems.map((item) => (item.id === updatedItem.id ? updatedItem : item))
+        currentItems.map((item) => updatedItemsById[item.id] || item)
       );
-      resetInventoryEdit();
+      cancelInventoryQuantitiesEdit();
     } catch (error) {
       setErrorMessage(error.message);
     } finally {
-      setUpdatingInventoryItemId(null);
+      setIsSavingInventoryQuantities(false);
     }
   };
 
@@ -527,7 +627,9 @@ const CookDashboard = () => {
   if (isLoading) {
     return (
       <section className="cook-dashboard-page">
-        <p className="cook-dashboard-state">Caricamento ordini...</p>
+        <p className="cook-dashboard-state">
+          {isManagementMode ? 'Caricamento gestione cucina...' : 'Caricamento ordini...'}
+        </p>
       </section>
     );
   }
@@ -535,51 +637,50 @@ const CookDashboard = () => {
   return (
     <section className="cook-dashboard-page" aria-labelledby="cook-dashboard-title">
       <div className="cook-dashboard-header">
-        <h1 id="cook-dashboard-title">Pannello Cucina</h1>
+        <h1 id="cook-dashboard-title">
+          {isManagementMode ? 'Gestione Cucina' : 'Pannello Cucina'}
+        </h1>
       </div>
 
-      <div className="cook-metrics" aria-label="Riepilogo cucina">
-        {metricCards.map((metric) => (
+      {!isManagementMode && (
+        <div className="cook-metrics" aria-label="Riepilogo cucina">
+          {metricCards.map((metric) => (
+            <button
+              className={`cook-metric-card ${metric.tone}`}
+              key={metric.key}
+              type="button"
+              onClick={() => setSelectedMetricKey(metric.key)}
+              aria-haspopup="dialog"
+            >
+              <span className={`cook-metric-icon ${metric.tone}`}>{metric.label}</span>
+              <strong>{metric.value}</strong>
+            </button>
+          ))}
+        </div>
+      )}
+
+      {isManagementMode && (
+        <div className="cook-tabs" aria-label="Viste gestione cucina">
           <button
-            className={`cook-metric-card ${metric.tone}`}
-            key={metric.key}
+            className={activeTab === 'eightySix' ? 'active' : ''}
             type="button"
-            onClick={() => setSelectedMetricKey(metric.key)}
-            aria-haspopup="dialog"
+            onClick={() => setActiveTab('eightySix')}
           >
-            <span className={`cook-metric-icon ${metric.tone}`}>{metric.label}</span>
-            <strong>{metric.value}</strong>
+            Gestione menu
           </button>
-        ))}
-      </div>
-
-      <div className="cook-tabs" aria-label="Viste cucina">
-        <button
-          className={activeTab === 'orders' ? 'active' : ''}
-          type="button"
-          onClick={() => setActiveTab('orders')}
-        >
-          Ordini
-        </button>
-        <button
-          className={activeTab === 'eightySix' ? 'active' : ''}
-          type="button"
-          onClick={() => setActiveTab('eightySix')}
-        >
-          Gestione menu
-        </button>
-        <button
-          className={activeTab === 'inventory' ? 'active' : ''}
-          type="button"
-          onClick={() => setActiveTab('inventory')}
-        >
-          Inventario
-        </button>
-      </div>
+          <button
+            className={activeTab === 'inventory' ? 'active' : ''}
+            type="button"
+            onClick={() => setActiveTab('inventory')}
+          >
+            Inventario
+          </button>
+        </div>
+      )}
 
       {errorMessage && <p className="cook-dashboard-state error">Errore: {errorMessage}</p>}
 
-      {activeTab === 'orders' && (
+      {!isManagementMode && (
         <>
           <div className="cook-filters" aria-label="Filtri categoria">
             {kitchenCategories.map((category) => (
@@ -615,7 +716,7 @@ const CookDashboard = () => {
         </>
       )}
 
-      {activeTab === 'eightySix' && (
+      {isManagementMode && activeTab === 'eightySix' && (
         <section className="cook-menu-management" aria-labelledby="cook-menu-management-title">
           <div className="cook-menu-management-header">
             <div>
@@ -623,6 +724,28 @@ const CookDashboard = () => {
               <p>{menuItems.length} piatti presenti nel menu.</p>
             </div>
             <strong>{menuItems.filter((item) => item.available === false).length}</strong>
+          </div>
+
+          <div className="cook-management-actions">
+            {isEditingMenuAvailability ? (
+              <>
+                <button type="button" onClick={cancelMenuAvailabilityEdit}>
+                  Annulla
+                </button>
+                <button
+                  className="primary"
+                  type="button"
+                  onClick={saveMenuAvailability}
+                  disabled={isSavingMenuAvailability}
+                >
+                  {isSavingMenuAvailability ? 'Salvataggio...' : 'Salva disponibilita'}
+                </button>
+              </>
+            ) : (
+              <button className="primary" type="button" onClick={startMenuAvailabilityEdit}>
+                Modifica disponibilita
+              </button>
+            )}
           </div>
 
           <div className="cook-filters" aria-label="Filtri categoria menu">
@@ -650,16 +773,17 @@ const CookDashboard = () => {
                     <th>Prezzo</th>
                     <th>Tempo</th>
                     <th>Stato</th>
-                    <th>Disponibilita'</th>
+                    {isEditingMenuAvailability && <th>Disponibilita</th>}
                   </tr>
                 </thead>
                 <tbody>
                   {visibleMenuItems.map((item) => (
                     <KitchenMenuRow
+                      availabilityDraft={menuAvailabilityDrafts[item.id]}
+                      isEditingAvailability={isEditingMenuAvailability}
                       item={item}
                       key={item.id}
-                      isUpdating={updatingMenuItemId === item.id}
-                      onAvailabilityChange={updateMenuAvailability}
+                      onAvailabilityDraftChange={updateMenuAvailabilityDraft}
                     />
                   ))}
                 </tbody>
@@ -669,13 +793,35 @@ const CookDashboard = () => {
         </section>
       )}
 
-      {activeTab === 'inventory' && (
+      {isManagementMode && activeTab === 'inventory' && (
         <section className="cook-inventory-management" aria-labelledby="cook-inventory-title">
           <div className="admin-inventory-header">
             <div>
               <h2 id="cook-inventory-title">Inventario</h2>
               <p>Ingredienti e materie prime collegati al menu del ristorante.</p>
             </div>
+          </div>
+
+          <div className="cook-management-actions">
+            {isEditingInventoryQuantities ? (
+              <>
+                <button type="button" onClick={cancelInventoryQuantitiesEdit}>
+                  Annulla
+                </button>
+                <button
+                  className="primary"
+                  type="button"
+                  onClick={saveInventoryQuantities}
+                  disabled={isSavingInventoryQuantities}
+                >
+                  {isSavingInventoryQuantities ? 'Salvataggio...' : 'Salva scorte'}
+                </button>
+              </>
+            ) : (
+              <button className="primary" type="button" onClick={startInventoryQuantitiesEdit}>
+                Modifica scorte
+              </button>
+            )}
           </div>
 
           <div className="admin-inventory-stats" aria-label="Riepilogo inventario">
@@ -686,43 +832,6 @@ const CookDashboard = () => {
               </article>
             ))}
           </div>
-
-          {editingInventoryItem && (
-            <form className="cook-inventory-stock-editor" onSubmit={updateInventoryQuantity}>
-              <div>
-                <span>Modifica scorta</span>
-                <strong>{editingInventoryItem.name}</strong>
-                <small>
-                  Totale {formatQuantity(editingInventoryItem.total_quantity)}{' '}
-                  {editingInventoryItem.unit}
-                </small>
-              </div>
-              <label>
-                <span>Scorta attuale</span>
-                <input
-                  type="number"
-                  min="0"
-                  max={editingInventoryItem.total_quantity}
-                  step="0.01"
-                  value={inventoryQuantity}
-                  onChange={(event) => setInventoryQuantity(event.target.value)}
-                  required
-                />
-              </label>
-              <div className="cook-inventory-stock-actions">
-                <button type="button" onClick={resetInventoryEdit}>
-                  Annulla
-                </button>
-                <button
-                  className="primary"
-                  type="submit"
-                  disabled={updatingInventoryItemId === editingInventoryItem.id}
-                >
-                  {updatingInventoryItemId === editingInventoryItem.id ? 'Aggiorno...' : 'Salva'}
-                </button>
-              </div>
-            </form>
-          )}
 
           <div className="admin-inventory-list">
             <AdminSearchToolbar
@@ -774,18 +883,16 @@ const CookDashboard = () => {
                       <th>Totale</th>
                       <th>Scorta</th>
                       <th>Stato</th>
-                      <th>Azioni</th>
                     </tr>
                   </thead>
                   <tbody>
                     {visibleInventoryItems.map((item) => (
-                      <AdminInventoryRow
-                        editLabel="Modifica scorta"
+                      <KitchenInventoryRow
+                        isEditingQuantities={isEditingInventoryQuantities}
                         item={item}
                         key={item.id}
-                        onEdit={startInventoryEdit}
-                        showDelete={false}
-                        updatingItemId={updatingInventoryItemId}
+                        onQuantityDraftChange={updateInventoryQuantityDraft}
+                        quantityDraft={inventoryQuantityDrafts[item.id]}
                       />
                     ))}
                   </tbody>
@@ -796,7 +903,7 @@ const CookDashboard = () => {
         </section>
       )}
 
-      {selectedMetric && (
+      {!isManagementMode && selectedMetric && (
         <div className="cook-metric-backdrop" role="presentation">
           <div
             className="cook-metric-modal"

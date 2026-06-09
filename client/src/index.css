@@ -26,8 +26,9 @@ body {
   display: flex;
 }
 
-.app-content.with-admin-sidebar {
+.app-content.with-admin-theme {
   align-items: stretch;
+  flex-direction: column;
 }
 
 .app-main {

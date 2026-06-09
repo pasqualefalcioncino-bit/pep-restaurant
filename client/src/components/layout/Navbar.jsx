@@ -14,20 +14,35 @@ const Navbar = ({
 }) => {
   const displayUserName = currentUser?.name || currentUser?.role || '';
   const userAvatar = currentUser?.avatar_url || getRoleAvatar(currentUser?.role);
-  const menuItems = [
+  const publicMenuItems = [
     { label: 'Home', page: 'home' },
     { label: 'Menu', page: 'menu' },
     { label: 'Prenota', page: 'prenota' },
     { label: 'Contatti', page: 'contatti' },
   ];
+  const menuItems = ['admin', 'cameriere', 'cuoco'].includes(currentUser?.role) ? [] : publicMenuItems;
   const roleMenuItems = [];
+
+  if (currentUser?.role === 'admin') {
+    roleMenuItems.push(
+      { label: 'Dashboard', page: 'admin-dashboard' },
+      { label: 'Prenotazioni', page: 'admin-prenotazioni' },
+      { label: 'Menu', page: 'admin-menu' },
+      { label: 'Tavoli', page: 'admin-tavoli' },
+      { label: 'Clienti', page: 'admin-clienti' },
+      { label: 'Staff', page: 'admin-staff' },
+      { label: 'Inventario', page: 'admin-inventario' }
+    );
+  }
 
   if (currentUser?.role === 'cuoco') {
     roleMenuItems.push({ label: 'Cucina', page: 'cuoco' });
+    roleMenuItems.push({ label: 'Gestione', page: 'cuoco-gestione' });
   }
 
   if (currentUser?.role === 'cameriere') {
     roleMenuItems.push({ label: 'Ordini', page: 'ordini' });
+    roleMenuItems.push({ label: 'Walk-in', page: 'walk-in' });
   }
 
   if (currentUser?.role === 'cliente') {
@@ -55,7 +70,9 @@ const Navbar = ({
             );
           })}
 
-          {roleMenuItems.length > 0 && <span className="navbar-nav-divider" aria-hidden="true">|</span>}
+          {menuItems.length > 0 && roleMenuItems.length > 0 && (
+            <span className="navbar-nav-divider" aria-hidden="true">|</span>
+          )}
 
           {roleMenuItems.map((item) => {
             return (

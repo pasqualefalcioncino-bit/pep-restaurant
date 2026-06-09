@@ -19,6 +19,24 @@ const formatTime = (timeValue) => {
   return timeValue ? timeValue.slice(0, 5) : '-';
 };
 
+const getDateKey = (dateValue) => {
+  if (!dateValue) {
+    return '';
+  }
+
+  if (typeof dateValue === 'string' && /^\d{4}-\d{2}-\d{2}/.test(dateValue)) {
+    return dateValue.slice(0, 10);
+  }
+
+  const date = new Date(dateValue);
+
+  return [
+    date.getFullYear(),
+    String(date.getMonth() + 1).padStart(2, '0'),
+    String(date.getDate()).padStart(2, '0'),
+  ].join('-');
+};
+
 const bookingStatuses = [
   { value: 'in_attesa', label: 'In attesa' },
   { value: 'confermata', label: 'Confermata' },
@@ -63,6 +81,10 @@ const AdminBookings = () => {
 
   const sortedTables = [...tables].sort((firstTable, secondTable) => {
     return firstTable.table_number - secondTable.table_number;
+  });
+  const todayKey = getDateKey(new Date());
+  const todayBookings = bookings.filter((booking) => {
+    return getDateKey(booking.booking_date) === todayKey;
   });
 
   const updateBooking = async (booking, changes) => {
@@ -161,11 +183,11 @@ const AdminBookings = () => {
     <section className="admin-bookings-page" aria-labelledby="admin-bookings-title">
       <div className="admin-bookings-header">
         <h1 id="admin-bookings-title">Prenotazioni Ricevute</h1>
-        <p>{bookings.length} prenotazioni presenti nel database.</p>
+        <p>{todayBookings.length} prenotazioni per oggi.</p>
       </div>
 
-      {bookings.length === 0 ? (
-        <p className="admin-bookings-state">Nessuna prenotazione salvata.</p>
+      {todayBookings.length === 0 ? (
+        <p className="admin-bookings-state">Nessuna prenotazione per oggi.</p>
       ) : (
         <div className="admin-bookings-table-wrap">
           <table className="admin-bookings-table">
@@ -179,11 +201,10 @@ const AdminBookings = () => {
                 <th>Tavolo</th>
                 <th>Stato</th>
                 <th>Richieste</th>
-                <th>Azioni</th>
               </tr>
             </thead>
             <tbody>
-              {bookings.map((booking) => (
+              {todayBookings.map((booking) => (
                 <tr className={`status-${booking.status}`} key={booking.id}>
                   <td>
                     <strong>{booking.full_name}</strong>
@@ -236,11 +257,18 @@ const AdminBookings = () => {
                     <select
                       className={`admin-bookings-status-select status-${booking.status}`}
                       value={booking.status}
-                      onChange={(event) =>
+                      onChange={(event) => {
+                        const nextStatus = event.target.value;
+
+                        if (nextStatus === 'annullata') {
+                          setBookingToDelete(booking);
+                          return;
+                        }
+
                         updateBooking(booking, {
-                          status: event.target.value,
-                        })
-                      }
+                          status: nextStatus,
+                        });
+                      }}
                       disabled={updatingBookingId === booking.id}
                       aria-label={`Stato prenotazione ${booking.full_name}`}
                     >
@@ -252,16 +280,6 @@ const AdminBookings = () => {
                     </select>
                   </td>
                   <td>{booking.special_requests || '-'}</td>
-                  <td>
-                    <button
-                      className="admin-bookings-delete-btn"
-                      type="button"
-                      onClick={() => setBookingToDelete(booking)}
-                      disabled={deletingBookingId === booking.id}
-                    >
-                      {deletingBookingId === booking.id ? 'Elimino...' : 'Elimina'}
-                    </button>
-                  </td>
                 </tr>
               ))}
             </tbody>
@@ -271,7 +289,7 @@ const AdminBookings = () => {
 
       {bookingToDelete && (
         <ConfirmDeleteModal
-          title="Vuoi eliminare definitivamente la prenotazione?"
+          title="Vuoi eliminare questa prenotazione?"
           summaryItems={[
             bookingToDelete.full_name,
             `${formatDate(bookingToDelete.booking_date)} alle ${formatTime(bookingToDelete.booking_time)}`,

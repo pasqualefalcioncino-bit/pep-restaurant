@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { apiRequest } from '../api/client';
+import { apiRequest, clearAuthSession } from '../api/client';
 import CancelBookingModal from '../components/booking/CancelBookingModal';
 import bookingOptions from '../data/bookingOptions.json';
 import './CustomerBookings.css';
@@ -297,8 +297,14 @@ const CustomerBookings = () => {
     const loadBookings = async () => {
       try {
         const data = await apiRequest('/bookings/my');
-        setBookings(data);
+        setBookings(Array.isArray(data) ? data.filter(Boolean) : []);
       } catch (error) {
+        if (['Token mancante', 'Token non valido', 'Accesso negato'].includes(error.message)) {
+          clearAuthSession();
+          setErrorMessage('Sessione scaduta. Esci e accedi di nuovo come cliente.');
+          return;
+        }
+
         setErrorMessage(error.message);
       } finally {
         setIsLoading(false);

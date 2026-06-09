@@ -18,6 +18,13 @@ const tableStatusLabels = {
   in_pulizia: 'In pulizia',
 };
 
+const tableStatusSingularLabels = {
+  libero: 'Libero',
+  occupato: 'Occupato',
+  prenotato: 'Prenotato',
+  in_pulizia: 'In pulizia',
+};
+
 const formatDate = (dateValue) => {
   if (!dateValue) {
     return '-';
@@ -58,6 +65,8 @@ const AdminDashboard = ({ onNavigate }) => {
     inventoryItems: [],
   });
   const [selectedOrderId, setSelectedOrderId] = useState(null);
+  const [selectedTableStatus, setSelectedTableStatus] = useState(null);
+  const [selectedInventoryStatus, setSelectedInventoryStatus] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
   const [loadErrors, setLoadErrors] = useState([]);
 
@@ -164,12 +173,6 @@ const AdminDashboard = ({ onNavigate }) => {
       count: buildCount(dashboardData.tables, (table) => table.status === status),
     }));
   }, [dashboardData.tables]);
-  const busyTables = useMemo(() => {
-    return dashboardData.tables
-      .filter((table) => table.status !== 'libero')
-      .sort((firstTable, secondTable) => firstTable.table_number - secondTable.table_number)
-      .slice(0, 6);
-  }, [dashboardData.tables]);
   const inventoryStats = useMemo(() => {
     return Object.entries(stockStatusLabels).map(([status, label]) => ({
       status,
@@ -177,6 +180,22 @@ const AdminDashboard = ({ onNavigate }) => {
       count: buildCount(dashboardData.inventoryItems, (item) => getStockStatus(item) === status),
     }));
   }, [dashboardData.inventoryItems]);
+  const selectedTableStatusLabel = selectedTableStatus
+    ? tableStatusLabels[selectedTableStatus]
+    : '';
+  const selectedTables = useMemo(() => {
+    return dashboardData.tables
+      .filter((table) => table.status === selectedTableStatus)
+      .sort((firstTable, secondTable) => firstTable.table_number - secondTable.table_number);
+  }, [dashboardData.tables, selectedTableStatus]);
+  const selectedInventoryStatusLabel = selectedInventoryStatus
+    ? stockStatusLabels[selectedInventoryStatus]
+    : '';
+  const selectedInventoryItems = useMemo(() => {
+    return dashboardData.inventoryItems
+      .filter((item) => getStockStatus(item) === selectedInventoryStatus)
+      .sort((firstItem, secondItem) => firstItem.name.localeCompare(secondItem.name, 'it'));
+  }, [dashboardData.inventoryItems, selectedInventoryStatus]);
 
   if (isLoading) {
     return (
@@ -306,30 +325,17 @@ const AdminDashboard = ({ onNavigate }) => {
             <>
               <div className="admin-dashboard-table-stats">
                 {tableStats.map((tableStat) => (
-                  <div className={`admin-dashboard-table-stat status-${tableStat.status}`} key={tableStat.status}>
+                  <button
+                    className={`admin-dashboard-table-stat status-${tableStat.status}`}
+                    key={tableStat.status}
+                    type="button"
+                    onClick={() => setSelectedTableStatus(tableStat.status)}
+                  >
                     <span>{tableStat.label}</span>
                     <strong>{tableStat.count}</strong>
-                  </div>
+                  </button>
                 ))}
               </div>
-
-              {busyTables.length > 0 && (
-                <div className="admin-dashboard-busy-tables">
-                  <span>Tavoli da seguire</span>
-                  <div>
-                    {busyTables.map((table) => (
-                      <button
-                        className={`admin-dashboard-table-chip status-${table.status}`}
-                        key={table.id}
-                        type="button"
-                        onClick={() => onNavigate?.('admin-tavoli')}
-                      >
-                        Tavolo {table.table_number} · {tableStatusLabels[table.status] || table.status}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-              )}
             </>
           )}
         </article>
@@ -348,13 +354,15 @@ const AdminDashboard = ({ onNavigate }) => {
             <>
               <div className="admin-dashboard-inventory-stats">
                 {inventoryStats.map((inventoryStat) => (
-                  <div
+                  <button
                     className={`admin-dashboard-inventory-stat status-${inventoryStat.status}`}
                     key={inventoryStat.status}
+                    type="button"
+                    onClick={() => setSelectedInventoryStatus(inventoryStat.status)}
                   >
                     <span>{inventoryStat.label}</span>
                     <strong>{inventoryStat.count}</strong>
-                  </div>
+                  </button>
                 ))}
               </div>
             </>
@@ -432,6 +440,92 @@ const AdminDashboard = ({ onNavigate }) => {
                 })
               )}
             </div>
+          </div>
+        </div>
+      )}
+
+      {selectedTableStatus && (
+        <div className="admin-dashboard-modal-backdrop" role="presentation">
+          <div
+            className="admin-dashboard-order-modal"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="admin-dashboard-tables-title"
+          >
+            <div className="admin-dashboard-modal-header">
+              <div>
+                <span>Stato sala</span>
+                <h2 id="admin-dashboard-tables-title">Tavoli {selectedTableStatusLabel}</h2>
+              </div>
+              <button type="button" onClick={() => setSelectedTableStatus(null)}>
+                Chiudi
+              </button>
+            </div>
+
+            {selectedTables.length === 0 ? (
+              <p className="admin-dashboard-empty">Nessun tavolo in questo stato.</p>
+            ) : (
+              <div className="admin-dashboard-detail-list">
+                {selectedTables.map((table) => (
+                  <div className={`admin-dashboard-detail-row status-${table.status}`} key={table.id}>
+                    <div>
+                      <strong>Tavolo {table.table_number}</strong>
+                      <small>
+                        {table.seats} posti{table.area ? ` - ${table.area}` : ''}
+                      </small>
+                    </div>
+                    <span className={`admin-dashboard-table-chip status-${table.status}`}>
+                      {tableStatusSingularLabels[table.status] || table.status}
+                    </span>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+
+      {selectedInventoryStatus && (
+        <div className="admin-dashboard-modal-backdrop" role="presentation">
+          <div
+            className="admin-dashboard-order-modal"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="admin-dashboard-inventory-title"
+          >
+            <div className="admin-dashboard-modal-header">
+              <div>
+                <span>Scorte inventario</span>
+                <h2 id="admin-dashboard-inventory-title">{selectedInventoryStatusLabel}</h2>
+              </div>
+              <button type="button" onClick={() => setSelectedInventoryStatus(null)}>
+                Chiudi
+              </button>
+            </div>
+
+            {selectedInventoryItems.length === 0 ? (
+              <p className="admin-dashboard-empty">Nessun ingrediente in questa sezione.</p>
+            ) : (
+              <div className="admin-dashboard-detail-list">
+                {selectedInventoryItems.map((item) => (
+                  <div
+                    className={`admin-dashboard-detail-row status-${getStockStatus(item)}`}
+                    key={item.id}
+                  >
+                    <div>
+                      <strong>{item.name}</strong>
+                      <small>{item.category}</small>
+                    </div>
+                    <div className="admin-dashboard-detail-quantity">
+                      <span>
+                        {item.quantity} / {item.total_quantity} {item.unit}
+                      </span>
+                      <small>Scorta attuale / totale</small>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
         </div>
       )}

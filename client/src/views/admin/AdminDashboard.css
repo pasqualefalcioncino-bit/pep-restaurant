@@ -203,11 +203,20 @@ button.admin-dashboard-stat:hover {
   border: 1px solid var(--border-color);
   border-radius: 8px;
   background: var(--bg-dark);
+  color: inherit;
+  cursor: pointer;
+  font: inherit;
+  text-align: left;
+}
+
+.admin-dashboard-table-stat:hover,
+.admin-dashboard-inventory-stat:hover {
+  border-color: var(--gold-primary);
+  filter: brightness(1.12);
 }
 
 .admin-dashboard-table-stat span,
-.admin-dashboard-inventory-stat span,
-.admin-dashboard-busy-tables > span {
+.admin-dashboard-inventory-stat span {
   display: block;
   color: var(--text-muted);
   font-size: 0.78rem;
@@ -287,26 +296,15 @@ button.admin-dashboard-stat:hover {
   color: var(--status-red);
 }
 
-.admin-dashboard-busy-tables {
-  display: grid;
-  gap: 10px;
-  margin-top: 16px;
-}
-
-.admin-dashboard-busy-tables > div {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-}
-
 .admin-dashboard-table-chip {
+  display: inline-flex;
+  align-items: center;
   min-height: 34px;
   padding: 0 10px;
   border: 1px solid var(--border-color);
   border-radius: 8px;
   background: var(--bg-dark);
   color: var(--text-white);
-  cursor: pointer;
   font: inherit;
   font-size: 0.84rem;
   font-weight: 800;
@@ -444,6 +442,75 @@ button.admin-dashboard-stat:hover {
 
 .admin-dashboard-modal-header button:hover {
   background: rgba(212, 163, 115, 0.12);
+}
+
+.admin-dashboard-detail-list {
+  display: grid;
+  gap: 10px;
+  margin-top: 18px;
+}
+
+.admin-dashboard-detail-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  padding: 13px;
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  background: var(--bg-dark);
+}
+
+.admin-dashboard-detail-row > div:first-child {
+  min-width: 0;
+}
+
+.admin-dashboard-detail-row strong,
+.admin-dashboard-detail-row small,
+.admin-dashboard-detail-quantity span {
+  display: block;
+}
+
+.admin-dashboard-detail-row strong {
+  color: var(--text-white);
+  overflow-wrap: anywhere;
+}
+
+.admin-dashboard-detail-row small,
+.admin-dashboard-detail-quantity small {
+  margin-top: 4px;
+  color: var(--text-muted);
+  font-size: 0.82rem;
+}
+
+.admin-dashboard-detail-quantity {
+  flex: 0 0 auto;
+  color: var(--gold-primary);
+  font-weight: 900;
+  text-align: right;
+}
+
+.admin-dashboard-detail-row.status-libero,
+.admin-dashboard-detail-row.status-ok {
+  border-color: rgba(81, 207, 102, 0.35);
+  background: rgba(81, 207, 102, 0.08);
+}
+
+.admin-dashboard-detail-row.status-occupato,
+.admin-dashboard-detail-row.status-comprare {
+  border-color: rgba(255, 138, 138, 0.35);
+  background: rgba(255, 138, 138, 0.08);
+}
+
+.admin-dashboard-detail-row.status-prenotato {
+  border-color: rgba(116, 192, 252, 0.35);
+  background: rgba(116, 192, 252, 0.08);
+}
+
+.admin-dashboard-detail-row.status-in_pulizia,
+.admin-dashboard-detail-row.status-monitorare {
+  border-color: rgba(255, 212, 59, 0.35);
+  background: rgba(255, 212, 59, 0.08);
 }
 
 .admin-dashboard-order-meta {

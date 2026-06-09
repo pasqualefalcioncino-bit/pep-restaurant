@@ -39,6 +39,37 @@
   background-color: var(--card-bg);
 }
 
+.admin-customers-actions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 10px;
+  margin: 14px 0;
+}
+
+.admin-customers-actions span {
+  color: var(--text-muted);
+  font-size: 0.86rem;
+  font-weight: 800;
+}
+
+.admin-customers-actions button {
+  min-height: 38px;
+  padding: 0 13px;
+  border: 1px solid rgba(255, 138, 138, 0.45);
+  border-radius: 8px;
+  background: rgba(255, 138, 138, 0.08);
+  color: var(--status-red);
+  cursor: pointer;
+  font: inherit;
+  font-weight: 800;
+}
+
+.admin-customers-actions button:disabled {
+  cursor: not-allowed;
+  opacity: 0.55;
+}
+
 .admin-customers-table {
   width: 100%;
   min-width: 720px;
@@ -90,37 +121,4 @@
 
 .admin-customers-person strong {
   min-width: 0;
-}
-
-.admin-customers-role {
-  display: inline-flex;
-  padding: 5px 10px;
-  border: 1px solid rgba(212, 163, 115, 0.35);
-  border-radius: 8px;
-  background: rgba(212, 163, 115, 0.1);
-  color: var(--gold-primary);
-  font-weight: 700;
-}
-
-.admin-customers-delete-btn {
-  padding: 7px 11px;
-  border: 1px solid rgba(255, 138, 138, 0.45);
-  border-radius: 8px;
-  background: rgba(255, 138, 138, 0.08);
-  color: var(--status-red);
-  cursor: pointer;
-  font: inherit;
-  font-weight: 700;
-  transition: background 0.2s ease, border-color 0.2s ease, color 0.2s ease;
-}
-
-.admin-customers-delete-btn:hover {
-  border-color: rgba(255, 138, 138, 0.75);
-  background: rgba(255, 138, 138, 0.16);
-  color: #ffc0c0;
-}
-
-.admin-customers-delete-btn:disabled {
-  cursor: not-allowed;
-  opacity: 0.55;
 }

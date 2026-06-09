@@ -56,6 +56,7 @@ const WaiterOrders = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [isLoading, setIsLoading] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [updatingServedOrderId, setUpdatingServedOrderId] = useState(null);
   const [errorMessage, setErrorMessage] = useState('');
   const [ordersErrorMessage, setOrdersErrorMessage] = useState('');
   const [tablesErrorMessage, setTablesErrorMessage] = useState('');
@@ -150,9 +151,11 @@ const WaiterOrders = () => {
   }, 0);
 
   const sortedTables = useMemo(() => {
-    return [...tables].sort((firstTable, secondTable) => {
-      return firstTable.table_number - secondTable.table_number;
-    });
+    return tables
+      .filter((table) => table.status === 'occupato')
+      .sort((firstTable, secondTable) => {
+        return firstTable.table_number - secondTable.table_number;
+      });
   }, [tables]);
 
   const recentOrders = useMemo(() => {
@@ -278,6 +281,35 @@ const WaiterOrders = () => {
       setErrorMessage(error.message);
     } finally {
       setIsSubmitting(false);
+    }
+  };
+
+  const markOrderServed = async (order) => {
+    setUpdatingServedOrderId(order.id);
+    setErrorMessage('');
+    setSuccessMessage('');
+
+    try {
+      const updatedOrder = await apiRequest(`/orders/${order.id}`, {
+        method: 'PUT',
+        body: JSON.stringify({ status: 'servito' }),
+      });
+
+      setOrders((currentOrders) =>
+        currentOrders.map((currentOrder) =>
+          currentOrder.id === updatedOrder.id ? updatedOrder : currentOrder
+        )
+      );
+      setTables((currentTables) =>
+        currentTables.map((table) =>
+          table.table_number === updatedOrder.table_number ? { ...table, status: 'libero' } : table
+        )
+      );
+      setSuccessMessage(`Ordine #${updatedOrder.id} segnato come servito.`);
+    } catch (error) {
+      setErrorMessage(error.message);
+    } finally {
+      setUpdatingServedOrderId(null);
     }
   };
 
@@ -407,11 +439,7 @@ const WaiterOrders = () => {
                 >
                   <option value="">Seleziona</option>
                   {sortedTables.map((table) => (
-                    <option
-                      key={table.id}
-                      value={table.table_number}
-                      disabled={table.status === 'in_pulizia'}
-                    >
+                    <option key={table.id} value={table.table_number}>
                       {`Tavolo ${table.table_number} - ${table.seats} posti - ${getTableStatusLabel(
                         table.status
                       )}`}
@@ -420,6 +448,13 @@ const WaiterOrders = () => {
                 </select>
               </label>
             </div>
+
+            {sortedTables.length === 0 && (
+              <p className="waiter-cart-warning">
+                Nessun tavolo occupato: fai accomodare i clienti dalla pagina Walk-in prima di
+                inviare un ordine.
+              </p>
+            )}
 
             {cartItems.length === 0 ? (
               <p className="waiter-cart-empty">Aggiungi almeno un piatto.</p>
@@ -499,7 +534,12 @@ const WaiterOrders = () => {
             <button
               className="waiter-submit-order"
               type="submit"
-              disabled={isSubmitting || cartItems.length === 0 || unavailableCartItems.length > 0}
+              disabled={
+                isSubmitting ||
+                cartItems.length === 0 ||
+                unavailableCartItems.length > 0 ||
+                sortedTables.length === 0
+              }
             >
               {isSubmitting ? 'Invio ordine...' : 'Invia ordine'}
             </button>
@@ -620,6 +660,17 @@ const WaiterOrders = () => {
               <span>Totale conto</span>
               <strong>{formatEuroPrice(selectedOrderTotal)}</strong>
             </div>
+
+            {selectedOrder.status === 'pronto' && (
+              <button
+                className="waiter-receipt-served-btn"
+                type="button"
+                onClick={() => markOrderServed(selectedOrder)}
+                disabled={updatingServedOrderId === selectedOrder.id}
+              >
+                {updatingServedOrderId === selectedOrder.id ? 'Aggiornamento...' : 'Segna servito'}
+              </button>
+            )}
           </div>
         </div>
       )}

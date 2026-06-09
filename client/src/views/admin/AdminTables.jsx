@@ -53,6 +53,9 @@ const AdminTables = () => {
   const [formData, setFormData] = useState(emptyForm);
   const [editingTableId, setEditingTableId] = useState(null);
   const [tableToDelete, setTableToDelete] = useState(null);
+  const [selectedTableIds, setSelectedTableIds] = useState([]);
+  const [bulkStatus, setBulkStatus] = useState('libero');
+  const [isBulkStatusSaving, setIsBulkStatusSaving] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
   const [deletingTableId, setDeletingTableId] = useState(null);
@@ -100,6 +103,9 @@ const AdminTables = () => {
       table.status?.toLowerCase().includes(normalizedSearch)
     );
   });
+  const selectedTables = tables.filter((table) => selectedTableIds.includes(table.id));
+  const areAllFilteredTablesSelected =
+    filteredTables.length > 0 && filteredTables.every((table) => selectedTableIds.includes(table.id));
 
   const updateFormField = (field, value) => {
     setFormData((currentForm) => ({
@@ -122,6 +128,32 @@ const AdminTables = () => {
       status: table.status,
       notes: table.notes || '',
     });
+  };
+
+  const toggleTableSelection = (tableId) => {
+    setSelectedTableIds((currentIds) =>
+      currentIds.includes(tableId)
+        ? currentIds.filter((id) => id !== tableId)
+        : [...currentIds, tableId]
+    );
+  };
+
+  const toggleAllFilteredTables = () => {
+    setSelectedTableIds((currentIds) => {
+      if (areAllFilteredTablesSelected) {
+        return currentIds.filter((id) => !filteredTables.some((table) => table.id === id));
+      }
+
+      return [...new Set([...currentIds, ...filteredTables.map((table) => table.id)])];
+    });
+  };
+
+  const startSelectedTableEdit = () => {
+    if (selectedTables.length !== 1) {
+      return;
+    }
+
+    startEdit(selectedTables[0]);
   };
 
   const saveTable = async (event) => {
@@ -168,44 +200,59 @@ const AdminTables = () => {
     }
   };
 
-  const changeTableStatus = async (tableId, status) => {
-    setErrorMessage('');
-
-    try {
-      const updatedTable = await apiRequest(`/tables/${tableId}/status`, {
-        method: 'PATCH',
-        body: JSON.stringify({ status }),
-      });
-
-      setTables((currentTables) =>
-        currentTables.map((table) =>
-          table.id === updatedTable.id ? updatedTable : table
-        )
-      );
-    } catch (error) {
-      setErrorMessage(error.message);
-    }
-  };
-
-  const deleteTable = async () => {
-    if (!tableToDelete) {
+  const changeSelectedTablesStatus = async () => {
+    if (selectedTables.length === 0) {
       return;
     }
 
-    setDeletingTableId(tableToDelete.id);
+    setIsBulkStatusSaving(true);
     setErrorMessage('');
 
     try {
-      await apiRequest(`/tables/${tableToDelete.id}`, {
-        method: 'DELETE',
-      });
+      const updatedTables = await Promise.all(
+        selectedTables.map((table) =>
+          apiRequest(`/tables/${table.id}/status`, {
+            method: 'PATCH',
+            body: JSON.stringify({ status: bulkStatus }),
+          })
+        )
+      );
+      const updatedTablesById = Object.fromEntries(updatedTables.map((table) => [table.id, table]));
 
       setTables((currentTables) =>
-        currentTables.filter((table) => table.id !== tableToDelete.id)
+        currentTables.map((table) => updatedTablesById[table.id] || table)
       );
+    } catch (error) {
+      setErrorMessage(error.message);
+    } finally {
+      setIsBulkStatusSaving(false);
+    }
+  };
+
+  const deleteSelectedTables = async () => {
+    if (selectedTables.length === 0) {
+      return;
+    }
+
+    setDeletingTableId(selectedTables[0].id);
+    setErrorMessage('');
+
+    try {
+      await Promise.all(
+        selectedTables.map((table) =>
+          apiRequest(`/tables/${table.id}`, {
+            method: 'DELETE',
+          })
+        )
+      );
+
+      setTables((currentTables) =>
+        currentTables.filter((table) => !selectedTableIds.includes(table.id))
+      );
+      setSelectedTableIds([]);
       setTableToDelete(null);
 
-      if (editingTableId === tableToDelete.id) {
+      if (selectedTableIds.includes(editingTableId)) {
         resetForm();
       }
     } catch (error) {
@@ -333,19 +380,53 @@ const AdminTables = () => {
             resultsCount={filteredTables.length}
           />
 
+          <div className="admin-tables-bulk-actions">
+            <label>
+              <input
+                type="checkbox"
+                checked={areAllFilteredTablesSelected}
+                onChange={toggleAllFilteredTables}
+              />
+              Seleziona filtrati
+            </label>
+            <span>{selectedTableIds.length} selezionati</span>
+            <button type="button" onClick={startSelectedTableEdit} disabled={selectedTableIds.length !== 1}>
+              Modifica selezionato
+            </button>
+            <select value={bulkStatus} onChange={(event) => setBulkStatus(event.target.value)}>
+              {TABLE_STATUSES.map((status) => (
+                <option key={status.value} value={status.value}>
+                  {status.label}
+                </option>
+              ))}
+            </select>
+            <button
+              type="button"
+              onClick={changeSelectedTablesStatus}
+              disabled={selectedTableIds.length === 0 || isBulkStatusSaving}
+            >
+              {isBulkStatusSaving ? 'Aggiorno...' : 'Cambia stato'}
+            </button>
+            <button
+              className="danger"
+              type="button"
+              onClick={() => setTableToDelete({ bulk: true })}
+              disabled={selectedTableIds.length === 0}
+            >
+              Elimina selezionati
+            </button>
+          </div>
+
           {filteredTables.length === 0 ? (
             <p className="admin-tables-state">Nessun tavolo trovato.</p>
           ) : (
             <div className="admin-tables-grid">
               {filteredTables.map((table) => (
                 <AdminTableCard
-                  deletingTableId={deletingTableId}
                   getStatusLabel={getStatusLabel}
+                  isSelected={selectedTableIds.includes(table.id)}
                   key={table.id}
-                  onDelete={setTableToDelete}
-                  onEdit={startEdit}
-                  onStatusChange={changeTableStatus}
-                  statuses={TABLE_STATUSES}
+                  onSelect={toggleTableSelection}
                   table={table}
                 />
               ))}
@@ -356,15 +437,13 @@ const AdminTables = () => {
 
       {tableToDelete && (
         <ConfirmDeleteModal
-          title="Vuoi eliminare definitivamente questo tavolo?"
-          summaryItems={[
-            `Tavolo ${tableToDelete.table_number}`,
-            `${tableToDelete.seats} posti`,
-            getStatusLabel(tableToDelete.status),
-          ]}
-          isDeleting={deletingTableId === tableToDelete.id}
+          title="Vuoi eliminare definitivamente i tavoli selezionati?"
+          summaryItems={selectedTables.map(
+            (table) => `Tavolo ${table.table_number} - ${table.seats} posti - ${getStatusLabel(table.status)}`
+          )}
+          isDeleting={deletingTableId !== null}
           onCancel={() => setTableToDelete(null)}
-          onConfirm={deleteTable}
+          onConfirm={deleteSelectedTables}
         />
       )}
     </section>

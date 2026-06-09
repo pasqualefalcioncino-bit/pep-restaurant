@@ -73,8 +73,7 @@
   font-size: 1.25rem;
 }
 
-.admin-menu-form-header button,
-.admin-menu-actions button {
+.admin-menu-form-header button {
   padding: 8px 10px;
   border: 1px solid var(--border-color);
   border-radius: 8px;
@@ -233,8 +232,7 @@
   font-weight: 800;
 }
 
-.admin-menu-submit:disabled,
-.admin-menu-actions button:disabled {
+.admin-menu-submit:disabled {
   cursor: not-allowed;
   opacity: 0.7;
 }
@@ -249,6 +247,43 @@
   border: 1px solid var(--border-color);
   border-radius: 8px;
   background-color: var(--card-bg);
+}
+
+.admin-menu-bulk-actions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-bottom: 18px;
+}
+
+.admin-menu-bulk-actions span {
+  color: var(--text-muted);
+  font-size: 0.86rem;
+  font-weight: 800;
+}
+
+.admin-menu-bulk-actions button {
+  min-height: 38px;
+  padding: 0 13px;
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  background: var(--bg-dark);
+  color: var(--text-white);
+  cursor: pointer;
+  font: inherit;
+  font-weight: 800;
+}
+
+.admin-menu-bulk-actions button.danger {
+  border-color: rgba(255, 138, 138, 0.45);
+  background: rgba(255, 138, 138, 0.08);
+  color: var(--status-red);
+}
+
+.admin-menu-bulk-actions button:disabled {
+  cursor: not-allowed;
+  opacity: 0.55;
 }
 
 .admin-menu-search-field {
@@ -383,15 +418,6 @@
   border-bottom: none;
 }
 
-.admin-menu-actions {
-  display: flex;
-  gap: 8px;
-}
-
-.admin-menu-actions button.danger {
-  color: var(--status-red);
-}
-
 @media (max-width: 900px) {
   .admin-menu-form-grid {
     grid-template-columns: 1fr;
@@ -419,5 +445,10 @@
 
   .admin-menu-veg-filter {
     width: 100%;
+  }
+
+  .admin-menu-bulk-actions {
+    align-items: stretch;
+    flex-direction: column;
   }
 }

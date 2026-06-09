@@ -1,11 +1,8 @@
 const AdminTableCard = ({
   table,
-  statuses,
-  deletingTableId,
   getStatusLabel,
-  onEdit,
-  onDelete,
-  onStatusChange,
+  isSelected,
+  onSelect,
 }) => {
   return (
     <article className={`admin-table-card status-${table.status}`}>
@@ -14,9 +11,17 @@ const AdminTableCard = ({
           <span>Tavolo</span>
           <strong>{table.table_number}</strong>
         </div>
-        <span className={`admin-table-status ${table.status}`}>
-          {getStatusLabel(table.status)}
-        </span>
+        <div className="admin-table-card-controls">
+          <span className={`admin-table-status ${table.status}`}>
+            {getStatusLabel(table.status)}
+          </span>
+          <input
+            type="checkbox"
+            checked={isSelected}
+            onChange={() => onSelect(table.id)}
+            aria-label={`Seleziona tavolo ${table.table_number}`}
+          />
+        </div>
       </div>
 
       <dl className="admin-table-details">
@@ -31,31 +36,6 @@ const AdminTableCard = ({
       </dl>
 
       {table.notes && <p className="admin-table-notes">{table.notes}</p>}
-
-      <label className="admin-table-status-select">
-        <span>Cambia stato</span>
-        <select value={table.status} onChange={(event) => onStatusChange(table.id, event.target.value)}>
-          {statuses.map((status) => (
-            <option key={status.value} value={status.value}>
-              {status.label}
-            </option>
-          ))}
-        </select>
-      </label>
-
-      <div className="admin-table-actions">
-        <button type="button" onClick={() => onEdit(table)}>
-          Modifica
-        </button>
-        <button
-          className="danger"
-          type="button"
-          onClick={() => onDelete(table)}
-          disabled={deletingTableId === table.id}
-        >
-          {deletingTableId === table.id ? 'Elimino...' : 'Elimina'}
-        </button>
-      </div>
     </article>
   );
 };

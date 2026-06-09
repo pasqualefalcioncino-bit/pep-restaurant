@@ -447,6 +447,35 @@
   text-transform: uppercase;
 }
 
+.cook-management-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+}
+
+.cook-management-actions button {
+  min-height: 40px;
+  padding: 0 14px;
+  border: 1px solid rgba(212, 163, 115, 0.32);
+  border-radius: 8px;
+  background: var(--card-bg);
+  color: var(--text-white);
+  cursor: pointer;
+  font: inherit;
+  font-weight: 850;
+}
+
+.cook-management-actions button.primary {
+  border-color: var(--gold-primary);
+  background: var(--gold-primary);
+  color: var(--text-dark);
+}
+
+.cook-management-actions button:disabled {
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
 .cook-menu-table-wrap {
   overflow-x: auto;
   border: 1px solid rgba(212, 163, 115, 0.18);
@@ -547,31 +576,22 @@
   color: var(--status-red);
 }
 
-.cook-menu-availability {
-  min-height: 36px;
-  padding: 0 12px;
-  border: 1px solid var(--status-green);
-  border-radius: 8px;
-  background: rgba(48, 216, 120, 0.1);
-  color: var(--status-green);
+.cook-menu-availability-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 9px;
+  color: var(--text-white);
   cursor: pointer;
-  font: inherit;
-  font-weight: 900;
+  font-size: 0.86rem;
+  font-weight: 850;
+  white-space: nowrap;
 }
 
-.cook-menu-table tr.unavailable .cook-menu-availability {
-  border-color: rgba(255, 138, 138, 0.7);
-  background: rgba(255, 138, 138, 0.14);
-  color: var(--status-red);
-}
-
-.cook-menu-availability:hover {
-  filter: brightness(1.15);
-}
-
-.cook-menu-availability:disabled {
-  cursor: not-allowed;
-  opacity: 0.7;
+.cook-menu-availability-toggle input {
+  width: 18px;
+  height: 18px;
+  accent-color: var(--gold-primary);
+  cursor: pointer;
 }
 
 .cook-inventory-management {
@@ -708,6 +728,18 @@
 
 .cook-inventory-management .admin-inventory-actions {
   justify-content: flex-start;
+}
+
+.cook-inventory-quantity-input {
+  box-sizing: border-box;
+  width: min(150px, 100%);
+  min-height: 38px;
+  padding: 0 10px;
+  border: 1px solid rgba(212, 163, 115, 0.34);
+  border-radius: 8px;
+  background-color: rgba(255, 255, 255, 0.04);
+  color: var(--text-white);
+  font: inherit;
 }
 
 .cook-inventory-stock-editor > div:first-child {

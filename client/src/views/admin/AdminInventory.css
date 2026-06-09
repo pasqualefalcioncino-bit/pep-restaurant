@@ -253,6 +253,43 @@
   color: var(--gold-primary);
 }
 
+.admin-inventory-bulk-actions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 10px;
+  margin: 14px 0;
+}
+
+.admin-inventory-bulk-actions span {
+  color: var(--text-muted);
+  font-size: 0.86rem;
+  font-weight: 800;
+}
+
+.admin-inventory-bulk-actions button {
+  min-height: 38px;
+  padding: 0 13px;
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.04);
+  color: var(--text-white);
+  cursor: pointer;
+  font: inherit;
+  font-weight: 800;
+}
+
+.admin-inventory-bulk-actions button.danger {
+  border-color: rgba(255, 138, 138, 0.45);
+  background: rgba(255, 138, 138, 0.08);
+  color: var(--status-red);
+}
+
+.admin-inventory-bulk-actions button:disabled {
+  cursor: not-allowed;
+  opacity: 0.55;
+}
+
 .admin-inventory-table-wrap {
   overflow-x: auto;
 }

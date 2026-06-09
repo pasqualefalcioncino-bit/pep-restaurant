@@ -34,6 +34,7 @@ const AdminMenu = () => {
   const [successMessage, setSuccessMessage] = useState('');
   const [itemToDelete, setItemToDelete] = useState(null);
   const [deletingItemId, setDeletingItemId] = useState(null);
+  const [selectedItemIds, setSelectedItemIds] = useState([]);
   const imageInputRef = useRef(null);
 
   const loadMenu = async () => {
@@ -66,6 +67,9 @@ const AdminMenu = () => {
       return matchesCategory && matchesVeg && matchesSearch;
     });
   }, [activeCategory, menuItems, searchTerm, showVegOnly]);
+  const selectedMenuItems = menuItems.filter((item) => selectedItemIds.includes(item.id));
+  const areAllFilteredItemsSelected =
+    filteredMenuItems.length > 0 && filteredMenuItems.every((item) => selectedItemIds.includes(item.id));
 
   const updateField = (field, value) => {
     setFormData((currentData) => ({
@@ -98,6 +102,32 @@ const AdminMenu = () => {
     setErrorMessage('');
     setSuccessMessage('');
     window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  const toggleItemSelection = (itemId) => {
+    setSelectedItemIds((currentIds) =>
+      currentIds.includes(itemId)
+        ? currentIds.filter((id) => id !== itemId)
+        : [...currentIds, itemId]
+    );
+  };
+
+  const toggleAllFilteredItems = () => {
+    setSelectedItemIds((currentIds) => {
+      if (areAllFilteredItemsSelected) {
+        return currentIds.filter((id) => !filteredMenuItems.some((item) => item.id === id));
+      }
+
+      return [...new Set([...currentIds, ...filteredMenuItems.map((item) => item.id)])];
+    });
+  };
+
+  const startSelectedEdit = () => {
+    if (selectedMenuItems.length !== 1) {
+      return;
+    }
+
+    startEdit(selectedMenuItems[0]);
   };
 
   const uploadMenuImage = async (event) => {
@@ -188,24 +218,29 @@ const AdminMenu = () => {
     }
   };
 
-  const deleteMenuItem = async () => {
-    if (!itemToDelete) {
+  const deleteSelectedMenuItems = async () => {
+    if (selectedMenuItems.length === 0) {
       return;
     }
 
-    setDeletingItemId(itemToDelete.id);
+    setDeletingItemId(selectedMenuItems[0].id);
     setErrorMessage('');
     setSuccessMessage('');
 
     try {
-      await apiRequest(`/menu/${itemToDelete.id}`, {
-        method: 'DELETE',
-      });
+      await Promise.all(
+        selectedMenuItems.map((item) =>
+          apiRequest(`/menu/${item.id}`, {
+            method: 'DELETE',
+          })
+        )
+      );
 
       setMenuItems((currentItems) =>
-        currentItems.filter((item) => item.id !== itemToDelete.id)
+        currentItems.filter((item) => !selectedItemIds.includes(item.id))
       );
-      setSuccessMessage(`Piatto "${itemToDelete.name}" eliminato.`);
+      setSuccessMessage(`${selectedMenuItems.length} piatti eliminati.`);
+      setSelectedItemIds([]);
       setItemToDelete(null);
     } catch (error) {
       setErrorMessage(error.message);
@@ -377,6 +412,21 @@ const AdminMenu = () => {
         </div>
       </div>
 
+      <div className="admin-menu-bulk-actions">
+        <span>{selectedItemIds.length} selezionati</span>
+        <button type="button" onClick={startSelectedEdit} disabled={selectedItemIds.length !== 1}>
+          Modifica selezionato
+        </button>
+        <button
+          className="danger"
+          type="button"
+          onClick={() => setItemToDelete({ bulk: true })}
+          disabled={selectedItemIds.length === 0}
+        >
+          Elimina selezionati
+        </button>
+      </div>
+
       {filteredMenuItems.length === 0 ? (
         <p className="admin-menu-state">Nessun piatto trovato.</p>
       ) : (
@@ -384,13 +434,19 @@ const AdminMenu = () => {
           <table className="admin-menu-table">
             <thead>
               <tr>
+                <th>
+                  <input
+                    type="checkbox"
+                    checked={areAllFilteredItemsSelected}
+                    onChange={toggleAllFilteredItems}
+                    aria-label="Seleziona tutti i piatti filtrati"
+                  />
+                </th>
                 <th>Piatto</th>
                 <th>Categoria</th>
                 <th>Prezzo</th>
                 <th>Tempo</th>
-                <th>Img</th>
                 <th>Veg</th>
-                <th>Azioni</th>
               </tr>
             </thead>
             <tbody>
@@ -399,6 +455,14 @@ const AdminMenu = () => {
 
                 return (
                   <tr key={item.id}>
+                    <td>
+                      <input
+                        type="checkbox"
+                        checked={selectedItemIds.includes(item.id)}
+                        onChange={() => toggleItemSelection(item.id)}
+                        aria-label={`Seleziona ${item.name}`}
+                      />
+                    </td>
                     <td>
                       <div className="admin-menu-dish">
                         <div className="admin-menu-dish-image">
@@ -417,23 +481,7 @@ const AdminMenu = () => {
                     <td>{item.category}</td>
                     <td>{formatEuroPrice(item.price)}</td>
                     <td>{item.prep_time || 0} min</td>
-                    <td>{item.image || '-'}</td>
                     <td>{item.veg ? 'Si' : 'No'}</td>
-                    <td>
-                      <div className="admin-menu-actions">
-                        <button type="button" onClick={() => startEdit(item)}>
-                          Modifica
-                        </button>
-                        <button
-                          className="danger"
-                          type="button"
-                          onClick={() => setItemToDelete(item)}
-                          disabled={deletingItemId === item.id}
-                        >
-                          {deletingItemId === item.id ? 'Elimino...' : 'Elimina'}
-                        </button>
-                      </div>
-                    </td>
                   </tr>
                 );
               })}
@@ -444,15 +492,13 @@ const AdminMenu = () => {
 
       {itemToDelete && (
         <ConfirmDeleteModal
-          title="Vuoi eliminare definitivamente questo piatto?"
-          summaryItems={[
-            itemToDelete.name,
-            itemToDelete.category,
-            formatEuroPrice(itemToDelete.price),
-          ]}
-          isDeleting={deletingItemId === itemToDelete.id}
+          title="Vuoi eliminare definitivamente i piatti selezionati?"
+          summaryItems={selectedMenuItems.map(
+            (item) => `${item.name} - ${item.category} - ${formatEuroPrice(item.price)}`
+          )}
+          isDeleting={deletingItemId !== null}
           onCancel={() => setItemToDelete(null)}
-          onConfirm={deleteMenuItem}
+          onConfirm={deleteSelectedMenuItems}
         />
       )}
     </section>

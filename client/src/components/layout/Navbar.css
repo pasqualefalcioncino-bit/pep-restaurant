@@ -6,7 +6,7 @@
 
 .navbar-container {
   display: grid;
-  grid-template-columns: minmax(230px, 0.8fr) minmax(680px, 1.7fr) minmax(150px, 0.55fr);
+  grid-template-columns: minmax(220px, 0.7fr) minmax(0, 1.9fr) minmax(150px, 0.5fr);
   align-items: center;
   column-gap: 1.75rem;
   max-width: 1600px;
@@ -106,10 +106,10 @@
 
 .navbar-nav {
   display: flex;
-  gap: clamp(0.9rem, 1.5vw, 1.8rem);
+  gap: clamp(0.55rem, 1vw, 1.3rem);
   align-items: center;
   justify-content: center;
-  flex-wrap: nowrap;
+  flex-wrap: wrap;
   min-height: 44px;
 }
 
@@ -117,7 +117,7 @@
   color: var(--gold-primary);
   text-decoration: none;
   font-weight: 500;
-  font-size: 1.32rem;
+  font-size: clamp(1rem, 1.35vw, 1.26rem);
   font-family: 'Playfair Display', serif;
   transition: color 0.2s ease;
   letter-spacing: 0;

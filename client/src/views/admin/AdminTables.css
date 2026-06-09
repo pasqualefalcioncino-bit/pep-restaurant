@@ -132,8 +132,7 @@
   gap: 14px;
 }
 
-.admin-tables-form label,
-.admin-table-status-select {
+.admin-tables-form label {
   display: grid;
   gap: 7px;
   min-width: 0;
@@ -144,8 +143,7 @@
 
 .admin-tables-form input,
 .admin-tables-form select,
-.admin-tables-form textarea,
-.admin-table-status-select select {
+.admin-tables-form textarea {
   box-sizing: border-box;
   width: 100%;
   min-width: 0;
@@ -157,8 +155,7 @@
 }
 
 .admin-tables-form input,
-.admin-tables-form select,
-.admin-table-status-select select {
+.admin-tables-form select {
   min-height: 42px;
   padding: 0 11px;
 }
@@ -173,13 +170,11 @@
   cursor: default;
 }
 
-.admin-tables-form option,
-.admin-table-status-select option {
+.admin-tables-form option {
   color: #1f1a17;
 }
 
-.admin-tables-form-actions,
-.admin-table-actions {
+.admin-tables-form-actions {
   display: flex;
   justify-content: flex-end;
   gap: 10px;
@@ -187,8 +182,7 @@
 }
 
 .admin-tables-primary-btn,
-.admin-tables-secondary-btn,
-.admin-table-actions button {
+.admin-tables-secondary-btn {
   min-height: 38px;
   padding: 0 13px;
   border-radius: 8px;
@@ -204,27 +198,74 @@
   color: #1f1a17;
 }
 
-.admin-tables-secondary-btn,
-.admin-table-actions button {
+.admin-tables-secondary-btn {
   border: 1px solid var(--border-color);
   background: rgba(255, 255, 255, 0.04);
   color: var(--text-white);
 }
 
-.admin-table-actions button.danger {
-  border-color: rgba(255, 138, 138, 0.45);
-  background: rgba(255, 138, 138, 0.08);
-  color: var(--status-red);
-}
-
-.admin-tables-primary-btn:disabled,
-.admin-table-actions button:disabled {
+.admin-tables-primary-btn:disabled {
   cursor: not-allowed;
   opacity: 0.55;
 }
 
 .admin-tables-list {
   min-width: 0;
+}
+
+.admin-tables-bulk-actions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 10px;
+  margin: 14px 0;
+  flex-wrap: wrap;
+}
+
+.admin-tables-bulk-actions label {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--text-muted);
+  font-size: 0.86rem;
+  font-weight: 800;
+}
+
+.admin-tables-bulk-actions span {
+  color: var(--text-muted);
+  font-size: 0.86rem;
+  font-weight: 800;
+}
+
+.admin-tables-bulk-actions button,
+.admin-tables-bulk-actions select {
+  min-height: 38px;
+  padding: 0 13px;
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.04);
+  color: var(--text-white);
+  font: inherit;
+  font-weight: 800;
+}
+
+.admin-tables-bulk-actions button {
+  cursor: pointer;
+}
+
+.admin-tables-bulk-actions select option {
+  color: #1f1a17;
+}
+
+.admin-tables-bulk-actions button.danger {
+  border-color: rgba(255, 138, 138, 0.45);
+  background: rgba(255, 138, 138, 0.08);
+  color: var(--status-red);
+}
+
+.admin-tables-bulk-actions button:disabled {
+  cursor: not-allowed;
+  opacity: 0.55;
 }
 
 .admin-tables-grid {
@@ -264,6 +305,18 @@
   align-items: flex-start;
   justify-content: space-between;
   gap: 12px;
+}
+
+.admin-table-card-controls {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.admin-table-card-controls input {
+  width: 18px;
+  height: 18px;
+  accent-color: var(--gold-primary);
 }
 
 .admin-table-card-top span {

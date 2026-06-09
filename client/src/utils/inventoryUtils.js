@@ -14,7 +14,7 @@ export const INVENTORY_UNITS = ['kg', 'g', 'l', 'ml', 'pz', 'bottiglie', 'vasett
 
 export const stockStatusLabels = {
   ok: 'Ok',
-  monitorare: 'Da monitorare',
+  monitorare: 'In esaurimento',
   comprare: 'Da comprare',
 };
 
@@ -68,7 +68,7 @@ export const getInventoryStats = (items) => {
     { label: 'Ingredienti', value: items.length, tone: 'neutral' },
     { label: 'Ok', value: stockCounts.ok, tone: 'ok' },
     {
-      label: 'Da monitorare',
+      label: 'In esaurimento',
       value: stockCounts.monitorare,
       tone: stockCounts.monitorare > 0 ? 'warning' : 'ok',
     },
