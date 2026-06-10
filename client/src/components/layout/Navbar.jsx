@@ -42,7 +42,7 @@ const Navbar = ({
 
   if (currentUser?.role === 'cameriere') {
     roleMenuItems.push({ label: 'Ordini', page: 'ordini' });
-    roleMenuItems.push({ label: 'Walk-in', page: 'walk-in' });
+    roleMenuItems.push({ label: 'Tavoli', page: 'tavoli' });
   }
 
   if (currentUser?.role === 'cliente') {

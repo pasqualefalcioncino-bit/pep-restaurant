@@ -1,7 +1,16 @@
+import { BriefcaseBusiness, Cake, Gem, Heart, Sparkles } from 'lucide-react';
 import bookingOptions from '../../data/bookingOptions.json';
 import './BookingOccasion.css';
 
 const { occasions } = bookingOptions;
+
+const occasionIcons = {
+  romantica: Heart,
+  compleanno: Cake,
+  anniversario: Gem,
+  lavoro: BriefcaseBusiness,
+  altro: Sparkles,
+};
 
 const BookingOccasion = ({
   selectedOccasion,
@@ -30,22 +39,26 @@ const BookingOccasion = ({
 
       <form className="booking-card" onSubmit={handleSubmit}>
         <div className="booking-occasion-grid">
-          {occasions.map((occasion) => (
-            <button
-              key={occasion.id}
-              className={`booking-occasion-card${
-                selectedOccasion === occasion.id ? ' selected' : ''
-              }`}
-              type="button"
-              onClick={() => onOccasionChange(occasion.id)}
-              aria-pressed={selectedOccasion === occasion.id}
-            >
-              <span className="booking-occasion-icon" aria-hidden="true">
-                {occasion.icon}
-              </span>
-              <span className="booking-occasion-label">{occasion.label}</span>
-            </button>
-          ))}
+          {occasions.map((occasion) => {
+            const OccasionIcon = occasionIcons[occasion.id] || Sparkles;
+
+            return (
+              <button
+                key={occasion.id}
+                className={`booking-occasion-card${
+                  selectedOccasion === occasion.id ? ' selected' : ''
+                }`}
+                type="button"
+                onClick={() => onOccasionChange(occasion.id)}
+                aria-pressed={selectedOccasion === occasion.id}
+              >
+                <span className="booking-occasion-icon" aria-hidden="true">
+                  <OccasionIcon size={24} strokeWidth={1.9} />
+                </span>
+                <span className="booking-occasion-label">{occasion.label}</span>
+              </button>
+            );
+          })}
         </div>
 
         <div className="booking-special-requests">

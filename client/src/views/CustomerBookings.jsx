@@ -1,7 +1,22 @@
 import { useEffect, useState } from 'react';
+import {
+  Armchair,
+  CalendarDays,
+  Clock3,
+  ClipboardList,
+  Mail,
+  Pencil,
+  Phone,
+  Save,
+  Sparkles,
+  Trash2,
+  Users,
+  X,
+} from 'lucide-react';
 import { apiRequest, clearAuthSession } from '../api/client';
 import CancelBookingModal from '../components/booking/CancelBookingModal';
 import bookingOptions from '../data/bookingOptions.json';
+import useAutoDismiss from '../hooks/useAutoDismiss';
 import './CustomerBookings.css';
 
 const { availableTimes } = bookingOptions;
@@ -219,9 +234,11 @@ const CustomerBookingCard = ({
 
         <div className="customer-booking-actions customer-booking-edit-wide">
           <button className="customer-booking-primary-btn" type="submit" disabled={isBusy}>
+            <Save size={16} strokeWidth={2} aria-hidden="true" />
             {isBusy ? 'Salvataggio...' : 'Salva'}
           </button>
           <button type="button" className="customer-booking-secondary-btn" onClick={onStopEditing}>
+            <X size={16} strokeWidth={2} aria-hidden="true" />
             Annulla modifica
           </button>
         </div>
@@ -230,34 +247,42 @@ const CustomerBookingCard = ({
       <>
         <dl className="customer-booking-details">
           <div>
+            <CalendarDays size={17} strokeWidth={2} aria-hidden="true" />
             <dt>Data</dt>
             <dd>{formatDate(booking.booking_date)}</dd>
           </div>
           <div>
+            <Clock3 size={17} strokeWidth={2} aria-hidden="true" />
             <dt>Orario</dt>
             <dd>{formatTime(booking.booking_time)}</dd>
           </div>
           <div>
+            <Users size={17} strokeWidth={2} aria-hidden="true" />
             <dt>Ospiti</dt>
             <dd>{booking.guests}</dd>
           </div>
           <div>
+            <Armchair size={17} strokeWidth={2} aria-hidden="true" />
             <dt>Tavolo</dt>
             <dd>{booking.table_number || '-'}</dd>
           </div>
           <div>
+            <Phone size={17} strokeWidth={2} aria-hidden="true" />
             <dt>Telefono</dt>
             <dd>{booking.phone}</dd>
           </div>
           <div>
+            <Mail size={17} strokeWidth={2} aria-hidden="true" />
             <dt>Email</dt>
             <dd>{booking.email}</dd>
           </div>
           <div>
+            <Sparkles size={17} strokeWidth={2} aria-hidden="true" />
             <dt>Occasione</dt>
             <dd>{booking.occasion || '-'}</dd>
           </div>
           <div>
+            <ClipboardList size={17} strokeWidth={2} aria-hidden="true" />
             <dt>Richieste</dt>
             <dd>{booking.special_requests || '-'}</dd>
           </div>
@@ -266,6 +291,7 @@ const CustomerBookingCard = ({
         {canManage && (
           <div className="customer-booking-actions">
             <button className="customer-booking-secondary-btn" type="button" onClick={onEdit}>
+              <Pencil size={16} strokeWidth={2} aria-hidden="true" />
               Modifica
             </button>
             <button
@@ -274,6 +300,7 @@ const CustomerBookingCard = ({
               onClick={onCancelBooking}
               disabled={isBusy}
             >
+              <Trash2 size={16} strokeWidth={2} aria-hidden="true" />
               {isBusy ? 'Annullamento...' : 'Annulla prenotazione'}
             </button>
           </div>
@@ -292,6 +319,9 @@ const CustomerBookings = () => {
   const [editForm, setEditForm] = useState(null);
   const [busyBookingId, setBusyBookingId] = useState(null);
   const [bookingToCancel, setBookingToCancel] = useState(null);
+
+  useAutoDismiss(errorMessage, setErrorMessage);
+  useAutoDismiss(actionMessage, setActionMessage);
 
   useEffect(() => {
     const loadBookings = async () => {
@@ -410,7 +440,9 @@ const CustomerBookings = () => {
   if (isLoading) {
     return (
       <section className="customer-bookings-page">
-        <p className="customer-bookings-state">Caricamento prenotazioni...</p>
+        <div className="customer-bookings-state">
+          <p>Caricamento prenotazioni...</p>
+        </div>
       </section>
     );
   }
@@ -418,16 +450,25 @@ const CustomerBookings = () => {
   return (
     <section className="customer-bookings-page" aria-labelledby="customer-bookings-title">
       <div className="customer-bookings-header">
-        <span className="customer-bookings-kicker">AREA CLIENTE</span>
         <h1 id="customer-bookings-title">Le Tue Prenotazioni</h1>
         <p>{bookings.length} prenotazioni collegate al tuo account.</p>
       </div>
 
-      {errorMessage && <p className="customer-bookings-state error">Errore: {errorMessage}</p>}
-      {actionMessage && <p className="customer-bookings-state error">Errore: {actionMessage}</p>}
+      {errorMessage && (
+        <div className="customer-bookings-state error">
+          <p>Errore: {errorMessage}</p>
+        </div>
+      )}
+      {actionMessage && (
+        <div className="customer-bookings-state error">
+          <p>Errore: {actionMessage}</p>
+        </div>
+      )}
 
       {!errorMessage && bookings.length === 0 ? (
-        <p className="customer-bookings-state">Non hai ancora prenotazioni salvate.</p>
+        <div className="customer-bookings-state">
+          <p>Non hai ancora prenotazioni salvate.</p>
+        </div>
       ) : !errorMessage ? (
         <div className="customer-bookings-grid">
           {bookings.map((booking) => (

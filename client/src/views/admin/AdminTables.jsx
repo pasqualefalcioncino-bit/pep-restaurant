@@ -1,8 +1,19 @@
 import { useEffect, useMemo, useState } from 'react';
+import {
+  Armchair,
+  Brush,
+  CheckCircle2,
+  Pencil,
+  Save,
+  Trash2,
+  Users,
+  X,
+} from 'lucide-react';
 import { apiRequest } from '../../api/client';
 import AdminSearchToolbar from '../../components/admin/AdminSearchToolbar';
 import AdminTableCard from '../../components/admin/AdminTableCard';
 import ConfirmDeleteModal from '../../components/admin/ConfirmDeleteModal';
+import useAutoDismiss from '../../hooks/useAutoDismiss';
 import './AdminTables.css';
 
 const TABLE_STATUSES = [
@@ -11,6 +22,8 @@ const TABLE_STATUSES = [
   { value: 'prenotato', label: 'Prenotato' },
   { value: 'in_pulizia', label: 'In pulizia' },
 ];
+
+const MANUAL_TABLE_STATUSES = ['libero', 'in_pulizia'];
 
 const TABLE_AREAS = [
   'Sala principale',
@@ -24,12 +37,18 @@ const emptyForm = {
   table_number: '',
   seats: '',
   area: TABLE_AREAS[0],
-  status: 'libero',
   notes: '',
 };
 
 const getStatusLabel = (status) => {
   return TABLE_STATUSES.find((item) => item.value === status)?.label || status;
+};
+
+const statusIcons = {
+  libero: CheckCircle2,
+  occupato: Users,
+  prenotato: Armchair,
+  in_pulizia: Brush,
 };
 
 const getNextAvailableTableNumber = (tables) => {
@@ -54,12 +73,13 @@ const AdminTables = () => {
   const [editingTableId, setEditingTableId] = useState(null);
   const [tableToDelete, setTableToDelete] = useState(null);
   const [selectedTableIds, setSelectedTableIds] = useState([]);
-  const [bulkStatus, setBulkStatus] = useState('libero');
-  const [isBulkStatusSaving, setIsBulkStatusSaving] = useState(false);
+  const [updatingTableStatusId, setUpdatingTableStatusId] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
   const [deletingTableId, setDeletingTableId] = useState(null);
   const [errorMessage, setErrorMessage] = useState('');
+
+  useAutoDismiss(errorMessage, setErrorMessage);
 
   const loadTables = async () => {
     try {
@@ -80,6 +100,7 @@ const AdminTables = () => {
     return TABLE_STATUSES.map((status) => ({
       ...status,
       count: tables.filter((table) => table.status === status.value).length,
+      icon: statusIcons[status.value],
     }));
   }, [tables]);
 
@@ -91,21 +112,28 @@ const AdminTables = () => {
     ? formData.table_number
     : String(nextTableNumber);
 
-  const normalizedSearch = searchTerm.trim().toLowerCase();
-  const filteredTables = tables.filter((table) => {
-    if (!normalizedSearch) {
-      return true;
-    }
+  const selectedTableIdSet = useMemo(() => new Set(selectedTableIds), [selectedTableIds]);
+  const filteredTables = useMemo(() => {
+    const normalizedSearch = searchTerm.trim().toLowerCase();
 
-    return (
-      String(table.table_number).includes(normalizedSearch) ||
-      table.area?.toLowerCase().includes(normalizedSearch) ||
-      table.status?.toLowerCase().includes(normalizedSearch)
-    );
-  });
-  const selectedTables = tables.filter((table) => selectedTableIds.includes(table.id));
+    return tables.filter((table) => {
+      if (!normalizedSearch) {
+        return true;
+      }
+
+      return (
+        String(table.table_number).includes(normalizedSearch) ||
+        table.area?.toLowerCase().includes(normalizedSearch) ||
+        table.status?.toLowerCase().includes(normalizedSearch)
+      );
+    });
+  }, [searchTerm, tables]);
+  const selectedTables = useMemo(
+    () => tables.filter((table) => selectedTableIdSet.has(table.id)),
+    [selectedTableIdSet, tables]
+  );
   const areAllFilteredTablesSelected =
-    filteredTables.length > 0 && filteredTables.every((table) => selectedTableIds.includes(table.id));
+    filteredTables.length > 0 && filteredTables.every((table) => selectedTableIdSet.has(table.id));
 
   const updateFormField = (field, value) => {
     setFormData((currentForm) => ({
@@ -117,6 +145,7 @@ const AdminTables = () => {
   const resetForm = () => {
     setFormData(emptyForm);
     setEditingTableId(null);
+    setSelectedTableIds([]);
   };
 
   const startEdit = (table) => {
@@ -125,7 +154,6 @@ const AdminTables = () => {
       table_number: String(table.table_number),
       seats: String(table.seats),
       area: table.area || '',
-      status: table.status,
       notes: table.notes || '',
     });
   };
@@ -164,7 +192,6 @@ const AdminTables = () => {
     const payload = {
       seats: Number(formData.seats),
       area: formData.area,
-      status: formData.status,
       notes: formData.notes,
     };
 
@@ -200,33 +227,38 @@ const AdminTables = () => {
     }
   };
 
-  const changeSelectedTablesStatus = async () => {
-    if (selectedTables.length === 0) {
+  const changeTableStatus = async (table, status) => {
+    if (table.status === status || !MANUAL_TABLE_STATUSES.includes(status)) {
       return;
     }
 
-    setIsBulkStatusSaving(true);
+    setUpdatingTableStatusId(table.id);
     setErrorMessage('');
 
     try {
-      const updatedTables = await Promise.all(
-        selectedTables.map((table) =>
-          apiRequest(`/tables/${table.id}/status`, {
-            method: 'PATCH',
-            body: JSON.stringify({ status: bulkStatus }),
-          })
-        )
-      );
-      const updatedTablesById = Object.fromEntries(updatedTables.map((table) => [table.id, table]));
+      const updatedTable = await apiRequest(`/tables/${table.id}/status`, {
+        method: 'PATCH',
+        body: JSON.stringify({ status }),
+      });
 
       setTables((currentTables) =>
-        currentTables.map((table) => updatedTablesById[table.id] || table)
+        currentTables.map((currentTable) =>
+          currentTable.id === updatedTable.id ? updatedTable : currentTable
+        )
       );
     } catch (error) {
       setErrorMessage(error.message);
     } finally {
-      setIsBulkStatusSaving(false);
+      setUpdatingTableStatusId(null);
     }
+  };
+
+  const toggleTableStatus = (table) => {
+    if (!MANUAL_TABLE_STATUSES.includes(table.status)) {
+      return;
+    }
+
+    changeTableStatus(table, table.status === 'libero' ? 'in_pulizia' : 'libero');
   };
 
   const deleteSelectedTables = async () => {
@@ -247,12 +279,12 @@ const AdminTables = () => {
       );
 
       setTables((currentTables) =>
-        currentTables.filter((table) => !selectedTableIds.includes(table.id))
+        currentTables.filter((table) => !selectedTableIdSet.has(table.id))
       );
       setSelectedTableIds([]);
       setTableToDelete(null);
 
-      if (selectedTableIds.includes(editingTableId)) {
+      if (selectedTableIdSet.has(editingTableId)) {
         resetForm();
       }
     } catch (error) {
@@ -280,12 +312,19 @@ const AdminTables = () => {
       </div>
 
       <div className="admin-tables-stats" aria-label="Riepilogo stato tavoli">
-        {stats.map((status) => (
-          <article className={`admin-tables-stat status-${status.value}`} key={status.value}>
-            <span>{status.label}</span>
-            <strong>{status.count}</strong>
-          </article>
-        ))}
+        {stats.map((status) => {
+          const StatusIcon = status.icon;
+
+          return (
+            <article className={`admin-tables-stat status-${status.value}`} key={status.value}>
+              <span>
+                <StatusIcon size={17} aria-hidden="true" />
+                {status.label}
+              </span>
+              <strong>{status.count}</strong>
+            </article>
+          );
+        })}
       </div>
 
       {errorMessage && <p className="admin-tables-state error">Errore: {errorMessage}</p>}
@@ -333,20 +372,6 @@ const AdminTables = () => {
                 ))}
               </select>
             </label>
-
-            <label>
-              <span>Stato</span>
-              <select
-                value={formData.status}
-                onChange={(event) => updateFormField('status', event.target.value)}
-              >
-                {TABLE_STATUSES.map((status) => (
-                  <option key={status.value} value={status.value}>
-                    {status.label}
-                  </option>
-                ))}
-              </select>
-            </label>
           </div>
 
           <label>
@@ -362,10 +387,12 @@ const AdminTables = () => {
           <div className="admin-tables-form-actions">
             {editingTableId && (
               <button className="admin-tables-secondary-btn" type="button" onClick={resetForm}>
+                <X size={16} aria-hidden="true" />
                 Annulla modifica
               </button>
             )}
             <button className="admin-tables-primary-btn" type="submit" disabled={isSaving}>
+              <Save size={16} aria-hidden="true" />
               {isSaving ? 'Salvataggio...' : editingTableId ? 'Salva tavolo' : 'Crea tavolo'}
             </button>
           </div>
@@ -377,35 +404,16 @@ const AdminTables = () => {
             placeholder="Numero, zona o stato"
             value={searchTerm}
             onChange={setSearchTerm}
-            resultsCount={filteredTables.length}
+            showResults={false}
           />
 
           <div className="admin-tables-bulk-actions">
-            <label>
-              <input
-                type="checkbox"
-                checked={areAllFilteredTablesSelected}
-                onChange={toggleAllFilteredTables}
-              />
-              Seleziona filtrati
-            </label>
-            <span>{selectedTableIds.length} selezionati</span>
-            <button type="button" onClick={startSelectedTableEdit} disabled={selectedTableIds.length !== 1}>
-              Modifica selezionato
+            <button type="button" onClick={toggleAllFilteredTables} disabled={filteredTables.length === 0}>
+              {areAllFilteredTablesSelected ? 'Deseleziona tutti' : 'Seleziona tutti'}
             </button>
-            <select value={bulkStatus} onChange={(event) => setBulkStatus(event.target.value)}>
-              {TABLE_STATUSES.map((status) => (
-                <option key={status.value} value={status.value}>
-                  {status.label}
-                </option>
-              ))}
-            </select>
-            <button
-              type="button"
-              onClick={changeSelectedTablesStatus}
-              disabled={selectedTableIds.length === 0 || isBulkStatusSaving}
-            >
-              {isBulkStatusSaving ? 'Aggiorno...' : 'Cambia stato'}
+            <button type="button" onClick={startSelectedTableEdit} disabled={selectedTableIds.length !== 1}>
+              <Pencil size={15} aria-hidden="true" />
+              Modifica selezionato
             </button>
             <button
               className="danger"
@@ -413,6 +421,7 @@ const AdminTables = () => {
               onClick={() => setTableToDelete({ bulk: true })}
               disabled={selectedTableIds.length === 0}
             >
+              <Trash2 size={15} aria-hidden="true" />
               Elimina selezionati
             </button>
           </div>
@@ -424,9 +433,11 @@ const AdminTables = () => {
               {filteredTables.map((table) => (
                 <AdminTableCard
                   getStatusLabel={getStatusLabel}
-                  isSelected={selectedTableIds.includes(table.id)}
+                  isSelected={selectedTableIdSet.has(table.id)}
+                  isUpdating={updatingTableStatusId === table.id}
                   key={table.id}
                   onSelect={toggleTableSelection}
+                  onStatusToggle={toggleTableStatus}
                   table={table}
                 />
               ))}
@@ -438,9 +449,13 @@ const AdminTables = () => {
       {tableToDelete && (
         <ConfirmDeleteModal
           title="Vuoi eliminare definitivamente i tavoli selezionati?"
-          summaryItems={selectedTables.map(
-            (table) => `Tavolo ${table.table_number} - ${table.seats} posti - ${getStatusLabel(table.status)}`
-          )}
+          summaryItems={selectedTables.map((table) => ({
+            id: table.id,
+            title: `Tavolo ${table.table_number}`,
+            details: [`${table.seats} posti`, getStatusLabel(table.status)],
+            icon: <Armchair size={18} aria-hidden="true" />,
+            fallbackText: String(table.table_number),
+          }))}
           isDeleting={deletingTableId !== null}
           onCancel={() => setTableToDelete(null)}
           onConfirm={deleteSelectedTables}

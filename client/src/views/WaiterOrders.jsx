@@ -1,4 +1,14 @@
 import { useEffect, useMemo, useState } from 'react';
+import {
+  ClipboardList,
+  Plus,
+  ReceiptText,
+  Search,
+  Send,
+  Trash2,
+  Utensils,
+  X,
+} from 'lucide-react';
 import { apiRequest } from '../api/client';
 import {
   compareMenuCategory,
@@ -6,6 +16,7 @@ import {
   menuCategories,
   sortByMenuCategory,
 } from '../utils/menuCatalog';
+import useAutoDismiss from '../hooks/useAutoDismiss';
 import { getMenuImage } from '../utils/menuImages';
 import { formatEuroPrice } from '../utils/priceFormatter';
 import './WaiterOrders.css';
@@ -62,6 +73,11 @@ const WaiterOrders = () => {
   const [tablesErrorMessage, setTablesErrorMessage] = useState('');
   const [successMessage, setSuccessMessage] = useState('');
 
+  useAutoDismiss(errorMessage, setErrorMessage);
+  useAutoDismiss(ordersErrorMessage, setOrdersErrorMessage);
+  useAutoDismiss(tablesErrorMessage, setTablesErrorMessage);
+  useAutoDismiss(successMessage, setSuccessMessage);
+
   useEffect(() => {
     const loadData = async () => {
       const [menuResult, ordersResult, tablesResult] = await Promise.allSettled([
@@ -97,18 +113,6 @@ const WaiterOrders = () => {
 
     return () => window.clearInterval(intervalId);
   }, []);
-
-  useEffect(() => {
-    if (!successMessage) {
-      return undefined;
-    }
-
-    const timeoutId = window.setTimeout(() => {
-      setSuccessMessage('');
-    }, 5000);
-
-    return () => window.clearTimeout(timeoutId);
-  }, [successMessage]);
 
   const categories = useMemo(() => {
     const uniqueCategories = [...new Set(menuItems.map((item) => item.category).filter(Boolean))];
@@ -146,9 +150,9 @@ const WaiterOrders = () => {
       .filter((group) => group.items.length > 0);
   }, [visibleMenuItems]);
 
-  const cartTotal = cartItems.reduce((total, item) => {
+  const cartTotal = useMemo(() => cartItems.reduce((total, item) => {
     return total + Number(item.price) * item.quantity;
-  }, 0);
+  }, 0), [cartItems]);
 
   const sortedTables = useMemo(() => {
     return tables
@@ -324,9 +328,34 @@ const WaiterOrders = () => {
   return (
     <section className="waiter-orders-page" aria-labelledby="waiter-orders-title">
       <div className="waiter-orders-header">
-        <span className="waiter-orders-kicker">SALA</span>
-        <h1 id="waiter-orders-title">Ordini Tavoli</h1>
-        <p>Seleziona i piatti, assegna il tavolo e invia l'ordine alla cucina.</p>
+        <div>
+          <span className="waiter-orders-kicker">SALA</span>
+          <h1 id="waiter-orders-title">Ordini Tavoli</h1>
+          <p>Seleziona i piatti, assegna il tavolo e invia l'ordine alla cucina.</p>
+        </div>
+        <div className="waiter-orders-summary" aria-label="Riepilogo sala">
+          <article>
+            <span>
+              <Utensils size={16} aria-hidden="true" />
+              Menu
+            </span>
+            <strong>{menuItems.length}</strong>
+          </article>
+          <article>
+            <span>
+              <ClipboardList size={16} aria-hidden="true" />
+              Attivi
+            </span>
+            <strong>{recentOrders.length}</strong>
+          </article>
+          <article>
+            <span>
+              <ReceiptText size={16} aria-hidden="true" />
+              Carrello
+            </span>
+            <strong>{cartItems.length}</strong>
+          </article>
+        </div>
       </div>
 
       {errorMessage && <p className="waiter-orders-message error">Errore: {errorMessage}</p>}
@@ -347,6 +376,7 @@ const WaiterOrders = () => {
           <div className="waiter-menu-toolbar">
             <label className="waiter-search-field" htmlFor="waiter-menu-search">
               <span>Cerca</span>
+              <Search size={17} aria-hidden="true" />
               <input
                 id="waiter-menu-search"
                 type="search"
@@ -412,7 +442,14 @@ const WaiterOrders = () => {
                               onClick={() => addItem(item)}
                               disabled={item.available === false}
                             >
-                              {item.available === false ? 'Non disponibile' : 'Aggiungi'}
+                              {item.available === false ? (
+                                'Non disponibile'
+                              ) : (
+                                <>
+                                  <Plus size={15} aria-hidden="true" />
+                                  Aggiungi
+                                </>
+                              )}
                             </button>
                           </div>
                         </article>
@@ -451,7 +488,7 @@ const WaiterOrders = () => {
 
             {sortedTables.length === 0 && (
               <p className="waiter-cart-warning">
-                Nessun tavolo occupato: fai accomodare i clienti dalla pagina Walk-in prima di
+                Nessun tavolo occupato: fai accomodare i clienti dalla pagina Tavoli prima di
                 inviare un ordine.
               </p>
             )}
@@ -483,8 +520,12 @@ const WaiterOrders = () => {
                             {isUnavailable && <span>Non disponibile</span>}
                           </div>
                         </div>
-                        <button type="button" onClick={() => removeCartItem(item.menu_item_id)}>
-                          Rimuovi
+                        <button
+                          type="button"
+                          onClick={() => removeCartItem(item.menu_item_id)}
+                          aria-label={`Rimuovi ${item.item_name}`}
+                        >
+                          <Trash2 size={15} aria-hidden="true" />
                         </button>
                       </div>
 
@@ -541,6 +582,7 @@ const WaiterOrders = () => {
                 sortedTables.length === 0
               }
             >
+              {!isSubmitting && <Send size={16} aria-hidden="true" />}
               {isSubmitting ? 'Invio ordine...' : 'Invia ordine'}
             </button>
           </form>
@@ -580,7 +622,7 @@ const WaiterOrders = () => {
       </div>
 
       {selectedOrder && (
-        <div className="confirm-delete-backdrop" role="presentation">
+        <div className="waiter-receipt-backdrop" role="presentation">
           <div
             className="waiter-receipt-modal"
             role="dialog"
@@ -593,6 +635,7 @@ const WaiterOrders = () => {
                 <h2 id="waiter-receipt-title">Scontrino #{selectedOrder.id}</h2>
               </div>
               <button type="button" onClick={() => setSelectedOrderId(null)}>
+                <X size={16} aria-hidden="true" />
                 Chiudi
               </button>
             </div>

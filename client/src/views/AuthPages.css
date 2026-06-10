@@ -1,0 +1,23 @@
+.login-page,
+.register-page {
+  position: relative;
+  width: auto;
+  min-height: calc(100vh - 220px);
+  margin: -40px -20px 0;
+  padding: clamp(48px, 7vw, 76px) 20px 0;
+  box-sizing: border-box;
+  isolation: isolate;
+}
+
+.login-page::before,
+.register-page::before {
+  position: absolute;
+  inset: 0 0 auto;
+  height: 460px;
+  background:
+    radial-gradient(circle at 50% 10%, rgba(230, 181, 62, 0.13), transparent 34%),
+    linear-gradient(180deg, rgba(230, 181, 62, 0.06), transparent 74%);
+  content: '';
+  pointer-events: none;
+  z-index: -1;
+}

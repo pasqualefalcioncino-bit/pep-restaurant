@@ -1,7 +1,18 @@
 import { useEffect, useMemo, useState } from 'react';
+import {
+  AlertTriangle,
+  Boxes,
+  CheckCircle2,
+  Pencil,
+  Save,
+  ShoppingBasket,
+  Trash2,
+  X,
+} from 'lucide-react';
 import { apiRequest } from '../../api/client';
 import AdminSearchToolbar from '../../components/admin/AdminSearchToolbar';
 import ConfirmDeleteModal from '../../components/admin/ConfirmDeleteModal';
+import useAutoDismiss from '../../hooks/useAutoDismiss';
 import {
   INVENTORY_CATEGORIES,
   INVENTORY_UNITS,
@@ -24,6 +35,13 @@ const emptyForm = {
   notes: '',
 };
 
+const statIcons = {
+  neutral: Boxes,
+  ok: CheckCircle2,
+  warning: AlertTriangle,
+  danger: ShoppingBasket,
+};
+
 const AdminInventory = () => {
   const [items, setItems] = useState([]);
   const [formData, setFormData] = useState(emptyForm);
@@ -37,6 +55,8 @@ const AdminInventory = () => {
   const [isSaving, setIsSaving] = useState(false);
   const [deletingItemId, setDeletingItemId] = useState(null);
   const [errorMessage, setErrorMessage] = useState('');
+
+  useAutoDismiss(errorMessage, setErrorMessage);
 
   const loadInventory = async () => {
     try {
@@ -65,9 +85,13 @@ const AdminInventory = () => {
       searchTerm,
     });
   }, [activeCategory, activeStockFilter, items, searchTerm]);
-  const selectedItems = items.filter((item) => selectedItemIds.includes(item.id));
+  const selectedItemIdSet = useMemo(() => new Set(selectedItemIds), [selectedItemIds]);
+  const selectedItems = useMemo(
+    () => items.filter((item) => selectedItemIdSet.has(item.id)),
+    [items, selectedItemIdSet]
+  );
   const areAllFilteredItemsSelected =
-    filteredItems.length > 0 && filteredItems.every((item) => selectedItemIds.includes(item.id));
+    filteredItems.length > 0 && filteredItems.every((item) => selectedItemIdSet.has(item.id));
 
   const updateField = (field, value) => {
     setFormData((currentForm) => ({
@@ -80,6 +104,7 @@ const AdminInventory = () => {
   const resetForm = () => {
     setFormData(emptyForm);
     setEditingItemId(null);
+    setSelectedItemIds([]);
     setErrorMessage('');
   };
 
@@ -173,11 +198,11 @@ const AdminInventory = () => {
         )
       );
 
-      setItems((currentItems) => currentItems.filter((item) => !selectedItemIds.includes(item.id)));
+      setItems((currentItems) => currentItems.filter((item) => !selectedItemIdSet.has(item.id)));
       setSelectedItemIds([]);
       setItemToDelete(null);
 
-      if (selectedItemIds.includes(editingItemId)) {
+      if (selectedItemIdSet.has(editingItemId)) {
         resetForm();
       }
     } catch (error) {
@@ -205,12 +230,19 @@ const AdminInventory = () => {
       </div>
 
       <div className="admin-inventory-stats" aria-label="Riepilogo inventario">
-        {stats.map((stat) => (
-          <article className={`admin-inventory-stat tone-${stat.tone}`} key={stat.label}>
-            <span>{stat.label}</span>
-            <strong>{stat.value}</strong>
-          </article>
-        ))}
+        {stats.map((stat) => {
+          const StatIcon = statIcons[stat.tone] || Boxes;
+
+          return (
+            <article className={`admin-inventory-stat tone-${stat.tone}`} key={stat.label}>
+              <span>
+                <StatIcon size={17} aria-hidden="true" />
+                {stat.label}
+              </span>
+              <strong>{stat.value}</strong>
+            </article>
+          );
+        })}
       </div>
 
       {errorMessage && <p className="admin-inventory-state error">Errore: {errorMessage}</p>}
@@ -296,10 +328,12 @@ const AdminInventory = () => {
           <div className="admin-inventory-form-actions">
             {editingItemId && (
               <button className="admin-inventory-secondary-btn" type="button" onClick={resetForm}>
+                <X size={16} aria-hidden="true" />
                 Annulla modifica
               </button>
             )}
             <button className="admin-inventory-primary-btn" type="submit" disabled={isSaving}>
+              <Save size={16} aria-hidden="true" />
               {isSaving ? 'Salvataggio...' : editingItemId ? 'Salva ingrediente' : 'Crea ingrediente'}
             </button>
           </div>
@@ -311,8 +345,27 @@ const AdminInventory = () => {
             placeholder="Ingrediente, categoria o piatto"
             value={searchTerm}
             onChange={setSearchTerm}
-            resultsCount={filteredItems.length}
             showResults={false}
+            actions={(
+              <div className="admin-inventory-bulk-actions">
+                <button type="button" onClick={toggleAllFilteredItems} disabled={filteredItems.length === 0}>
+                  {areAllFilteredItemsSelected ? 'Deseleziona tutti' : 'Seleziona tutti'}
+                </button>
+                <button type="button" onClick={startSelectedItemEdit} disabled={selectedItemIds.length !== 1}>
+                  <Pencil size={15} aria-hidden="true" />
+                  Modifica
+                </button>
+                <button
+                  className="danger"
+                  type="button"
+                  onClick={() => setItemToDelete({ bulk: true })}
+                  disabled={selectedItemIds.length === 0}
+                >
+                  <Trash2 size={15} aria-hidden="true" />
+                  Elimina
+                </button>
+              </div>
+            )}
           />
 
           <div className="admin-inventory-filters">
@@ -343,21 +396,6 @@ const AdminInventory = () => {
             </div>
           </div>
 
-          <div className="admin-inventory-bulk-actions">
-            <span>{selectedItemIds.length} selezionati</span>
-            <button type="button" onClick={startSelectedItemEdit} disabled={selectedItemIds.length !== 1}>
-              Modifica selezionato
-            </button>
-            <button
-              className="danger"
-              type="button"
-              onClick={() => setItemToDelete({ bulk: true })}
-              disabled={selectedItemIds.length === 0}
-            >
-              Elimina selezionati
-            </button>
-          </div>
-
           {filteredItems.length === 0 ? (
             <p className="admin-inventory-state">Nessun ingrediente trovato.</p>
           ) : (
@@ -365,14 +403,7 @@ const AdminInventory = () => {
               <table className="admin-inventory-table">
                 <thead>
                   <tr>
-                    <th>
-                      <input
-                        type="checkbox"
-                        checked={areAllFilteredItemsSelected}
-                        onChange={toggleAllFilteredItems}
-                        aria-label="Seleziona tutti gli ingredienti filtrati"
-                      />
-                    </th>
+                    <th>Sel.</th>
                     <th>Ingrediente</th>
                     <th>Categoria</th>
                     <th>Totale</th>
@@ -386,26 +417,29 @@ const AdminInventory = () => {
 
                     return (
                       <tr className={`status-${stockStatus}`} key={item.id}>
-                        <td>
-                          <input
-                            type="checkbox"
-                            checked={selectedItemIds.includes(item.id)}
-                            onChange={() => toggleItemSelection(item.id)}
-                            aria-label={`Seleziona ${item.name}`}
-                          />
+                        <td data-label="Sel.">
+                          <label className="admin-inventory-select-box">
+                            <input
+                              type="checkbox"
+                              checked={selectedItemIdSet.has(item.id)}
+                              onChange={() => toggleItemSelection(item.id)}
+                              aria-label={`Seleziona ${item.name}`}
+                            />
+                            <span aria-hidden="true" />
+                          </label>
                         </td>
-                        <td>
+                        <td data-label="Ingrediente">
                           <strong>{item.name}</strong>
                           {item.notes && <small>{item.notes}</small>}
                         </td>
-                        <td>{item.category}</td>
-                        <td>
+                        <td data-label="Categoria">{item.category}</td>
+                        <td data-label="Totale">
                           {formatQuantity(item.total_quantity)} {item.unit}
                         </td>
-                        <td>
+                        <td data-label="Scorta">
                           {formatQuantity(item.quantity)} {item.unit}
                         </td>
-                        <td>
+                        <td data-label="Stato">
                           <span className={`admin-inventory-status status-${stockStatus}`}>
                             {stockStatusLabels[stockStatus]}
                           </span>
@@ -423,12 +457,16 @@ const AdminInventory = () => {
       {itemToDelete && (
         <ConfirmDeleteModal
           title="Vuoi eliminare definitivamente gli ingredienti selezionati?"
-          summaryItems={selectedItems.map(
-            (item) =>
-              `${item.name} - ${formatQuantity(item.quantity)} / ${formatQuantity(
-                item.total_quantity
-              )} ${item.unit}`
-          )}
+          summaryItems={selectedItems.map((item) => ({
+            id: item.id,
+            title: item.name,
+            details: [
+              item.category,
+              `${formatQuantity(item.quantity)} / ${formatQuantity(item.total_quantity)} ${item.unit}`,
+            ],
+            icon: <ShoppingBasket size={18} aria-hidden="true" />,
+            fallbackText: item.name.charAt(0),
+          }))}
           isDeleting={deletingItemId !== null}
           onCancel={() => setItemToDelete(null)}
           onConfirm={deleteSelectedItems}

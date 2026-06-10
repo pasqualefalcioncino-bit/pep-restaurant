@@ -69,6 +69,7 @@ CREATE TABLE restaurant_tables (
   seats INT NOT NULL,
   area VARCHAR(50),
   status VARCHAR(20) DEFAULT 'libero',
+  occupied_until TIMESTAMPTZ,
   notes TEXT,
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );

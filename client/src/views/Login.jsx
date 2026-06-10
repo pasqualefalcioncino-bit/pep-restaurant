@@ -1,4 +1,5 @@
 import LoginForm from '../components/auth/LoginForm';
+import './AuthPages.css';
 
 const Login = ({ onSwitchToRegister, onLoginSuccess }) => {
   return (

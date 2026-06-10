@@ -1,4 +1,5 @@
 import { useMemo, useState } from 'react';
+import { Leaf, Search } from 'lucide-react';
 import { compareMenuCategory, menuCategories } from '../../utils/menuCatalog';
 import { getMenuImage } from '../../utils/menuImages';
 import MenuCard from './MenuCard';
@@ -11,10 +12,24 @@ const MenuSection = ({ piatti }) => {
   const [showVegOnly, setShowVegOnly] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
 
+  const preparedPiatti = useMemo(() => {
+    return piatti.map((piatto) => ({
+      ...piatto,
+      immagine: getMenuImage(piatto.immagine),
+    }));
+  }, [piatti]);
+
+  const categoryCounts = useMemo(() => {
+    return preparedPiatti.reduce((counts, piatto) => {
+      counts[piatto.categoria] = (counts[piatto.categoria] || 0) + 1;
+      return counts;
+    }, { Tutti: preparedPiatti.length });
+  }, [preparedPiatti]);
+
   const filteredPiatti = useMemo(() => {
     const normalizedSearch = searchTerm.trim().toLowerCase();
 
-    return piatti
+    return preparedPiatti
       .filter((piatto) => {
         const matchesCategory =
           activeCategory === 'Tutti' || piatto.categoria.toLowerCase() === activeCategory.toLowerCase();
@@ -37,12 +52,8 @@ const MenuSection = ({ piatti }) => {
         }
 
         return currentPiatto.nome.localeCompare(nextPiatto.nome, 'it');
-      })
-      .map((piatto) => ({
-        ...piatto,
-        immagine: getMenuImage(piatto.immagine),
-      }));
-  }, [activeCategory, piatti, searchTerm, showVegOnly]);
+      });
+  }, [activeCategory, preparedPiatti, searchTerm, showVegOnly]);
 
   const groupedPiatti = useMemo(() => {
     return categories
@@ -57,7 +68,6 @@ const MenuSection = ({ piatti }) => {
   return (
     <section className="menu-section" aria-labelledby="menu-title">
       <div className="menu-header">
-        <span className="menu-kicker">CARTA</span>
         <h1 id="menu-title">Il Nostro Menu</h1>
         <p className="menu-intro">
           Una selezione che cambia con le stagioni, costruita su materie prime di filiera corta
@@ -74,7 +84,8 @@ const MenuSection = ({ piatti }) => {
               type="button"
               onClick={() => setActiveCategory(category)}
             >
-              {category}
+              <span>{category}</span>
+              <strong>{categoryCounts[category] || 0}</strong>
             </button>
           ))}
         </div>
@@ -85,11 +96,12 @@ const MenuSection = ({ piatti }) => {
             type="button"
             onClick={() => setShowVegOnly((currentValue) => !currentValue)}
           >
-            🌿 Veg
+            <Leaf size={16} strokeWidth={2} aria-hidden="true" />
+            <span>Veg</span>
           </button>
 
           <label className="menu-search-input">
-            <span aria-hidden="true">🔍</span>
+            <Search size={16} strokeWidth={2} aria-hidden="true" />
             <input
               type="text"
               placeholder="Cerca un piatto..."

@@ -60,7 +60,7 @@ const releaseTableIfUnused = async (client, tableNumber, excludedBookingId = nul
 
   if (result.rows.length === 0) {
     await client.query(
-      "UPDATE restaurant_tables SET status='libero' WHERE table_number=$1 AND status='prenotato'",
+      "UPDATE restaurant_tables SET status='libero', occupied_until=NULL WHERE table_number=$1 AND status='prenotato'",
       [tableNumber]
     );
   }
@@ -115,7 +115,7 @@ const createBooking = async ({
     );
 
     await client.query(
-      "UPDATE restaurant_tables SET status='prenotato' WHERE table_number=$1",
+      "UPDATE restaurant_tables SET status='prenotato', occupied_until=NULL WHERE table_number=$1",
       [tableNumber]
     );
 
@@ -223,7 +223,7 @@ const updateCustomerBooking = async (
     await releaseTableIfUnused(client, currentBooking.table_number, id);
 
     await client.query(
-      "UPDATE restaurant_tables SET status='prenotato' WHERE table_number=$1",
+      "UPDATE restaurant_tables SET status='prenotato', occupied_until=NULL WHERE table_number=$1",
       [tableNumber]
     );
 
@@ -353,7 +353,7 @@ const updateBookingStatus = async (id, status, tableNumber = null) => {
 
     if (nextTableNumber) {
       await client.query(
-        "UPDATE restaurant_tables SET status='prenotato' WHERE table_number=$1",
+        "UPDATE restaurant_tables SET status='prenotato', occupied_until=NULL WHERE table_number=$1",
         [nextTableNumber]
       );
     }

@@ -315,10 +315,10 @@
 }
 
 .app-content.with-admin-theme :is(
-  .admin-customers-actions button,
+  .admin-customers-actions button.danger,
   .admin-inventory-bulk-actions button.danger,
   .admin-menu-bulk-actions button.danger,
-  .admin-staff-actions button,
+  .admin-staff-actions button.danger,
   .admin-tables-bulk-actions button.danger,
   .confirm-delete-submit
 ) {
@@ -328,10 +328,10 @@
 }
 
 .app-content.with-admin-theme :is(
-  .admin-customers-actions button,
+  .admin-customers-actions button.danger,
   .admin-inventory-bulk-actions button.danger,
   .admin-menu-bulk-actions button.danger,
-  .admin-staff-actions button,
+  .admin-staff-actions button.danger,
   .admin-tables-bulk-actions button.danger,
   .confirm-delete-submit
 ):hover {

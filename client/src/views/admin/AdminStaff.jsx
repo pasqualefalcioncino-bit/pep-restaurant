@@ -1,7 +1,9 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
+import { ChefHat, Plus, ShieldCheck, Trash2, UserCog, Users, X } from 'lucide-react';
 import { apiRequest, getAuthUser } from '../../api/client';
 import AdminSearchToolbar from '../../components/admin/AdminSearchToolbar';
 import ConfirmDeleteModal from '../../components/admin/ConfirmDeleteModal';
+import useAutoDismiss from '../../hooks/useAutoDismiss';
 import { getRoleAvatar } from '../../utils/roleAvatars';
 import './AdminStaff.css';
 
@@ -24,6 +26,9 @@ const AdminStaff = () => {
   });
   const currentUser = getAuthUser();
 
+  useAutoDismiss(errorMessage, setErrorMessage);
+  useAutoDismiss(successMessage, setSuccessMessage);
+
   useEffect(() => {
     const loadStaffMembers = async () => {
       try {
@@ -39,26 +44,38 @@ const AdminStaff = () => {
     loadStaffMembers();
   }, []);
 
-  const normalizedSearch = searchTerm.trim().toLowerCase();
-  const filteredStaffMembers = staffMembers.filter((member) => {
-    if (!normalizedSearch) {
-      return true;
-    }
+  const selectedStaffIdSet = useMemo(() => new Set(selectedStaffIds), [selectedStaffIds]);
+  const filteredStaffMembers = useMemo(() => {
+    const normalizedSearch = searchTerm.trim().toLowerCase();
 
-    return (
-      member.name.toLowerCase().includes(normalizedSearch) ||
-      member.email.toLowerCase().includes(normalizedSearch) ||
-      member.role.toLowerCase().includes(normalizedSearch)
-    );
-  });
+    return staffMembers.filter((member) => {
+      if (!normalizedSearch) {
+        return true;
+      }
 
-  const selectableFilteredStaffMembers = filteredStaffMembers.filter((member) => {
-    return currentUser?.id !== member.id;
-  });
-  const selectedStaffMembers = staffMembers.filter((member) => selectedStaffIds.includes(member.id));
+      return (
+        member.name.toLowerCase().includes(normalizedSearch) ||
+        member.email.toLowerCase().includes(normalizedSearch) ||
+        member.role.toLowerCase().includes(normalizedSearch)
+      );
+    });
+  }, [searchTerm, staffMembers]);
+  const selectableFilteredStaffMembers = useMemo(
+    () => filteredStaffMembers.filter((member) => currentUser?.id !== member.id),
+    [currentUser?.id, filteredStaffMembers]
+  );
+  const selectedStaffMembers = useMemo(
+    () => staffMembers.filter((member) => selectedStaffIdSet.has(member.id)),
+    [selectedStaffIdSet, staffMembers]
+  );
+  const staffSummary = useMemo(() => ({
+    admin: staffMembers.filter((member) => member.role === 'admin').length,
+    cuoco: staffMembers.filter((member) => member.role === 'cuoco').length,
+    cameriere: staffMembers.filter((member) => member.role === 'cameriere').length,
+  }), [staffMembers]);
   const areAllFilteredStaffMembersSelected =
     selectableFilteredStaffMembers.length > 0 &&
-    selectableFilteredStaffMembers.every((member) => selectedStaffIds.includes(member.id));
+    selectableFilteredStaffMembers.every((member) => selectedStaffIdSet.has(member.id));
 
   const updateNewStaffField = (field, value) => {
     setNewStaffForm((currentForm) => ({
@@ -140,7 +157,7 @@ const AdminStaff = () => {
       );
 
       setStaffMembers((currentStaffMembers) =>
-        currentStaffMembers.filter((member) => !selectedStaffIds.includes(member.id))
+        currentStaffMembers.filter((member) => !selectedStaffIdSet.has(member.id))
       );
       setSelectedStaffIds([]);
       setStaffToDelete(null);
@@ -167,8 +184,40 @@ const AdminStaff = () => {
           <p>{staffMembers.length} membri staff presenti nel database.</p>
         </div>
         <button type="button" onClick={() => setIsCreateFormOpen((isOpen) => !isOpen)}>
+          {isCreateFormOpen ? <X size={16} aria-hidden="true" /> : <Plus size={16} aria-hidden="true" />}
           {isCreateFormOpen ? 'Chiudi creazione' : 'Crea utenza'}
         </button>
+      </div>
+
+      <div className="admin-staff-stats" aria-label="Riepilogo staff">
+        <article>
+          <span>
+            <Users size={17} aria-hidden="true" />
+            Totali
+          </span>
+          <strong>{staffMembers.length}</strong>
+        </article>
+        <article>
+          <span>
+            <ShieldCheck size={17} aria-hidden="true" />
+            Admin
+          </span>
+          <strong>{staffSummary.admin}</strong>
+        </article>
+        <article>
+          <span>
+            <ChefHat size={17} aria-hidden="true" />
+            Cuochi
+          </span>
+          <strong>{staffSummary.cuoco}</strong>
+        </article>
+        <article>
+          <span>
+            <UserCog size={17} aria-hidden="true" />
+            Sala
+          </span>
+          <strong>{staffSummary.cameriere}</strong>
+        </article>
       </div>
 
       {errorMessage && <p className="admin-staff-state error">Errore: {errorMessage}</p>}
@@ -229,19 +278,29 @@ const AdminStaff = () => {
             placeholder="Nome, email o ruolo"
             value={searchTerm}
             onChange={setSearchTerm}
-            resultsCount={filteredStaffMembers.length}
+            showResults={false}
+            actions={(
+              <div className="admin-staff-actions">
+                <button
+                  className="secondary"
+                  type="button"
+                  onClick={toggleAllFilteredStaffMembers}
+                  disabled={selectableFilteredStaffMembers.length === 0}
+                >
+                  {areAllFilteredStaffMembersSelected ? 'Deseleziona tutti' : 'Seleziona tutti'}
+                </button>
+                <button
+                  className="danger"
+                  type="button"
+                  onClick={() => setStaffToDelete({ bulk: true })}
+                  disabled={selectedStaffIds.length === 0}
+                >
+                  <Trash2 size={15} aria-hidden="true" />
+                  Elimina selezionati
+                </button>
+              </div>
+            )}
           />
-
-          <div className="admin-staff-actions">
-            <span>{selectedStaffIds.length} selezionati</span>
-            <button
-              type="button"
-              onClick={() => setStaffToDelete({ bulk: true })}
-              disabled={selectedStaffIds.length === 0}
-            >
-              Elimina selezionati
-            </button>
-          </div>
 
           {filteredStaffMembers.length === 0 ? (
             <p className="admin-staff-state">Nessun membro staff trovato.</p>
@@ -250,45 +309,43 @@ const AdminStaff = () => {
               <table className="admin-staff-table">
                 <thead>
                   <tr>
-                    <th>
-                      <input
-                        type="checkbox"
-                        checked={areAllFilteredStaffMembersSelected}
-                        onChange={toggleAllFilteredStaffMembers}
-                        aria-label="Seleziona tutto lo staff filtrato"
-                      />
-                    </th>
+                    <th>Sel.</th>
                     <th>Nome</th>
                     <th>Email</th>
                     <th>Ruolo</th>
                   </tr>
                 </thead>
                 <tbody>
-                  {filteredStaffMembers.map((member) => (
-                    <tr key={member.id}>
-                      <td>
-                        <input
-                          type="checkbox"
-                          checked={selectedStaffIds.includes(member.id)}
-                          onChange={() => toggleStaffSelection(member.id)}
-                          disabled={currentUser?.id === member.id}
-                          aria-label={`Seleziona ${member.name}`}
-                        />
-                      </td>
-                      <td>
-                        <div className="admin-staff-person">
-                          {getRoleAvatar(member.role) && (
-                            <img src={getRoleAvatar(member.role)} alt={`Avatar ${member.role}`} />
-                          )}
-                          <strong>{member.name}</strong>
-                        </div>
-                      </td>
-                      <td>{member.email}</td>
-                      <td>
-                        <span className="admin-staff-role">{member.role}</span>
-                      </td>
-                    </tr>
-                  ))}
+                  {filteredStaffMembers.map((member) => {
+                    const avatar = getRoleAvatar(member.role);
+
+                    return (
+                      <tr key={member.id}>
+                        <td data-label="Sel.">
+                          <label className="admin-staff-select-box">
+                            <input
+                              type="checkbox"
+                              checked={selectedStaffIdSet.has(member.id)}
+                              onChange={() => toggleStaffSelection(member.id)}
+                              disabled={currentUser?.id === member.id}
+                              aria-label={`Seleziona ${member.name}`}
+                            />
+                            <span aria-hidden="true" />
+                          </label>
+                        </td>
+                        <td data-label="Nome">
+                          <div className="admin-staff-person">
+                            {avatar && <img src={avatar} alt={`Avatar ${member.role}`} />}
+                            <strong>{member.name}</strong>
+                          </div>
+                        </td>
+                        <td data-label="Email">{member.email}</td>
+                        <td data-label="Ruolo">
+                          <span className="admin-staff-role">{member.role}</span>
+                        </td>
+                      </tr>
+                    );
+                  })}
                 </tbody>
               </table>
             </div>
@@ -299,9 +356,18 @@ const AdminStaff = () => {
       {staffToDelete && (
         <ConfirmDeleteModal
           title="Vuoi eliminare definitivamente lo staff selezionato?"
-          summaryItems={selectedStaffMembers.map(
-            (member) => `${member.name} - ${member.email} - ${member.role}`
-          )}
+          summaryItems={selectedStaffMembers.map((member) => {
+            const avatar = member.avatar_url || getRoleAvatar(member.role);
+
+            return {
+              id: member.id,
+              title: member.name,
+              details: [member.email, member.role],
+              imageSrc: avatar,
+              imageAlt: `Avatar ${member.name}`,
+              fallbackText: member.name.charAt(0),
+            };
+          })}
           isDeleting={deletingStaffId !== null}
           onCancel={() => setStaffToDelete(null)}
           onConfirm={deleteSelectedStaffMembers}

@@ -1,6 +1,8 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
+import { CalendarDays, CheckCircle2, Clock3, Mail, Phone, Trash2, Users } from 'lucide-react';
 import { apiRequest } from '../api/client';
 import ConfirmDeleteModal from '../components/admin/ConfirmDeleteModal';
+import useAutoDismiss from '../hooks/useAutoDismiss';
 import './AdminBookings.css';
 
 const formatDate = (dateValue) => {
@@ -50,6 +52,12 @@ const tableStatusLabels = {
   in_pulizia: 'in pulizia',
 };
 
+const formatTableOption = (table) => {
+  const statusLabel = tableStatusLabels[table.status] || table.status;
+
+  return `Tav. ${table.table_number} - ${table.seats} posti - ${statusLabel}`;
+};
+
 const AdminBookings = () => {
   const [bookings, setBookings] = useState([]);
   const [tables, setTables] = useState([]);
@@ -58,6 +66,8 @@ const AdminBookings = () => {
   const [updatingBookingId, setUpdatingBookingId] = useState(null);
   const [deletingBookingId, setDeletingBookingId] = useState(null);
   const [bookingToDelete, setBookingToDelete] = useState(null);
+
+  useAutoDismiss(errorMessage, setErrorMessage);
 
   useEffect(() => {
     const loadBookings = async () => {
@@ -79,13 +89,21 @@ const AdminBookings = () => {
     loadBookings();
   }, []);
 
-  const sortedTables = [...tables].sort((firstTable, secondTable) => {
+  const sortedTables = useMemo(() => [...tables].sort((firstTable, secondTable) => {
     return firstTable.table_number - secondTable.table_number;
-  });
+  }), [tables]);
   const todayKey = getDateKey(new Date());
-  const todayBookings = bookings.filter((booking) => {
+  const todayBookings = useMemo(() => bookings.filter((booking) => {
     return getDateKey(booking.booking_date) === todayKey;
-  });
+  }), [bookings, todayKey]);
+  const bookingSummary = useMemo(() => ({
+    waiting: todayBookings.filter((booking) => booking.status === 'in_attesa').length,
+    confirmed: todayBookings.filter((booking) => booking.status === 'confermata').length,
+    guests: todayBookings.reduce(
+      (totalGuests, booking) => totalGuests + Number(booking.guests || 0),
+      0
+    ),
+  }), [todayBookings]);
 
   const updateBooking = async (booking, changes) => {
     const bookingId = booking.id;
@@ -186,6 +204,37 @@ const AdminBookings = () => {
         <p>{todayBookings.length} prenotazioni per oggi.</p>
       </div>
 
+      <div className="admin-bookings-stats" aria-label="Riepilogo prenotazioni">
+        <article>
+          <span>
+            <CalendarDays size={17} aria-hidden="true" />
+            Oggi
+          </span>
+          <strong>{todayBookings.length}</strong>
+        </article>
+        <article>
+          <span>
+            <Clock3 size={17} aria-hidden="true" />
+            In attesa
+          </span>
+          <strong>{bookingSummary.waiting}</strong>
+        </article>
+        <article>
+          <span>
+            <CheckCircle2 size={17} aria-hidden="true" />
+            Confermate
+          </span>
+          <strong>{bookingSummary.confirmed}</strong>
+        </article>
+        <article>
+          <span>
+            <Users size={17} aria-hidden="true" />
+            Ospiti
+          </span>
+          <strong>{bookingSummary.guests}</strong>
+        </article>
+      </div>
+
       {todayBookings.length === 0 ? (
         <p className="admin-bookings-state">Nessuna prenotazione per oggi.</p>
       ) : (
@@ -206,20 +255,26 @@ const AdminBookings = () => {
             <tbody>
               {todayBookings.map((booking) => (
                 <tr className={`status-${booking.status}`} key={booking.id}>
-                  <td>
+                  <td data-label="Cliente">
                     <strong>{booking.full_name}</strong>
                   </td>
-                  <td>
-                    <span>{booking.email}</span>
-                    <small>{booking.phone}</small>
+                  <td data-label="Contatti">
+                    <span className="admin-bookings-contact-line">
+                      <Mail size={14} aria-hidden="true" />
+                      {booking.email}
+                    </span>
+                    <small className="admin-bookings-contact-line">
+                      <Phone size={14} aria-hidden="true" />
+                      {booking.phone}
+                    </small>
                   </td>
-                  <td>
+                  <td data-label="Data">
                     <span>{formatDate(booking.booking_date)}</span>
                     <small>{formatTime(booking.booking_time)}</small>
                   </td>
-                  <td>{booking.guests}</td>
-                  <td>{booking.occasion || '-'}</td>
-                  <td>
+                  <td data-label="Ospiti">{booking.guests}</td>
+                  <td data-label="Occasione">{booking.occasion || '-'}</td>
+                  <td data-label="Tavolo">
                     <select
                       className="admin-bookings-table-select"
                       value={booking.table_number || ''}
@@ -237,7 +292,7 @@ const AdminBookings = () => {
                         const isCurrentTable = table.table_number === booking.table_number;
                         const isUnavailable =
                           !isCurrentTable &&
-                          ['occupato', 'in_pulizia'].includes(table.status);
+                          ['occupato', 'prenotato', 'in_pulizia'].includes(table.status);
 
                         return (
                           <option
@@ -245,15 +300,13 @@ const AdminBookings = () => {
                             value={table.table_number}
                             disabled={isUnavailable}
                           >
-                            {`Tavolo ${table.table_number} - ${table.seats} posti - ${
-                              tableStatusLabels[table.status] || table.status
-                            }`}
+                            {formatTableOption(table)}
                           </option>
                         );
                       })}
                     </select>
                   </td>
-                  <td>
+                  <td data-label="Stato">
                     <select
                       className={`admin-bookings-status-select status-${booking.status}`}
                       value={booking.status}
@@ -279,7 +332,11 @@ const AdminBookings = () => {
                       ))}
                     </select>
                   </td>
-                  <td>{booking.special_requests || '-'}</td>
+                  <td data-label="Richieste">
+                    <span className="admin-bookings-requests">
+                      {booking.special_requests || '-'}
+                    </span>
+                  </td>
                 </tr>
               ))}
             </tbody>
@@ -290,14 +347,20 @@ const AdminBookings = () => {
       {bookingToDelete && (
         <ConfirmDeleteModal
           title="Vuoi eliminare questa prenotazione?"
-          summaryItems={[
-            bookingToDelete.full_name,
-            `${formatDate(bookingToDelete.booking_date)} alle ${formatTime(bookingToDelete.booking_time)}`,
-            `${bookingToDelete.guests} ospiti`,
-          ]}
+          summaryItems={[{
+            id: bookingToDelete.id,
+            title: bookingToDelete.full_name,
+            details: [
+              `${formatDate(bookingToDelete.booking_date)} alle ${formatTime(bookingToDelete.booking_time)}`,
+              `${bookingToDelete.guests} ospiti`,
+            ],
+            icon: <Users size={18} aria-hidden="true" />,
+            fallbackText: bookingToDelete.full_name.charAt(0),
+          }]}
           isDeleting={deletingBookingId === bookingToDelete.id}
           onCancel={() => setBookingToDelete(null)}
           onConfirm={deleteBooking}
+          confirmIcon={<Trash2 size={16} aria-hidden="true" />}
         />
       )}
     </section>

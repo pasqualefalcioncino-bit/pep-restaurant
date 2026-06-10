@@ -1,3 +1,4 @@
+import { Clock3, Leaf } from 'lucide-react';
 import { formatPrice } from '../../utils/priceFormatter';
 import './MenuCard.css';
 
@@ -6,14 +7,19 @@ const MenuCard = ({ piatto }) => {
     <article className="menu-card">
       <div className="menu-card-image-container">
         {piatto.immagine ? (
-          <img src={piatto.immagine} alt={piatto.nome} />
+          <img src={piatto.immagine} alt={piatto.nome} decoding="async" />
         ) : (
           <div className="menu-card-image-placeholder" aria-hidden="true">
             <span>Non disponibile</span>
           </div>
         )}
         <div className="menu-card-badges">
-          {piatto.veg && <span className="menu-badge menu-badge-veg">🌿 Veg</span>}
+          {piatto.veg && (
+            <span className="menu-badge menu-badge-veg">
+              <Leaf size={13} strokeWidth={2.2} aria-hidden="true" />
+              Veg
+            </span>
+          )}
         </div>
       </div>
 
@@ -24,7 +30,10 @@ const MenuCard = ({ piatto }) => {
 
         <h3>{piatto.nome}</h3>
         <p className="menu-description">{piatto.descrizione}</p>
-        <p className="menu-prep-time">🕒 {piatto.tempo} min</p>
+        <p className="menu-prep-time">
+          <Clock3 size={14} strokeWidth={2} aria-hidden="true" />
+          {piatto.tempo} min
+        </p>
 
         <div className="menu-card-footer">
           <span className="menu-price">€{formatPrice(piatto.prezzo)}</span>

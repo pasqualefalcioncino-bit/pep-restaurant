@@ -10,6 +10,12 @@ router.get("/", verifyToken, checkRole(["admin", "cameriere"]), tableController.
 router.post("/", verifyToken, checkRole("admin"), tableController.createTable);
 router.put("/:id", verifyToken, checkRole("admin"), tableController.updateTable);
 router.patch(
+  "/:id/seat",
+  verifyToken,
+  checkRole(["admin", "cameriere"]),
+  tableController.seatGuestTable
+);
+router.patch(
   "/:id/status",
   verifyToken,
   checkRole(["admin", "cameriere"]),

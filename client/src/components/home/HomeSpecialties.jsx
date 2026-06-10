@@ -1,4 +1,3 @@
-import { getMenuImage } from '../../utils/menuImages';
 import { formatPrice } from '../../utils/priceFormatter';
 import './HomeSpecialties.css';
 
@@ -16,31 +15,27 @@ const HomeSpecialties = ({ specialita, onNavigate }) => {
       </div>
 
       <div className="home-specialties-grid">
-        {specialita.map((piatto) => {
-          const image = getMenuImage(piatto.immagine);
-
-          return (
-            <article key={piatto.id} className="home-dish-card">
-              <div className="home-dish-image">
-                {image && <img src={image} alt={piatto.nome} />}
+        {specialita.map((piatto) => (
+          <article key={piatto.id} className="home-dish-card">
+            <div className="home-dish-image">
+              {piatto.immagine && <img src={piatto.immagine} alt={piatto.nome} />}
+            </div>
+            <div className="home-dish-info">
+              <div className="home-dish-meta">
+                <span>{piatto.categoria}</span>
+                <span>★ {piatto.rating}</span>
               </div>
-              <div className="home-dish-info">
-                <div className="home-dish-meta">
-                  <span>{piatto.categoria}</span>
-                  <span>★ {piatto.rating}</span>
-                </div>
-                <h3>{piatto.nome}</h3>
-                <p>{piatto.descrizione}</p>
-                <div className="home-dish-footer">
-                  <span className="home-dish-price">€{formatPrice(piatto.prezzo)}</span>
-                  <button className="home-discover-btn" type="button" onClick={() => onNavigate('menu')}>
-                    Scopri <span aria-hidden="true">›</span>
-                  </button>
-                </div>
+              <h3>{piatto.nome}</h3>
+              <p>{piatto.descrizione}</p>
+              <div className="home-dish-footer">
+                <span className="home-dish-price">€{formatPrice(piatto.prezzo)}</span>
+                <button className="home-discover-btn" type="button" onClick={() => onNavigate('menu')}>
+                  Scopri <span aria-hidden="true">›</span>
+                </button>
               </div>
-            </article>
-          );
-        })}
+            </div>
+          </article>
+        ))}
       </div>
     </section>
   );

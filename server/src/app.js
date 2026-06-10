@@ -1,8 +1,10 @@
 const express = require("express");
 const cors = require("cors");
 const pool = require("./config/db");
+const tableModel = require("./models/table.model");
 
 const app = express();
+const TABLE_STATUS_SYNC_INTERVAL_MS = 60 * 1000;
 
 app.use(cors());
 app.use(express.json({ limit: "2mb" }));
@@ -37,12 +39,22 @@ pool.connect()
       await client.query(
         "ALTER TABLE users ADD COLUMN IF NOT EXISTS avatar_url TEXT"
       );
+      await client.query(
+        "ALTER TABLE restaurant_tables ADD COLUMN IF NOT EXISTS occupied_until TIMESTAMPTZ"
+      );
       console.log("Database collegato con successo --OK--");
+      await tableModel.runTableStatusSync();
     } finally {
       client.release();
     }
   })
   .catch(err => console.error("Errore DB", err));
+
+setInterval(() => {
+  tableModel.runTableStatusSync().catch((err) => {
+    console.error("Errore sync stato tavoli", err);
+  });
+}, TABLE_STATUS_SYNC_INTERVAL_MS);
 
 // TEST ROUTE
 app.get("/", (req, res) => {

@@ -1,34 +1,40 @@
 .menu-card {
+  display: flex;
+  min-height: 100%;
+  flex-direction: column;
   overflow: hidden;
   border: 1px solid var(--border-color);
-  border-radius: 20px;
+  border-radius: 8px;
   background: var(--card-bg);
   text-align: left;
-  transition: border-color 0.2s ease, transform 0.2s ease;
+  transition: background-color 0.2s ease, border-color 0.2s ease, transform 0.2s ease;
 }
 
 .menu-card:hover {
-  border-color: var(--gold-primary);
-  transform: translateY(-5px);
+  border-color: rgba(230, 181, 62, 0.56);
+  background-color: var(--card-bg-hover);
+  transform: translateY(-4px);
 }
 
 .menu-card-image-container {
   position: relative;
-  min-height: 250px;
+  aspect-ratio: 4 / 3;
+  min-height: 0;
   background-color: var(--bg-dark);
 }
 
 .menu-card-image-container img {
   display: block;
   width: 100%;
-  height: 250px;
+  height: 100%;
   object-fit: cover;
 }
 
 .menu-card-image-placeholder {
   display: grid;
   width: 100%;
-  height: 250px;
+  height: 100%;
+  min-height: 240px;
   place-items: center;
   background:
     linear-gradient(135deg, rgba(212, 163, 115, 0.14), rgba(20, 20, 20, 0.95)),
@@ -42,28 +48,36 @@
 
 .menu-card-badges {
   position: absolute;
-  top: 16px;
-  left: 16px;
+  top: 14px;
+  left: 14px;
   display: flex;
   flex-wrap: wrap;
   gap: 8px;
 }
 
 .menu-badge {
-  padding: 7px 11px;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 8px 10px;
+  border: 1px solid rgba(48, 216, 120, 0.3);
   border-radius: 999px;
+  backdrop-filter: blur(10px);
   font-size: 0.72rem;
   font-weight: 800;
   line-height: 1;
 }
 
 .menu-badge-veg {
-  background: #123d24;
+  background: rgba(18, 61, 36, 0.88);
   color: #8ee6a5;
 }
 
 .menu-card-content {
-  padding: 24px;
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  padding: 22px;
 }
 
 .menu-card-header,
@@ -78,19 +92,20 @@
   color: var(--gold-primary);
   font-size: 0.72rem;
   font-weight: 800;
-  letter-spacing: 2px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
 }
 
 .menu-card h3 {
-  margin: 16px 0 10px;
+  margin: 14px 0 10px;
   color: var(--text-white);
   font-family: 'Playfair Display', Georgia, serif;
-  font-size: 1.65rem;
+  font-size: clamp(1.45rem, 2.5vw, 1.65rem);
   line-height: 1.15;
 }
 
 .menu-description {
-  min-height: 68px;
+  flex: 1;
   margin: 0;
   color: var(--text-muted);
   font-size: 0.95rem;
@@ -98,13 +113,22 @@
 }
 
 .menu-prep-time {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  width: fit-content;
   margin: 18px 0 0;
-  color: var(--text-muted);
+  padding: 7px 10px;
+  border: 1px solid rgba(230, 181, 62, 0.2);
+  border-radius: 8px;
+  background: rgba(230, 181, 62, 0.08);
+  color: var(--text-white);
   font-size: 0.9rem;
+  font-weight: 700;
 }
 
 .menu-card-footer {
-  margin-top: 24px;
+  margin-top: 22px;
   padding-top: 20px;
   border-top: 1px solid var(--border-color);
 }
@@ -116,18 +140,11 @@
 }
 
 @media (max-width: 520px) {
-  .menu-card-image-container,
-  .menu-card-image-container img,
   .menu-card-image-placeholder {
-    height: 220px;
     min-height: 220px;
   }
 
   .menu-card-content {
     padding: 20px;
-  }
-
-  .menu-description {
-    min-height: auto;
   }
 }

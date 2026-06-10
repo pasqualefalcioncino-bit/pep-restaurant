@@ -1,4 +1,5 @@
 import ContactSection from '../components/contact/ContactSection';
+import './Contatti.css';
 
 const Contatti = () => {
   return (

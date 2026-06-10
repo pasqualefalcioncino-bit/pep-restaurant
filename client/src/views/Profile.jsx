@@ -1,5 +1,7 @@
 import { useEffect, useState } from 'react';
+import { Camera, Mail, Phone, Save, Trash2, User } from 'lucide-react';
 import { apiRequest, getAuthUser, saveAuthSession, getAuthToken } from '../api/client';
+import useAutoDismiss from '../hooks/useAutoDismiss';
 import { getRoleAvatar } from '../utils/roleAvatars';
 import './Profile.css';
 
@@ -15,6 +17,9 @@ const Profile = ({ onProfileUpdate }) => {
   const [isSaving, setIsSaving] = useState(false);
   const [message, setMessage] = useState('');
   const [errorMessage, setErrorMessage] = useState('');
+
+  useAutoDismiss(message, setMessage);
+  useAutoDismiss(errorMessage, setErrorMessage);
 
   useEffect(() => {
     const loadProfile = async () => {
@@ -56,7 +61,7 @@ const Profile = ({ onProfileUpdate }) => {
     }
 
     if (file.size > 900 * 1024) {
-      setErrorMessage('Scegli un immagine sotto 900 KB');
+      setErrorMessage("Scegli un'immagine sotto 900 KB");
       return;
     }
 
@@ -103,11 +108,14 @@ const Profile = ({ onProfileUpdate }) => {
   };
 
   const avatarSource = profileData.avatar_url || getRoleAvatar(storedUser?.role);
+  const displayInitial = profileData.name.trim().charAt(0).toUpperCase() || 'P';
 
   if (isLoading) {
     return (
       <section className="profile-page">
-        <p className="profile-state">Caricamento profilo...</p>
+        <div className="profile-state">
+          <p>Caricamento profilo...</p>
+        </div>
       </section>
     );
   }
@@ -115,9 +123,8 @@ const Profile = ({ onProfileUpdate }) => {
   return (
     <section className="profile-page" aria-labelledby="profile-title">
       <div className="profile-header">
-        <span className="profile-kicker">AREA PERSONALE</span>
         <h1 id="profile-title">Profilo</h1>
-        <p>Gestisci i tuoi dati.</p>
+        <p>Gestisci dati, contatti e immagine del tuo account.</p>
       </div>
 
       <form className="profile-card" onSubmit={saveProfile}>
@@ -126,10 +133,11 @@ const Profile = ({ onProfileUpdate }) => {
             <img className="profile-avatar" src={avatarSource} alt="Avatar profilo" />
           ) : (
             <div className="profile-avatar placeholder" aria-hidden="true">
-              {profileData.name.charAt(0).toUpperCase() || 'P'}
+              {displayInitial}
             </div>
           )}
           <label className="profile-upload-btn" htmlFor="profile-avatar-upload">
+            <Camera size={17} strokeWidth={2} aria-hidden="true" />
             Carica immagine
           </label>
           <input
@@ -145,6 +153,7 @@ const Profile = ({ onProfileUpdate }) => {
               type="button"
               onClick={() => updateField('avatar_url', '')}
             >
+              <Trash2 size={16} strokeWidth={2} aria-hidden="true" />
               Rimuovi immagine
             </button>
           )}
@@ -153,45 +162,57 @@ const Profile = ({ onProfileUpdate }) => {
         <div className="profile-fields">
           <div className="profile-form-group">
             <label htmlFor="profile-name">Nome e cognome</label>
-            <input
-              id="profile-name"
-              type="text"
-              value={profileData.name}
-              onChange={(event) => updateField('name', event.target.value)}
-              required
-            />
+            <div className="profile-input-wrap">
+              <User size={18} strokeWidth={2} aria-hidden="true" />
+              <input
+                id="profile-name"
+                type="text"
+                value={profileData.name}
+                onChange={(event) => updateField('name', event.target.value)}
+                autoComplete="name"
+                required
+              />
+            </div>
           </div>
 
           <div className="profile-form-group">
             <label htmlFor="profile-email">Email</label>
-            <input
-              id="profile-email"
-              type="email"
-              value={profileData.email}
-              onChange={(event) => updateField('email', event.target.value)}
-              required
-            />
+            <div className="profile-input-wrap">
+              <Mail size={18} strokeWidth={2} aria-hidden="true" />
+              <input
+                id="profile-email"
+                type="email"
+                value={profileData.email}
+                onChange={(event) => updateField('email', event.target.value)}
+                autoComplete="email"
+                required
+              />
+            </div>
           </div>
 
           <div className="profile-form-group">
             <label htmlFor="profile-phone">Telefono</label>
-            <input
-              id="profile-phone"
-              type="tel"
-              value={profileData.phone}
-              onChange={(event) => updatePhone(event.target.value)}
-              placeholder="3331234567"
-              autoComplete="tel"
-              inputMode="numeric"
-              pattern="[0-9]{10}"
-              maxLength="10"
-            />
+            <div className="profile-input-wrap">
+              <Phone size={18} strokeWidth={2} aria-hidden="true" />
+              <input
+                id="profile-phone"
+                type="tel"
+                value={profileData.phone}
+                onChange={(event) => updatePhone(event.target.value)}
+                placeholder="3331234567"
+                autoComplete="tel"
+                inputMode="numeric"
+                pattern="[0-9]{10}"
+                maxLength="10"
+              />
+            </div>
           </div>
 
           {message && <p className="profile-message success">{message}</p>}
           {errorMessage && <p className="profile-message error">{errorMessage}</p>}
 
           <button className="profile-save-btn" type="submit" disabled={isSaving}>
+            <Save size={17} strokeWidth={2} aria-hidden="true" />
             {isSaving ? 'Salvataggio...' : 'Salva modifiche'}
           </button>
         </div>

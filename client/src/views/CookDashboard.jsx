@@ -1,4 +1,17 @@
 import { useEffect, useMemo, useState } from 'react';
+import {
+  Bell,
+  Boxes,
+  CheckCircle2,
+  ClipboardList,
+  Flame,
+  ListFilter,
+  PackageCheck,
+  Save,
+  Trash2,
+  UtensilsCrossed,
+  X,
+} from 'lucide-react';
 import { apiRequest } from '../api/client';
 import AdminSearchToolbar from '../components/admin/AdminSearchToolbar';
 import {
@@ -16,6 +29,7 @@ import {
   menuCategories,
   sortByMenuCategory,
 } from '../utils/menuCatalog';
+import useAutoDismiss from '../hooks/useAutoDismiss';
 import { getMenuImage } from '../utils/menuImages';
 import { formatEuroPrice } from '../utils/priceFormatter';
 import './admin/AdminInventory.css';
@@ -305,6 +319,8 @@ const CookDashboard = ({ mode = 'orders' }) => {
   const [updatingOrderItemId, setUpdatingOrderItemId] = useState(null);
   const isManagementMode = mode === 'management';
 
+  useAutoDismiss(errorMessage, setErrorMessage);
+
   const loadKitchenData = async () => {
     setErrorMessage('');
 
@@ -344,49 +360,56 @@ const CookDashboard = ({ mode = 'orders' }) => {
     return Object.fromEntries(menuItems.map((item) => [item.id, item]));
   }, [menuItems]);
 
-  const readyOrders = orders.filter((order) => order.status === 'pronto');
-  const waitingOrders = orders.filter((order) => order.status === 'in_attesa');
-  const preparingOrders = orders.filter((order) => order.status === 'in_preparazione');
-  const servedOrders = orders.filter((order) => order.status === 'servito');
-  const cancelledOrders = orders.filter((order) => order.status === 'annullato');
+  const orderGroups = useMemo(() => ({
+    waiting: orders.filter((order) => order.status === 'in_attesa'),
+    preparing: orders.filter((order) => order.status === 'in_preparazione'),
+    ready: orders.filter((order) => order.status === 'pronto'),
+    served: orders.filter((order) => order.status === 'servito'),
+    cancelled: orders.filter((order) => order.status === 'annullato'),
+  }), [orders]);
 
-  const metricCards = [
+  const metricCards = useMemo(() => [
     {
       key: 'waiting',
       tone: 'wait',
       label: 'In attesa',
-      value: waitingOrders.length,
-      orders: waitingOrders,
+      Icon: Bell,
+      value: orderGroups.waiting.length,
+      orders: orderGroups.waiting,
     },
     {
       key: 'preparing',
       tone: 'prep',
       label: 'Preparazione',
-      value: preparingOrders.length,
-      orders: preparingOrders,
+      Icon: Flame,
+      value: orderGroups.preparing.length,
+      orders: orderGroups.preparing,
     },
     {
       key: 'ready',
       tone: 'ready',
       label: 'Pronti',
-      value: readyOrders.length,
-      orders: readyOrders,
+      Icon: CheckCircle2,
+      value: orderGroups.ready.length,
+      orders: orderGroups.ready,
     },
     {
       key: 'served',
       tone: 'served',
       label: 'Serviti',
-      value: servedOrders.length,
-      orders: servedOrders,
+      Icon: PackageCheck,
+      value: orderGroups.served.length,
+      orders: orderGroups.served,
     },
     {
       key: 'cancelled',
       tone: 'cancelled',
       label: 'Annullati',
-      value: cancelledOrders.length,
-      orders: cancelledOrders,
+      Icon: Trash2,
+      value: orderGroups.cancelled.length,
+      orders: orderGroups.cancelled,
     },
-  ];
+  ], [orderGroups]);
 
   const selectedMetric = metricCards.find((metric) => metric.key === selectedMetricKey);
   const canCleanSelectedMetric = ['served', 'cancelled'].includes(selectedMetricKey);
@@ -401,7 +424,7 @@ const CookDashboard = ({ mode = 'orders' }) => {
       })
     : [];
 
-  const visibleOrders = orders
+  const visibleOrders = useMemo(() => orders
     .filter((order) => order.status !== 'servito' && order.status !== 'annullato')
     .filter((order) => {
       if (activeCategory === 'Tutte') {
@@ -409,7 +432,7 @@ const CookDashboard = ({ mode = 'orders' }) => {
       }
 
       return (order.items || []).some((item) => item.category === activeCategory);
-    });
+    }), [activeCategory, orders]);
 
   const visibleMenuItems = useMemo(() => {
     return menuItems
@@ -420,6 +443,12 @@ const CookDashboard = ({ mode = 'orders' }) => {
   const inventoryStats = useMemo(() => getInventoryStats(inventoryItems), [inventoryItems]);
 
   const inventoryCategories = useMemo(() => getInventoryCategories(inventoryItems), [inventoryItems]);
+
+  const menuManagementSummary = useMemo(() => ({
+    total: menuItems.length,
+    available: menuItems.filter((item) => item.available !== false).length,
+    unavailable: menuItems.filter((item) => item.available === false).length,
+  }), [menuItems]);
 
   const visibleInventoryItems = useMemo(() => {
     return filterInventoryItems({
@@ -637,25 +666,42 @@ const CookDashboard = ({ mode = 'orders' }) => {
   return (
     <section className="cook-dashboard-page" aria-labelledby="cook-dashboard-title">
       <div className="cook-dashboard-header">
-        <h1 id="cook-dashboard-title">
-          {isManagementMode ? 'Gestione Cucina' : 'Pannello Cucina'}
-        </h1>
+        <div>
+          <span className="cook-dashboard-kicker">CUCINA</span>
+          <h1 id="cook-dashboard-title">
+            {isManagementMode ? 'Gestione Cucina' : 'Pannello Cucina'}
+          </h1>
+          <p>
+            {isManagementMode
+              ? 'Aggiorna disponibilita menu e scorte operative.'
+              : 'Segui gli ordini attivi e coordina le uscite dalla cucina.'}
+          </p>
+        </div>
       </div>
 
       {!isManagementMode && (
         <div className="cook-metrics" aria-label="Riepilogo cucina">
-          {metricCards.map((metric) => (
-            <button
-              className={`cook-metric-card ${metric.tone}`}
-              key={metric.key}
-              type="button"
-              onClick={() => setSelectedMetricKey(metric.key)}
-              aria-haspopup="dialog"
-            >
-              <span className={`cook-metric-icon ${metric.tone}`}>{metric.label}</span>
-              <strong>{metric.value}</strong>
-            </button>
-          ))}
+          {metricCards.map((metric) => {
+            const MetricIcon = metric.Icon;
+
+            return (
+              <button
+                className={`cook-metric-card ${metric.tone}${
+                  selectedMetricKey === metric.key ? ' active' : ''
+                }`}
+                key={metric.key}
+                type="button"
+                onClick={() => setSelectedMetricKey(metric.key)}
+                aria-haspopup="dialog"
+              >
+                <span className={`cook-metric-icon ${metric.tone}`}>
+                  <MetricIcon size={18} aria-hidden="true" />
+                </span>
+                <span className="cook-metric-label">{metric.label}</span>
+                <strong>{metric.value}</strong>
+              </button>
+            );
+          })}
         </div>
       )}
 
@@ -682,17 +728,25 @@ const CookDashboard = ({ mode = 'orders' }) => {
 
       {!isManagementMode && (
         <>
-          <div className="cook-filters" aria-label="Filtri categoria">
-            {kitchenCategories.map((category) => (
-              <button
-                key={category}
-                className={activeCategory === category ? 'active' : ''}
-                type="button"
-                onClick={() => setActiveCategory(category)}
-              >
-                {categoryLabels[category] || category}
-              </button>
-            ))}
+          <div className="cook-filter-panel">
+            <div>
+              <span>
+                <ClipboardList size={17} aria-hidden="true" />
+                Filtra comande
+              </span>
+            </div>
+            <div className="cook-filters" aria-label="Filtri categoria">
+              {kitchenCategories.map((category) => (
+                <button
+                  key={category}
+                  className={activeCategory === category ? 'active' : ''}
+                  type="button"
+                  onClick={() => setActiveCategory(category)}
+                >
+                  {categoryLabels[category] || category}
+                </button>
+              ))}
+            </div>
           </div>
 
           {visibleOrders.length === 0 ? (
@@ -718,47 +772,78 @@ const CookDashboard = ({ mode = 'orders' }) => {
 
       {isManagementMode && activeTab === 'eightySix' && (
         <section className="cook-menu-management" aria-labelledby="cook-menu-management-title">
-          <div className="cook-menu-management-header">
-            <div>
-              <h2 id="cook-menu-management-title">Gestione menu</h2>
-              <p>{menuItems.length} piatti presenti nel menu.</p>
+          <div className="cook-management-hero">
+            <div className="cook-management-hero-title">
+              <span>
+                <UtensilsCrossed size={21} aria-hidden="true" />
+              </span>
+              <div>
+                <h2 id="cook-menu-management-title">Gestione menu</h2>
+                <p>Controlla la disponibilita dei piatti visibili in sala.</p>
+              </div>
             </div>
-            <strong>{menuItems.filter((item) => item.available === false).length}</strong>
+
+            <div className="cook-management-actions">
+              {isEditingMenuAvailability ? (
+                <>
+                  <button type="button" onClick={cancelMenuAvailabilityEdit}>
+                    <X size={16} aria-hidden="true" />
+                    Annulla
+                  </button>
+                  <button
+                    className="primary"
+                    type="button"
+                    onClick={saveMenuAvailability}
+                    disabled={isSavingMenuAvailability}
+                  >
+                    <Save size={16} aria-hidden="true" />
+                    {isSavingMenuAvailability ? 'Salvataggio...' : 'Salva'}
+                  </button>
+                </>
+              ) : (
+                <button className="primary" type="button" onClick={startMenuAvailabilityEdit}>
+                  <ListFilter size={16} aria-hidden="true" />
+                  Modifica disponibilita
+                </button>
+              )}
+            </div>
           </div>
 
-          <div className="cook-management-actions">
-            {isEditingMenuAvailability ? (
-              <>
-                <button type="button" onClick={cancelMenuAvailabilityEdit}>
-                  Annulla
-                </button>
+          <div className="cook-management-summary" aria-label="Riepilogo menu cucina">
+            <article className="tone-neutral">
+              <span>Piatti</span>
+              <strong>{menuManagementSummary.total}</strong>
+            </article>
+            <article className="tone-ok">
+              <span>Disponibili</span>
+              <strong>{menuManagementSummary.available}</strong>
+            </article>
+            <article className="tone-danger">
+              <span>Non disponibili</span>
+              <strong>{menuManagementSummary.unavailable}</strong>
+            </article>
+          </div>
+
+          <div className="cook-filter-panel">
+            <div>
+              <span>
+                <ClipboardList size={17} aria-hidden="true" />
+                Filtra menu
+              </span>
+              <strong>{visibleMenuItems.length} piatti</strong>
+            </div>
+            <div className="cook-filters" aria-label="Filtri categoria menu">
+              {kitchenCategories.map((category) => (
                 <button
-                  className="primary"
+                  key={category}
+                  className={activeCategory === category ? 'active' : ''}
                   type="button"
-                  onClick={saveMenuAvailability}
-                  disabled={isSavingMenuAvailability}
+                  onClick={() => setActiveCategory(category)}
                 >
-                  {isSavingMenuAvailability ? 'Salvataggio...' : 'Salva disponibilita'}
+                  {categoryLabels[category] || category}
                 </button>
-              </>
-            ) : (
-              <button className="primary" type="button" onClick={startMenuAvailabilityEdit}>
-                Modifica disponibilita
-              </button>
-            )}
-          </div>
-
-          <div className="cook-filters" aria-label="Filtri categoria menu">
-            {kitchenCategories.map((category) => (
-              <button
-                key={category}
-                className={activeCategory === category ? 'active' : ''}
-                type="button"
-                onClick={() => setActiveCategory(category)}
-              >
-                {categoryLabels[category] || category}
-              </button>
-            ))}
+              ))}
+            </div>
           </div>
 
           {visibleMenuItems.length === 0 ? (
@@ -795,33 +880,41 @@ const CookDashboard = ({ mode = 'orders' }) => {
 
       {isManagementMode && activeTab === 'inventory' && (
         <section className="cook-inventory-management" aria-labelledby="cook-inventory-title">
-          <div className="admin-inventory-header">
-            <div>
-              <h2 id="cook-inventory-title">Inventario</h2>
-              <p>Ingredienti e materie prime collegati al menu del ristorante.</p>
+          <div className="cook-management-hero">
+            <div className="cook-management-hero-title">
+              <span>
+                <Boxes size={21} aria-hidden="true" />
+              </span>
+              <div>
+                <h2 id="cook-inventory-title">Inventario</h2>
+                <p>Ingredienti e materie prime collegati al menu del ristorante.</p>
+              </div>
             </div>
-          </div>
 
-          <div className="cook-management-actions">
-            {isEditingInventoryQuantities ? (
-              <>
-                <button type="button" onClick={cancelInventoryQuantitiesEdit}>
-                  Annulla
+            <div className="cook-management-actions">
+              {isEditingInventoryQuantities ? (
+                <>
+                  <button type="button" onClick={cancelInventoryQuantitiesEdit}>
+                    <X size={16} aria-hidden="true" />
+                    Annulla
+                  </button>
+                  <button
+                    className="primary"
+                    type="button"
+                    onClick={saveInventoryQuantities}
+                    disabled={isSavingInventoryQuantities}
+                  >
+                    <Save size={16} aria-hidden="true" />
+                    {isSavingInventoryQuantities ? 'Salvataggio...' : 'Salva'}
+                  </button>
+                </>
+              ) : (
+                <button className="primary" type="button" onClick={startInventoryQuantitiesEdit}>
+                  <ListFilter size={16} aria-hidden="true" />
+                  Modifica scorte
                 </button>
-                <button
-                  className="primary"
-                  type="button"
-                  onClick={saveInventoryQuantities}
-                  disabled={isSavingInventoryQuantities}
-                >
-                  {isSavingInventoryQuantities ? 'Salvataggio...' : 'Salva scorte'}
-                </button>
-              </>
-            ) : (
-              <button className="primary" type="button" onClick={startInventoryQuantitiesEdit}>
-                Modifica scorte
-              </button>
-            )}
+              )}
+            </div>
           </div>
 
           <div className="admin-inventory-stats" aria-label="Riepilogo inventario">
@@ -916,6 +1009,7 @@ const CookDashboard = ({ mode = 'orders' }) => {
                 <h2 id="cook-metric-modal-title">{selectedMetric.label}</h2>
               </div>
               <button type="button" onClick={() => setSelectedMetricKey(null)}>
+                <X size={16} aria-hidden="true" />
                 Chiudi
               </button>
             </div>

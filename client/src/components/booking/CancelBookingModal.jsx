@@ -1,3 +1,5 @@
+import { Trash2, X } from 'lucide-react';
+
 const CancelBookingModal = ({ booking, formatDate, formatTime, isBusy, onClose, onConfirm }) => {
   if (!booking) {
     return null;
@@ -15,7 +17,7 @@ const CancelBookingModal = ({ booking, formatDate, formatTime, isBusy, onClose, 
         <h2 id="cancel-booking-title">Annullare la prenotazione?</h2>
         <p>
           La prenotazione #{booking.id} per il {formatDate(booking.booking_date)} alle{' '}
-          {formatTime(booking.booking_time)} verra annullata.
+          {formatTime(booking.booking_time)} verrà annullata.
         </p>
         <div className="customer-booking-modal-actions">
           <button
@@ -24,6 +26,7 @@ const CancelBookingModal = ({ booking, formatDate, formatTime, isBusy, onClose, 
             onClick={onConfirm}
             disabled={isBusy}
           >
+            <Trash2 size={16} strokeWidth={2} aria-hidden="true" />
             {isBusy ? 'Annullamento...' : 'Annulla prenotazione'}
           </button>
           <button
@@ -32,6 +35,7 @@ const CancelBookingModal = ({ booking, formatDate, formatTime, isBusy, onClose, 
             onClick={onClose}
             disabled={isBusy}
           >
+            <X size={16} strokeWidth={2} aria-hidden="true" />
             Mantieni
           </button>
         </div>

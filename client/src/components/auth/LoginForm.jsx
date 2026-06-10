@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { apiRequest, saveAuthSession } from '../../api/client';
-import './LoginForm.css';
+import useAutoDismiss from '../../hooks/useAutoDismiss';
+import './AuthForm.css';
 
 const LoginForm = ({ onSwitchToRegister, onLoginSuccess }) => {
   const [formData, setFormData] = useState({
@@ -10,6 +11,9 @@ const LoginForm = ({ onSwitchToRegister, onLoginSuccess }) => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
   const [successMessage, setSuccessMessage] = useState('');
+
+  useAutoDismiss(errorMessage, setErrorMessage);
+  useAutoDismiss(successMessage, setSuccessMessage);
 
   const updateField = (field, value) => {
     setFormData((currentData) => ({
@@ -53,45 +57,47 @@ const LoginForm = ({ onSwitchToRegister, onLoginSuccess }) => {
   };
 
   return (
-    <div className="login-card">
-      <div className="login-header">
-        <h1>Bentornato</h1>
+    <section className="auth-card" aria-labelledby="login-title">
+      <div className="auth-intro">
+        <h1 id="login-title">Bentornato</h1>
         <p>Accedi per gestire prenotazioni, ordini e preferenze.</p>
       </div>
-      
+
       <form className="auth-box" onSubmit={handleSubmit}>
-        <div className="input-group">
-          <label htmlFor="login-email">Email</label>
+        <label className="auth-field" htmlFor="login-email">
+          <span>Email</span>
           <input
             id="login-email"
             type="email"
             value={formData.email}
             onChange={(event) => updateField('email', event.target.value)}
+            autoComplete="email"
             required
           />
-        </div>
-        <div className="input-group">
-          <label htmlFor="login-password">Password</label>
+        </label>
+        <label className="auth-field" htmlFor="login-password">
+          <span>Password</span>
           <input
             id="login-password"
             type="password"
             value={formData.password}
             onChange={(event) => updateField('password', event.target.value)}
+            autoComplete="current-password"
             required
           />
-        </div>
+        </label>
 
         {errorMessage && <p className="auth-message error">{errorMessage}</p>}
         {successMessage && <p className="auth-message success">{successMessage}</p>}
 
-        <button className="btn-login" type="submit" disabled={isSubmitting}>
+        <button className="auth-submit-btn" type="submit" disabled={isSubmitting}>
           {isSubmitting ? 'Accesso in corso...' : 'Accedi'}
         </button>
-        <button type="button" className="forgot-link" onClick={onSwitchToRegister}>
+        <button type="button" className="auth-switch-btn" onClick={onSwitchToRegister}>
           Non hai un account? Registrati
         </button>
       </form>
-    </div>
+    </section>
   );
 };
 

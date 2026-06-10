@@ -52,7 +52,9 @@
   margin: 28px 0 0;
   border: 1px solid var(--border-color);
   border-radius: 8px;
-  background-color: var(--bg-dark);
+  background:
+    linear-gradient(180deg, rgba(230, 181, 62, 0.055), transparent 44%),
+    var(--bg-dark);
   text-align: left;
 }
 
@@ -121,11 +123,12 @@
   font: inherit;
   font-size: 1rem;
   font-weight: 800;
-  transition: background-color 0.2s ease;
+  transition: background-color 0.2s ease, transform 0.2s ease;
 }
 
 .booking-confirm-btn:hover {
   background-color: var(--gold-hover);
+  transform: translateY(-2px);
 }
 
 .booking-confirm-btn:disabled,

@@ -4,6 +4,10 @@
 }
 
 .waiter-orders-header {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(320px, 460px);
+  gap: 20px;
+  align-items: end;
   margin-bottom: 24px;
 }
 
@@ -33,8 +37,43 @@
   padding: 24px;
   border: 1px solid var(--border-color);
   border-radius: 8px;
-  background-color: var(--card-bg);
+  background: linear-gradient(135deg, rgba(24, 20, 16, 0.98), rgba(13, 12, 11, 0.98));
   text-align: center;
+}
+
+.waiter-orders-summary {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.waiter-orders-summary article {
+  display: grid;
+  gap: 6px;
+  padding: 13px;
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  background: linear-gradient(135deg, rgba(24, 20, 16, 0.98), rgba(13, 12, 11, 0.98));
+  box-shadow: 0 18px 42px rgba(0, 0, 0, 0.18);
+}
+
+.waiter-orders-summary span {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  color: var(--text-muted);
+  font-size: 0.76rem;
+  font-weight: 800;
+  text-transform: uppercase;
+}
+
+.waiter-orders-summary svg {
+  color: var(--gold-primary);
+}
+
+.waiter-orders-summary strong {
+  color: var(--text-white);
+  font-size: 1.5rem;
 }
 
 .waiter-orders-message {
@@ -74,7 +113,10 @@
 .waiter-recent-orders {
   border: 1px solid var(--border-color);
   border-radius: 8px;
-  background-color: var(--card-bg);
+  background:
+    radial-gradient(circle at 8% 0%, rgba(230, 181, 62, 0.09), transparent 30%),
+    linear-gradient(135deg, rgba(24, 20, 16, 0.98), rgba(13, 12, 11, 0.98));
+  box-shadow: 0 22px 50px rgba(0, 0, 0, 0.22);
 }
 
 .waiter-menu-panel {
@@ -94,6 +136,10 @@
   gap: 16px;
   margin-bottom: 18px;
   align-items: end;
+  padding: 14px;
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  background: rgba(10, 10, 10, 0.24);
 }
 
 .waiter-search-field span,
@@ -103,6 +149,20 @@
   margin-bottom: 7px;
   color: var(--text-white);
   font-size: 0.86rem;
+}
+
+.waiter-search-field {
+  position: relative;
+  display: grid;
+  gap: 7px;
+}
+
+.waiter-search-field svg {
+  position: absolute;
+  left: 12px;
+  bottom: 12px;
+  color: var(--gold-primary);
+  pointer-events: none;
 }
 
 .waiter-cart-header label {
@@ -123,6 +183,18 @@
   background: var(--bg-dark);
   color: var(--text-white);
   font: inherit;
+}
+
+.waiter-search-field input {
+  padding-left: 38px;
+}
+
+.waiter-search-field input:focus,
+.waiter-cart-header select:focus,
+.waiter-cart-controls input:focus {
+  border-color: var(--gold-primary);
+  outline: 2px solid rgba(230, 181, 62, 0.24);
+  outline-offset: 2px;
 }
 
 .waiter-cart-header select {
@@ -159,6 +231,11 @@
   color: var(--text-white);
   cursor: pointer;
   font: inherit;
+  transition:
+    border-color 160ms ease,
+    background 160ms ease,
+    color 160ms ease,
+    transform 160ms ease;
 }
 
 .waiter-category-tabs button {
@@ -168,8 +245,15 @@
 
 .waiter-category-tabs button.active {
   border-color: var(--gold-primary);
-  color: var(--gold-primary);
-  background-color: rgba(212, 163, 115, 0.1);
+  color: var(--text-dark);
+  background-color: var(--gold-primary);
+}
+
+.waiter-category-tabs button:not(.active):hover,
+.waiter-menu-item-footer button:not(:disabled):hover,
+.waiter-cart-item-top button:not(:disabled):hover {
+  border-color: var(--gold-primary);
+  transform: translateY(-1px);
 }
 
 .waiter-menu-sections {
@@ -214,7 +298,15 @@
   padding: 16px;
   border: 1px solid var(--border-color);
   border-radius: 8px;
-  background-color: var(--bg-dark);
+  background: rgba(10, 10, 10, 0.56);
+  transition:
+    filter 160ms ease,
+    transform 160ms ease;
+}
+
+.waiter-menu-item:hover {
+  filter: brightness(1.06);
+  transform: translateY(-1px);
 }
 
 .waiter-menu-item.unavailable,
@@ -295,6 +387,10 @@
 }
 
 .waiter-menu-item-footer button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
   padding: 9px 11px;
   color: var(--gold-primary);
   border-color: var(--gold-primary);
@@ -344,7 +440,7 @@
   padding: 14px;
   border: 1px solid var(--border-color);
   border-radius: 8px;
-  background-color: var(--bg-dark);
+  background-color: rgba(10, 10, 10, 0.56);
 }
 
 .waiter-cart-item-top {
@@ -383,9 +479,15 @@
 }
 
 .waiter-cart-item-top button {
+  display: inline-grid;
+  place-items: center;
+  width: 32px;
+  height: 32px;
   flex: 0 0 auto;
-  padding: 6px 8px;
+  padding: 0;
   color: var(--status-red);
+  border-color: rgba(255, 138, 138, 0.42);
+  background: rgba(255, 138, 138, 0.08);
 }
 
 .waiter-cart-controls {
@@ -419,6 +521,10 @@
 }
 
 .waiter-submit-order {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
   width: 100%;
   padding: 14px;
   border: none;
@@ -428,6 +534,12 @@
   cursor: pointer;
   font: inherit;
   font-weight: 800;
+}
+
+.waiter-submit-order:not(:disabled):hover,
+.waiter-receipt-served-btn:not(:disabled):hover {
+  filter: brightness(1.05);
+  transform: translateY(-1px);
 }
 
 .waiter-submit-order:disabled {
@@ -459,7 +571,7 @@
   padding: 10px 12px;
   border: 1px solid var(--border-color);
   border-radius: 8px;
-  background-color: var(--bg-dark);
+  background-color: rgba(10, 10, 10, 0.56);
   color: inherit;
   cursor: pointer;
   font: inherit;
@@ -575,7 +687,7 @@
   background-color: rgba(255, 138, 138, 0.12);
 }
 
-.confirm-delete-backdrop {
+.waiter-receipt-backdrop {
   position: fixed;
   inset: 0;
   z-index: 50;
@@ -583,7 +695,10 @@
   align-items: center;
   justify-content: center;
   padding: 24px;
-  background: rgba(0, 0, 0, 0.72);
+  background:
+    radial-gradient(circle at 50% 18%, rgba(230, 181, 62, 0.08), transparent 34%),
+    rgba(0, 0, 0, 0.78);
+  backdrop-filter: blur(4px);
 }
 
 .waiter-receipt-modal {
@@ -593,7 +708,9 @@
   padding: 28px;
   border: 1px solid var(--border-color);
   border-radius: 8px;
-  background: var(--card-bg);
+  background:
+    radial-gradient(circle at 8% 0%, rgba(230, 181, 62, 0.09), transparent 30%),
+    linear-gradient(135deg, rgba(24, 20, 16, 0.98), rgba(13, 12, 11, 0.98));
   box-shadow: 0 24px 60px rgba(0, 0, 0, 0.45);
 }
 
@@ -624,6 +741,10 @@
 }
 
 .waiter-receipt-header button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
   padding: 9px 13px;
   border: 1px solid rgba(212, 163, 115, 0.4);
   border-radius: 8px;
@@ -780,6 +901,9 @@
 }
 
 .waiter-receipt-served-btn {
+  transition:
+    filter 160ms ease,
+    transform 160ms ease;
   width: 100%;
   margin-top: 18px;
   padding: 12px 16px;
@@ -798,6 +922,10 @@
 }
 
 @media (max-width: 1050px) {
+  .waiter-orders-header {
+    grid-template-columns: 1fr;
+  }
+
   .waiter-orders-layout {
     grid-template-columns: 1fr;
   }
@@ -808,9 +936,28 @@
 }
 
 @media (max-width: 700px) {
+  .waiter-orders-summary {
+    grid-template-columns: 1fr;
+  }
+
   .waiter-menu-toolbar,
   .waiter-cart-header,
   .waiter-cart-controls {
+    grid-template-columns: 1fr;
+  }
+
+  .waiter-receipt-backdrop {
+    align-items: flex-end;
+    padding: 14px;
+  }
+
+  .waiter-receipt-modal {
+    width: 100%;
+    max-height: calc(100vh - 28px);
+    padding: 18px;
+  }
+
+  .waiter-receipt-meta {
     grid-template-columns: 1fr;
   }
 

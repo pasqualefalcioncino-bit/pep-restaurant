@@ -1,12 +1,31 @@
 .home-page {
+  position: relative;
+  width: auto;
+  margin: -40px -20px 0;
+  padding: 40px 20px 0;
+  box-sizing: border-box;
+  isolation: isolate;
   color: var(--text-white);
+}
+
+.home-page::before {
+  position: absolute;
+  inset: 0 0 auto;
+  height: 520px;
+  background:
+    radial-gradient(circle at 18% 16%, rgba(230, 181, 62, 0.14), transparent 34%),
+    linear-gradient(180deg, rgba(230, 181, 62, 0.06), transparent 72%);
+  content: '';
+  pointer-events: none;
+  z-index: -1;
 }
 
 .home-section-label {
   color: var(--gold-primary);
   font-size: 0.8rem;
   font-weight: 800;
-  letter-spacing: 4px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
 }
 
 .home-intro h2,
@@ -17,4 +36,9 @@
   font-family: 'Playfair Display', Georgia, serif;
   font-size: clamp(2.3rem, 5vw, 3.6rem);
   line-height: 1.08;
+}
+
+.home-intro h2,
+.home-specialties-heading h2 {
+  max-width: 720px;
 }

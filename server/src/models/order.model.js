@@ -52,7 +52,7 @@ const createOrder = async (table_number, status = "in_attesa", items = []) => {
     }
 
     await client.query(
-      "UPDATE restaurant_tables SET status='occupato' WHERE table_number=$1",
+      "UPDATE restaurant_tables SET status='occupato', occupied_until=NULL WHERE table_number=$1",
       [table_number]
     );
 
@@ -162,7 +162,7 @@ const updateStatus = async (id, status) => {
         : "occupato";
 
       await client.query(
-        "UPDATE restaurant_tables SET status=$1 WHERE table_number=$2",
+        "UPDATE restaurant_tables SET status=$1, occupied_until=NULL WHERE table_number=$2",
         [tableStatus, tableNumber]
       );
     }

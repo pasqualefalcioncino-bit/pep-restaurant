@@ -4,11 +4,9 @@
 }
 
 .admin-tables-header {
-  display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-  gap: 20px;
-  margin-bottom: 24px;
+  display: grid;
+  gap: 8px;
+  margin-bottom: 20px;
 }
 
 .admin-tables-header h1 {
@@ -28,7 +26,7 @@
   padding: 24px;
   border: 1px solid var(--border-color);
   border-radius: 8px;
-  background-color: var(--card-bg);
+  background: linear-gradient(135deg, rgba(24, 20, 16, 0.98), rgba(13, 12, 11, 0.98));
   text-align: center;
 }
 
@@ -45,10 +43,13 @@
 }
 
 .admin-tables-stat {
+  display: grid;
+  gap: 8px;
   padding: 16px;
   border: 1px solid var(--border-color);
   border-radius: 8px;
-  background-color: var(--card-bg);
+  background: linear-gradient(135deg, rgba(24, 20, 16, 0.98), rgba(13, 12, 11, 0.98));
+  box-shadow: 0 18px 42px rgba(0, 0, 0, 0.2);
 }
 
 .admin-tables-stat.status-libero {
@@ -88,10 +89,17 @@
 }
 
 .admin-tables-stat span {
-  display: block;
-  margin-bottom: 8px;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
   color: var(--text-muted);
   font-size: 0.82rem;
+  font-weight: 800;
+  text-transform: uppercase;
+}
+
+.admin-tables-stat svg {
+  color: var(--gold-primary);
 }
 
 .admin-tables-stat strong {
@@ -101,7 +109,7 @@
 
 .admin-tables-layout {
   display: grid;
-  grid-template-columns: minmax(300px, 360px) minmax(0, 1fr);
+  grid-template-columns: minmax(300px, 380px) minmax(0, 1fr);
   gap: 22px;
   align-items: start;
 }
@@ -110,7 +118,10 @@
 .admin-table-card {
   border: 1px solid var(--border-color);
   border-radius: 8px;
-  background-color: var(--card-bg);
+  background:
+    radial-gradient(circle at 10% 0%, rgba(230, 181, 62, 0.1), transparent 30%),
+    linear-gradient(135deg, rgba(24, 20, 16, 0.98), rgba(13, 12, 11, 0.98));
+  box-shadow: 0 22px 50px rgba(0, 0, 0, 0.22);
 }
 
 .admin-tables-form {
@@ -149,7 +160,7 @@
   min-width: 0;
   border: 1px solid var(--border-color);
   border-radius: 8px;
-  background-color: rgba(255, 255, 255, 0.04);
+  background-color: rgba(10, 10, 10, 0.72);
   color: var(--text-white);
   font: inherit;
 }
@@ -170,26 +181,42 @@
   cursor: default;
 }
 
+.admin-tables-form input:focus,
+.admin-tables-form select:focus,
+.admin-tables-form textarea:focus {
+  border-color: var(--gold-primary);
+  outline: 2px solid rgba(230, 181, 62, 0.24);
+  outline-offset: 2px;
+}
+
 .admin-tables-form option {
   color: #1f1a17;
 }
 
 .admin-tables-form-actions {
   display: flex;
-  justify-content: flex-end;
+  justify-content: space-between;
   gap: 10px;
   flex-wrap: wrap;
 }
 
 .admin-tables-primary-btn,
 .admin-tables-secondary-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
   min-height: 38px;
   padding: 0 13px;
   border-radius: 8px;
   cursor: pointer;
   font: inherit;
   font-weight: 700;
-  transition: opacity 0.2s ease, background 0.2s ease, border-color 0.2s ease;
+  transition:
+    opacity 0.2s ease,
+    background 0.2s ease,
+    border-color 0.2s ease,
+    transform 0.2s ease;
 }
 
 .admin-tables-primary-btn {
@@ -204,6 +231,20 @@
   color: var(--text-white);
 }
 
+.admin-tables-secondary-btn {
+  margin-left: auto;
+  order: 2;
+}
+
+.admin-tables-primary-btn {
+  order: 1;
+}
+
+.admin-tables-primary-btn:not(:disabled):hover,
+.admin-tables-secondary-btn:not(:disabled):hover {
+  transform: translateY(-1px);
+}
+
 .admin-tables-primary-btn:disabled {
   cursor: not-allowed;
   opacity: 0.55;
@@ -211,6 +252,19 @@
 
 .admin-tables-list {
   min-width: 0;
+}
+
+.admin-tables-list .admin-search-toolbar {
+  align-items: flex-end;
+  padding: 14px;
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  background: linear-gradient(135deg, rgba(24, 20, 16, 0.98), rgba(13, 12, 11, 0.98));
+  box-shadow: 0 18px 42px rgba(0, 0, 0, 0.18);
+}
+
+.admin-tables-list .admin-search-field input {
+  background: rgba(10, 10, 10, 0.72);
 }
 
 .admin-tables-bulk-actions {
@@ -222,28 +276,16 @@
   flex-wrap: wrap;
 }
 
-.admin-tables-bulk-actions label {
+.admin-tables-bulk-actions button {
   display: inline-flex;
   align-items: center;
+  justify-content: center;
   gap: 8px;
-  color: var(--text-muted);
-  font-size: 0.86rem;
-  font-weight: 800;
-}
-
-.admin-tables-bulk-actions span {
-  color: var(--text-muted);
-  font-size: 0.86rem;
-  font-weight: 800;
-}
-
-.admin-tables-bulk-actions button,
-.admin-tables-bulk-actions select {
   min-height: 38px;
   padding: 0 13px;
   border: 1px solid var(--border-color);
   border-radius: 8px;
-  background: rgba(255, 255, 255, 0.04);
+  background: rgba(10, 10, 10, 0.72);
   color: var(--text-white);
   font: inherit;
   font-weight: 800;
@@ -251,10 +293,15 @@
 
 .admin-tables-bulk-actions button {
   cursor: pointer;
+  transition:
+    border-color 160ms ease,
+    background 160ms ease,
+    transform 160ms ease;
 }
 
-.admin-tables-bulk-actions select option {
-  color: #1f1a17;
+.admin-tables-bulk-actions button:not(:disabled):hover {
+  border-color: var(--gold-primary);
+  transform: translateY(-1px);
 }
 
 .admin-tables-bulk-actions button.danger {
@@ -278,6 +325,14 @@
   display: grid;
   gap: 15px;
   padding: 18px;
+  transition:
+    filter 160ms ease,
+    transform 160ms ease;
+}
+
+.admin-table-card:hover {
+  filter: brightness(1.06);
+  transform: translateY(-1px);
 }
 
 .admin-table-card.status-libero {
@@ -313,10 +368,76 @@
   gap: 10px;
 }
 
-.admin-table-card-controls input {
-  width: 18px;
-  height: 18px;
-  accent-color: var(--gold-primary);
+.admin-table-select-box {
+  position: relative;
+  display: inline-grid;
+  place-items: center;
+  width: 32px;
+  height: 32px;
+  cursor: pointer;
+}
+
+.admin-table-select-box input {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  opacity: 0;
+}
+
+.admin-table-select-box span {
+  position: relative;
+  display: block;
+  width: 22px;
+  height: 22px;
+  box-sizing: border-box;
+  border: 1px solid rgba(230, 181, 62, 0.42);
+  border-radius: 7px;
+  background:
+    linear-gradient(135deg, rgba(230, 181, 62, 0.08), rgba(10, 10, 10, 0.74));
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.03);
+  pointer-events: none;
+  transition:
+    border-color 160ms ease,
+    background 160ms ease,
+    transform 160ms ease,
+    box-shadow 160ms ease;
+}
+
+.admin-table-select-box span::after {
+  position: absolute;
+  left: 6px;
+  top: 2px;
+  width: 6px;
+  height: 11px;
+  border: solid #0a0a0a;
+  border-width: 0 2px 2px 0;
+  content: '';
+  opacity: 0;
+  transform: rotate(45deg) scale(0.82);
+  transition:
+    opacity 160ms ease,
+    transform 160ms ease;
+}
+
+.admin-table-select-box:hover span {
+  border-color: var(--gold-primary);
+  transform: translateY(-1px);
+}
+
+.admin-table-select-box input:checked + span {
+  border-color: var(--gold-primary);
+  background: var(--gold-primary);
+  box-shadow: 0 0 0 4px rgba(230, 181, 62, 0.12);
+}
+
+.admin-table-select-box input:checked + span::after {
+  opacity: 1;
+  transform: rotate(45deg) scale(1);
+}
+
+.admin-table-select-box input:focus-visible + span {
+  outline: 2px solid rgba(230, 181, 62, 0.34);
+  outline-offset: 3px;
 }
 
 .admin-table-card-top span {
@@ -339,8 +460,23 @@
   min-height: 28px;
   padding: 0 10px;
   border-radius: 8px;
+  cursor: pointer;
+  font: inherit;
   font-size: 0.78rem;
   font-weight: 800;
+  transition:
+    filter 160ms ease,
+    transform 160ms ease;
+}
+
+.admin-table-status:not(:disabled):hover {
+  filter: brightness(1.12);
+  transform: translateY(-1px);
+}
+
+.admin-table-status:disabled {
+  cursor: not-allowed;
+  opacity: 0.82;
 }
 
 .admin-table-status.libero {
@@ -376,6 +512,20 @@
 
 .admin-table-details div {
   min-width: 0;
+  display: grid;
+  grid-template-columns: 24px minmax(0, 1fr);
+  column-gap: 8px;
+  align-items: start;
+  padding: 10px;
+  border: 1px solid rgba(230, 181, 62, 0.12);
+  border-radius: 8px;
+  background: rgba(10, 10, 10, 0.24);
+}
+
+.admin-table-details div > svg {
+  grid-row: span 2;
+  margin-top: 2px;
+  color: var(--gold-primary);
 }
 
 .admin-table-details dt {
@@ -390,9 +540,17 @@
 }
 
 .admin-table-notes {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
   margin: 0;
   color: var(--text-muted);
   font-size: 0.9rem;
+}
+
+.admin-table-notes svg {
+  flex: 0 0 auto;
+  color: var(--gold-primary);
 }
 
 @media (max-width: 980px) {
@@ -409,5 +567,21 @@
 
   .admin-tables-header {
     display: block;
+  }
+
+  .admin-tables-form-actions,
+  .admin-tables-bulk-actions {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .admin-table-card-controls {
+    align-items: flex-end;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+  }
+
+  .admin-tables-secondary-btn {
+    margin-left: 0;
   }
 }

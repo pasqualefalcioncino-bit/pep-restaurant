@@ -1,4 +1,15 @@
 import { useEffect, useMemo, useState } from 'react';
+import {
+  Armchair,
+  CalendarDays,
+  ClipboardList,
+  CookingPot,
+  PackageSearch,
+  TableProperties,
+  Users,
+  UtensilsCrossed,
+  X,
+} from 'lucide-react';
 import { apiRequest } from '../../api/client';
 import { getStockStatus, stockStatusLabels } from '../../utils/inventoryUtils';
 import { getOrderStatusLabel, sortByMenuCategory } from '../../utils/menuCatalog';
@@ -48,6 +59,24 @@ const formatDateTime = (dateValue) => {
     hour: '2-digit',
     minute: '2-digit',
   }).format(new Date(dateValue));
+};
+
+const getDateKey = (dateValue) => {
+  if (!dateValue) {
+    return '';
+  }
+
+  if (typeof dateValue === 'string' && /^\d{4}-\d{2}-\d{2}/.test(dateValue)) {
+    return dateValue.slice(0, 10);
+  }
+
+  const date = new Date(dateValue);
+
+  return [
+    date.getFullYear(),
+    String(date.getMonth() + 1).padStart(2, '0'),
+    String(date.getDate()).padStart(2, '0'),
+  ].join('-');
 };
 
 const buildCount = (items, predicate) => {
@@ -117,43 +146,57 @@ const AdminDashboard = ({ onNavigate }) => {
     return () => window.clearInterval(intervalId);
   }, []);
 
+  const todayBookings = useMemo(() => {
+    const todayKey = getDateKey(new Date());
+
+    return dashboardData.bookings.filter((booking) => {
+      return getDateKey(booking.booking_date) === todayKey;
+    });
+  }, [dashboardData.bookings]);
+
   const stats = useMemo(() => {
-    const { bookings, orders, customers, staff, menuItems, tables } = dashboardData;
+    const { orders, customers, staff, menuItems, tables } = dashboardData;
 
     return [
       {
         label: 'Prenotazioni',
-        value: bookings.length,
+        value: todayBookings.length,
         targetPage: 'admin-prenotazioni',
+        icon: CalendarDays,
       },
       {
         label: 'Ordini attivi',
         value: buildCount(orders, (order) =>
           ['in_attesa', 'in_preparazione', 'pronto'].includes(order.status)
         ),
+        icon: ClipboardList,
       },
       {
         label: 'Clienti',
         value: customers.length,
         targetPage: 'admin-clienti',
+        icon: Users,
       },
       {
         label: 'Staff',
         value: staff.length,
         targetPage: 'admin-staff',
+        icon: CookingPot,
       },
       {
         label: 'Piatti',
         value: menuItems.length,
         targetPage: 'admin-menu',
+        icon: UtensilsCrossed,
       },
       {
         label: 'Tavoli liberi',
         value: buildCount(tables, (table) => table.status === 'libero'),
         targetPage: 'admin-tavoli',
+        icon: Armchair,
       },
     ];
-  }, [dashboardData]);
+  }, [dashboardData, todayBookings.length]);
 
   const activeOrders = useMemo(() => {
     return dashboardData.orders.filter((order) => !['servito', 'annullato'].includes(order.status));
@@ -164,7 +207,7 @@ const AdminDashboard = ({ onNavigate }) => {
   const selectedOrder = useMemo(() => {
     return activeOrders.find((order) => order.id === selectedOrderId) || null;
   }, [activeOrders, selectedOrderId]);
-  const recentBookings = dashboardData.bookings.slice(0, 5);
+  const recentBookings = todayBookings;
   const recentOrders = activeOrders.slice(0, 5);
   const tableStats = useMemo(() => {
     return Object.entries(tableStatusLabels).map(([status, label]) => ({
@@ -223,9 +266,13 @@ const AdminDashboard = ({ onNavigate }) => {
 
       <div className="admin-dashboard-stats" aria-label="Statistiche principali">
         {stats.map((stat) => {
+          const StatIcon = stat.icon;
           const content = (
             <>
-              <span>{stat.label}</span>
+              <span>
+                <StatIcon size={17} aria-hidden="true" />
+                {stat.label}
+              </span>
               <strong>{stat.value}</strong>
             </>
           );
@@ -254,12 +301,15 @@ const AdminDashboard = ({ onNavigate }) => {
       <div className="admin-dashboard-panels">
         <article className="admin-dashboard-panel">
           <div className="admin-dashboard-panel-header">
-            <h2>Prenotazioni recenti</h2>
-            <span>{dashboardData.bookings.length} totali</span>
+            <h2>
+              <CalendarDays size={18} aria-hidden="true" />
+              Prenotazioni di oggi
+            </h2>
+            <span>{todayBookings.length} oggi</span>
           </div>
 
           {recentBookings.length === 0 ? (
-            <p className="admin-dashboard-empty">Nessuna prenotazione presente.</p>
+            <p className="admin-dashboard-empty">Nessuna prenotazione per oggi.</p>
           ) : (
             <div className="admin-dashboard-list">
               {recentBookings.map((booking) => (
@@ -281,7 +331,10 @@ const AdminDashboard = ({ onNavigate }) => {
 
         <article className="admin-dashboard-panel">
           <div className="admin-dashboard-panel-header">
-            <h2>Ordini recenti</h2>
+            <h2>
+              <ClipboardList size={18} aria-hidden="true" />
+              Ordini recenti
+            </h2>
             <span>{activeOrders.length} attivi</span>
           </div>
 
@@ -313,7 +366,10 @@ const AdminDashboard = ({ onNavigate }) => {
 
         <article className="admin-dashboard-panel admin-dashboard-tables-panel">
           <div className="admin-dashboard-panel-header">
-            <h2>Stato sala</h2>
+            <h2>
+              <TableProperties size={18} aria-hidden="true" />
+              Stato sala
+            </h2>
             <button type="button" onClick={() => onNavigate?.('admin-tavoli')}>
               Gestisci tavoli
             </button>
@@ -342,7 +398,10 @@ const AdminDashboard = ({ onNavigate }) => {
 
         <article className="admin-dashboard-panel admin-dashboard-inventory-panel">
           <div className="admin-dashboard-panel-header">
-            <h2>Scorte inventario</h2>
+            <h2>
+              <PackageSearch size={18} aria-hidden="true" />
+              Scorte inventario
+            </h2>
             <button type="button" onClick={() => onNavigate?.('admin-inventario')}>
               Gestisci inventario
             </button>
@@ -383,8 +442,8 @@ const AdminDashboard = ({ onNavigate }) => {
                 <span>Riepilogo ordine</span>
                 <h2 id="admin-dashboard-order-title">Ordine #{selectedOrder.id}</h2>
               </div>
-              <button type="button" onClick={() => setSelectedOrderId(null)}>
-                Chiudi
+              <button type="button" onClick={() => setSelectedOrderId(null)} aria-label="Chiudi">
+                <X size={17} aria-hidden="true" />
               </button>
             </div>
 
@@ -457,8 +516,8 @@ const AdminDashboard = ({ onNavigate }) => {
                 <span>Stato sala</span>
                 <h2 id="admin-dashboard-tables-title">Tavoli {selectedTableStatusLabel}</h2>
               </div>
-              <button type="button" onClick={() => setSelectedTableStatus(null)}>
-                Chiudi
+              <button type="button" onClick={() => setSelectedTableStatus(null)} aria-label="Chiudi">
+                <X size={17} aria-hidden="true" />
               </button>
             </div>
 
@@ -498,8 +557,12 @@ const AdminDashboard = ({ onNavigate }) => {
                 <span>Scorte inventario</span>
                 <h2 id="admin-dashboard-inventory-title">{selectedInventoryStatusLabel}</h2>
               </div>
-              <button type="button" onClick={() => setSelectedInventoryStatus(null)}>
-                Chiudi
+              <button
+                type="button"
+                onClick={() => setSelectedInventoryStatus(null)}
+                aria-label="Chiudi"
+              >
+                <X size={17} aria-hidden="true" />
               </button>
             </div>
 

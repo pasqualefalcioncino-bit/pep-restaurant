@@ -1,0 +1,475 @@
+.waiter-tables-page {
+  width: min(1180px, 100%);
+  margin: 0 auto;
+}
+
+.waiter-tables-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 18px;
+  margin-bottom: 22px;
+}
+
+.waiter-tables-kicker {
+  display: block;
+  margin-bottom: 8px;
+  color: var(--gold-primary);
+  font-size: 0.78rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+}
+
+.waiter-tables-header h1 {
+  margin: 0 0 10px;
+  color: var(--text-white);
+  font-family: 'Playfair Display', serif;
+  font-size: clamp(2rem, 4vw, 2.75rem);
+  line-height: 1.05;
+}
+
+.waiter-tables-header p,
+.waiter-tables-state,
+.waiter-tables-hint,
+.waiter-tables-form-heading p,
+.waiter-tables-board-header p {
+  margin: 0;
+  color: var(--text-muted);
+}
+
+.waiter-tables-primary-btn,
+.waiter-tables-message button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 42px;
+  border-radius: 8px;
+  cursor: pointer;
+  font: inherit;
+  font-weight: 800;
+  transition: transform 0.18s ease, border-color 0.18s ease, background-color 0.18s ease;
+}
+
+.waiter-tables-message button:hover {
+  border-color: var(--gold-primary);
+  transform: translateY(-1px);
+}
+
+.waiter-tables-stats {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 12px;
+  margin-bottom: 18px;
+}
+
+.waiter-tables-stat,
+.waiter-tables-form,
+.waiter-tables-board,
+.waiter-tables-card,
+.waiter-tables-state {
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  background-color: var(--card-bg);
+}
+
+.waiter-tables-stat {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  align-items: center;
+  gap: 9px 10px;
+  min-height: 98px;
+  padding: 16px;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.04);
+}
+
+.waiter-tables-stat.status-libero {
+  border-color: rgba(48, 216, 120, 0.55);
+  background:
+    linear-gradient(135deg, rgba(48, 216, 120, 0.13), rgba(7, 7, 7, 0.42) 68%);
+}
+
+.waiter-tables-stat.status-occupato {
+  border-color: rgba(255, 138, 138, 0.45);
+  background:
+    linear-gradient(135deg, rgba(255, 138, 138, 0.13), rgba(7, 7, 7, 0.42) 68%);
+}
+
+.waiter-tables-stat.status-prenotato {
+  border-color: rgba(212, 175, 55, 0.5);
+  background:
+    linear-gradient(135deg, rgba(212, 175, 55, 0.13), rgba(7, 7, 7, 0.42) 68%);
+}
+
+.waiter-tables-stat.status-in_pulizia {
+  border-color: rgba(125, 211, 252, 0.48);
+  background:
+    linear-gradient(135deg, rgba(125, 211, 252, 0.13), rgba(7, 7, 7, 0.42) 68%);
+}
+
+.waiter-tables-stat-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 34px;
+  border-radius: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(255, 255, 255, 0.05);
+  color: var(--gold-primary);
+}
+
+.waiter-tables-stat > span:not(.waiter-tables-stat-icon) {
+  color: var(--text-muted);
+  font-size: 0.84rem;
+  font-weight: 700;
+}
+
+.waiter-tables-stat strong {
+  grid-column: 1 / -1;
+  color: var(--text-white);
+  font-size: 1.8rem;
+  line-height: 1;
+}
+
+.waiter-tables-stat.status-libero strong,
+.waiter-tables-stat.status-libero .waiter-tables-stat-icon,
+.waiter-tables-badge.status-libero {
+  color: var(--status-green);
+}
+
+.waiter-tables-stat.status-occupato strong,
+.waiter-tables-stat.status-occupato .waiter-tables-stat-icon,
+.waiter-tables-badge.status-occupato {
+  color: var(--status-red);
+}
+
+.waiter-tables-stat.status-prenotato strong,
+.waiter-tables-stat.status-prenotato .waiter-tables-stat-icon,
+.waiter-tables-badge.status-prenotato {
+  color: var(--gold-primary);
+}
+
+.waiter-tables-stat.status-in_pulizia strong,
+.waiter-tables-stat.status-in_pulizia .waiter-tables-stat-icon,
+.waiter-tables-badge.status-in_pulizia {
+  color: var(--status-cyan);
+}
+
+.waiter-tables-message {
+  display: flex;
+  align-items: center;
+  gap: 13px;
+  margin: 0 0 18px;
+  padding: 13px 14px;
+  border-radius: 8px;
+}
+
+.waiter-tables-message div {
+  display: grid;
+  gap: 3px;
+}
+
+.waiter-tables-message strong {
+  color: inherit;
+}
+
+.waiter-tables-message span {
+  color: inherit;
+  font-size: 0.93rem;
+  opacity: 0.88;
+}
+
+.waiter-tables-message.error {
+  border: 1px solid rgba(255, 138, 138, 0.35);
+  color: var(--status-red);
+  background-color: rgba(255, 138, 138, 0.1);
+  font-weight: 700;
+}
+
+.waiter-tables-message.success {
+  border: 1px solid rgba(138, 240, 178, 0.35);
+  color: var(--status-green);
+  background-color: rgba(138, 240, 178, 0.1);
+}
+
+.waiter-tables-message button {
+  margin-left: auto;
+  padding: 8px 12px;
+  border: 1px solid rgba(138, 240, 178, 0.55);
+  background: transparent;
+  color: var(--status-green);
+}
+
+.waiter-tables-layout {
+  display: grid;
+  grid-template-columns: 340px minmax(0, 1fr);
+  gap: 18px;
+  align-items: start;
+}
+
+.waiter-tables-form,
+.waiter-tables-board {
+  padding: 18px;
+}
+
+.waiter-tables-form {
+  position: sticky;
+  top: 18px;
+  display: grid;
+  gap: 16px;
+}
+
+.waiter-tables-form-heading {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+}
+
+.waiter-tables-form-heading > span {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  flex: 0 0 auto;
+  border-radius: 8px;
+  background: rgba(212, 175, 55, 0.11);
+  color: var(--gold-primary);
+}
+
+.waiter-tables-form h2,
+.waiter-tables-board-header h2 {
+  margin: 0;
+  color: var(--text-white);
+  font-family: 'Playfair Display', serif;
+  font-size: 1.42rem;
+  line-height: 1.15;
+}
+
+.waiter-tables-form-heading p,
+.waiter-tables-board-header p {
+  margin-top: 5px;
+  font-size: 0.9rem;
+}
+
+.waiter-tables-form label,
+.waiter-tables-form label span {
+  display: grid;
+  gap: 7px;
+}
+
+.waiter-tables-form label span {
+  color: var(--text-white);
+  font-size: 0.86rem;
+  font-weight: 800;
+}
+
+.waiter-tables-form input,
+.waiter-tables-form select {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 11px 12px;
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  background: var(--bg-dark);
+  color: var(--text-white);
+  font: inherit;
+}
+
+.waiter-tables-form select {
+  appearance: none;
+  padding-right: 42px;
+  background-color: var(--bg-dark);
+  background-image:
+    linear-gradient(45deg, transparent 50%, var(--gold-primary) 50%),
+    linear-gradient(135deg, var(--gold-primary) 50%, transparent 50%);
+  background-position:
+    calc(100% - 21px) 50%,
+    calc(100% - 15px) 50%;
+  background-repeat: no-repeat;
+  background-size: 6px 6px, 6px 6px;
+}
+
+.waiter-tables-form input:focus,
+.waiter-tables-form select:focus {
+  outline: 2px solid rgba(212, 175, 55, 0.24);
+  border-color: rgba(212, 175, 55, 0.65);
+}
+
+.waiter-tables-form select option {
+  color: #1f1a17;
+}
+
+.waiter-tables-hint {
+  padding: 11px 12px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.04);
+  font-size: 0.9rem;
+}
+
+.waiter-tables-primary-btn {
+  width: 100%;
+  padding: 12px 16px;
+  border: none;
+  background: var(--gold-primary);
+  color: var(--text-dark);
+}
+
+.waiter-tables-primary-btn:not(:disabled):hover {
+  transform: translateY(-1px);
+  background: var(--gold-light);
+  color: var(--text-dark);
+}
+
+.waiter-tables-primary-btn:not(:disabled):focus-visible,
+.waiter-tables-primary-btn:not(:disabled):active {
+  background: var(--gold-primary);
+  color: var(--text-dark);
+}
+
+.waiter-tables-primary-btn:disabled {
+  cursor: not-allowed;
+  opacity: 0.55;
+}
+
+.waiter-tables-board-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  margin-bottom: 16px;
+}
+
+.waiter-tables-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(190px, 1fr));
+  gap: 12px;
+}
+
+.waiter-tables-card {
+  display: grid;
+  min-height: 152px;
+  gap: 16px;
+  padding: 15px;
+  background: rgba(7, 7, 7, 0.42);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.04);
+}
+
+.waiter-tables-card.status-libero {
+  border-color: rgba(48, 216, 120, 0.48);
+  background:
+    linear-gradient(135deg, rgba(48, 216, 120, 0.1), rgba(7, 7, 7, 0.42) 68%);
+}
+
+.waiter-tables-card.status-occupato {
+  border-color: rgba(255, 138, 138, 0.42);
+  background:
+    linear-gradient(135deg, rgba(255, 138, 138, 0.1), rgba(7, 7, 7, 0.42) 68%);
+}
+
+.waiter-tables-card.status-prenotato {
+  border-color: rgba(212, 175, 55, 0.45);
+  background:
+    linear-gradient(135deg, rgba(212, 175, 55, 0.1), rgba(7, 7, 7, 0.42) 68%);
+}
+
+.waiter-tables-card.status-in_pulizia {
+  border-color: rgba(125, 211, 252, 0.42);
+  background:
+    linear-gradient(135deg, rgba(125, 211, 252, 0.1), rgba(7, 7, 7, 0.42) 68%);
+}
+
+.waiter-tables-card.available {
+  border-color: rgba(48, 216, 120, 0.55);
+  background:
+    linear-gradient(135deg, rgba(48, 216, 120, 0.12), rgba(7, 7, 7, 0.42) 62%);
+}
+
+.waiter-tables-card-top,
+.waiter-tables-card-meta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.waiter-tables-card-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.05);
+  color: var(--text-white);
+}
+
+.waiter-tables-badge {
+  max-width: 120px;
+  padding: 5px 9px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.06);
+  font-size: 0.76rem;
+  font-weight: 900;
+  text-align: center;
+}
+
+.waiter-tables-card-main span,
+.waiter-tables-card-meta span {
+  color: var(--text-muted);
+  font-size: 0.82rem;
+  font-weight: 700;
+}
+
+.waiter-tables-card-main h3 {
+  margin: 6px 0 0;
+  color: var(--text-white);
+  font-size: 1.32rem;
+  line-height: 1.15;
+}
+
+.waiter-tables-card-meta strong {
+  color: var(--text-white);
+}
+
+.waiter-tables-state {
+  padding: 24px;
+  text-align: center;
+}
+
+@media (max-width: 900px) {
+  .waiter-tables-header,
+  .waiter-tables-message {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .waiter-tables-message button {
+    width: 100%;
+    margin-left: 0;
+  }
+
+  .waiter-tables-stats,
+  .waiter-tables-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .waiter-tables-form {
+    position: static;
+  }
+}
+
+@media (max-width: 560px) {
+  .waiter-tables-stats,
+  .waiter-tables-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .waiter-tables-form,
+  .waiter-tables-board {
+    padding: 15px;
+  }
+}

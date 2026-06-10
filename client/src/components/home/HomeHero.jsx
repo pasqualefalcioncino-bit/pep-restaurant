@@ -7,7 +7,6 @@ const HomeHero = ({ hero, onNavigate }) => {
   return (
     <section className="home-hero">
       <div className="home-hero-text">
-        <span className="home-section-label">{hero.label}</span>
         <h1>{hero.title}</h1>
         <p>{hero.description}</p>
 
@@ -32,8 +31,11 @@ const HomeHero = ({ hero, onNavigate }) => {
 
       <div className="home-hero-image-wrap">
         {heroImage && <img src={heroImage} alt="Sala del ristorante" />}
+        <div className="home-hero-image-caption">
+          <span>Cucina italiana contemporanea</span>
+        </div>
         <div className="home-award-badge">
-          <span className="home-award-icon" aria-hidden="true">🏅</span>
+          <span className="home-award-icon" aria-hidden="true">★</span>
           <div>
             <strong>{hero.awardTitle}</strong>
             <p>{hero.awardText}</p>

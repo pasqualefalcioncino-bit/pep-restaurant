@@ -1,7 +1,6 @@
 {
   "hero": {
-    "label": "DAL 1947",
-    "title": "Esperienza Autentica, Sapori Unica.",
+    "title": "Esperienza Autentica, Sapori Unici.",
     "description": "Una cucina che racconta l'Italia attraverso ingredienti scelti con cura, tecniche tramandate di generazione in generazione e un servizio impeccabile.",
     "image": "home.webp",
     "awardTitle": "Premio Eccellenza",
@@ -15,50 +14,18 @@
   "features": [
     {
       "id": 1,
-      "icon": "📅",
       "title": "Prenotazione Smart",
       "description": "Scegli tavolo, occasione e richieste speciali. Conferma in tempo reale."
     },
     {
       "id": 2,
-      "icon": "🍴",
       "title": "Menu Stagionale",
       "description": "Filtra per categoria e scopri ogni piatto con ingredienti, tempi e prezzo."
     },
     {
       "id": 3,
-      "icon": "🧾",
       "title": "Riepilogo Prenotazioni",
-      "description": "Accedi alla tua area cliente e controlla le prenotazioni gia inviate."
-    }
-  ],
-  "specialita": [
-    {
-      "id": 1,
-      "categoria": "PRIMI",
-      "nome": "Risotto allo Zafferano",
-      "descrizione": "Carnaroli mantecato con zafferano puro di Navelli e foglia d'oro 23k.",
-      "prezzo": 24,
-      "rating": 4.9,
-      "immagine": "risotto-allo-zafferano.webp"
-    },
-    {
-      "id": 2,
-      "categoria": "SECONDI",
-      "nome": "Ossobuco alla Milanese",
-      "descrizione": "Stinco di vitello brasato 6 ore, gremolada di limone e prezzemolo.",
-      "prezzo": 32,
-      "rating": 4.8,
-      "immagine": "ossobuco-alla-milanese.jpg"
-    },
-    {
-      "id": 3,
-      "categoria": "DOLCI",
-      "nome": "Tiramisu d'Autore",
-      "descrizione": "Mascarpone montato a mano, savoiardi al caffe espresso e cacao Valrhona.",
-      "prezzo": 12,
-      "rating": 4.9,
-      "immagine": "tiramisu-d-autore.jpg"
+      "description": "Accedi alla tua area cliente e controlla le prenotazioni già inviate."
     }
   ]
 }

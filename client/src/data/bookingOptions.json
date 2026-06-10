@@ -12,11 +12,11 @@
     "22:00"
   ],
   "occasions": [
-    { "id": "romantica", "label": "Cena romantica", "icon": "💕" },
-    { "id": "compleanno", "label": "Compleanno", "icon": "🎂" },
-    { "id": "anniversario", "label": "Anniversario", "icon": "💍" },
-    { "id": "lavoro", "label": "Lavoro", "icon": "💼" },
-    { "id": "altro", "label": "Altro", "icon": "✨" }
+    { "id": "romantica", "label": "Cena romantica" },
+    { "id": "compleanno", "label": "Compleanno" },
+    { "id": "anniversario", "label": "Anniversario" },
+    { "id": "lavoro", "label": "Lavoro" },
+    { "id": "altro", "label": "Altro" }
   ],
   "countryPrefixes": [
     { "value": "+39", "label": "🇮🇹 +39" },

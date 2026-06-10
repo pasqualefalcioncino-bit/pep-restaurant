@@ -4,32 +4,39 @@
 }
 
 .home-cta-box {
-  padding: 58px 30px;
+  position: relative;
+  overflow: hidden;
+  padding: clamp(38px, 7vw, 68px) clamp(22px, 5vw, 56px);
   border: 1px solid var(--border-color);
-  border-radius: 22px;
-  background: var(--card-bg);
+  border-radius: 8px;
+  background:
+    linear-gradient(135deg, rgba(230, 181, 62, 0.18), transparent 34%),
+    linear-gradient(180deg, var(--card-bg-hover), var(--card-bg));
   color: var(--text-white);
-  text-align: center;
+  text-align: left;
 }
 
-.home-leaf-icon {
-  display: grid;
-  width: 58px;
-  height: 58px;
-  place-items: center;
-  margin: 0 auto 18px;
-  border-radius: 999px;
-  background: rgba(212, 163, 115, 0.14);
-  font-size: 1.7rem;
+.home-cta-box::after {
+  position: absolute;
+  right: clamp(22px, 6vw, 70px);
+  bottom: -34px;
+  color: rgba(230, 181, 62, 0.12);
+  content: 'PEP';
+  font-family: 'Playfair Display', Georgia, serif;
+  font-size: clamp(5.5rem, 14vw, 11rem);
+  font-weight: 700;
+  line-height: 0.8;
+  pointer-events: none;
 }
 
 .home-cta-box h2 {
+  max-width: 680px;
   color: var(--text-white);
 }
 
 .home-cta-box p {
   max-width: 640px;
-  margin: 18px auto 28px;
+  margin: 18px 0 28px;
   color: var(--text-muted);
   font-size: 1rem;
   line-height: 1.6;
@@ -45,8 +52,16 @@
   cursor: pointer;
   font: inherit;
   font-weight: 800;
+  transition: background-color 0.2s ease, transform 0.2s ease;
 }
 
 .home-dark-btn:hover {
   background: var(--gold-hover);
+  transform: translateY(-2px);
+}
+
+@media (max-width: 640px) {
+  .home-dark-btn {
+    width: 100%;
+  }
 }

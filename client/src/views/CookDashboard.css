@@ -4,76 +4,113 @@
 }
 
 .cook-dashboard-header {
-  margin-bottom: 30px;
-  text-align: center;
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 18px;
+  margin-bottom: 24px;
 }
 
 .cook-dashboard-header h1 {
-  margin: 0;
+  margin: 0 0 10px;
   color: var(--text-white);
   font-family: 'Playfair Display', serif;
-  font-size: 2.35rem;
+  font-size: clamp(2rem, 4vw, 2.7rem);
   line-height: 1.1;
+}
+
+.cook-dashboard-kicker {
+  display: block;
+  margin-bottom: 8px;
+  color: var(--gold-primary);
+  font-size: 0.78rem;
+  font-weight: 900;
+  letter-spacing: 0.08em;
+}
+
+.cook-dashboard-header p {
+  margin: 0;
+  color: var(--text-muted);
 }
 
 .cook-metrics {
   display: grid;
-  grid-template-columns: repeat(6, minmax(0, 1fr));
-  gap: 16px;
-  margin-bottom: 32px;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 12px;
+  margin-bottom: 18px;
 }
 
 .cook-metric-card {
-  display: block;
-  min-height: 96px;
-  padding: 18px 20px;
+  display: grid;
+  grid-template-columns: auto 1fr;
+  align-items: center;
+  gap: 10px;
+  min-height: 108px;
+  padding: 16px;
   border: 1px solid rgba(212, 163, 115, 0.2);
   border-radius: 8px;
   background: var(--card-bg);
   cursor: pointer;
   font: inherit;
   text-align: left;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.04);
+  transition: transform 0.18s ease, border-color 0.18s ease, background-color 0.18s ease;
 }
 
 .cook-metric-card:hover {
   border-color: var(--gold-primary);
   background: var(--card-bg-hover);
+  transform: translateY(-1px);
 }
 
 .cook-metric-card.active,
 .cook-metric-card.wait {
   border-color: rgba(230, 181, 62, 0.62);
-  background: rgba(230, 181, 62, 0.08);
+  background:
+    linear-gradient(135deg, rgba(230, 181, 62, 0.13), rgba(7, 7, 7, 0.42) 68%);
 }
 
 .cook-metric-card.prep {
   border-color: rgba(103, 174, 255, 0.62);
-  background: rgba(103, 174, 255, 0.08);
+  background:
+    linear-gradient(135deg, rgba(103, 174, 255, 0.13), rgba(7, 7, 7, 0.42) 68%);
 }
 
 .cook-metric-card.ready {
   border-color: rgba(48, 216, 120, 0.62);
-  background: rgba(48, 216, 120, 0.08);
+  background:
+    linear-gradient(135deg, rgba(48, 216, 120, 0.13), rgba(7, 7, 7, 0.42) 68%);
 }
 
 .cook-metric-card.served {
   border-color: rgba(127, 215, 255, 0.62);
-  background: rgba(127, 215, 255, 0.08);
+  background:
+    linear-gradient(135deg, rgba(127, 215, 255, 0.13), rgba(7, 7, 7, 0.42) 68%);
 }
 
 .cook-metric-card.cancelled {
   border-color: rgba(255, 138, 138, 0.62);
-  background: rgba(255, 138, 138, 0.08);
+  background:
+    linear-gradient(135deg, rgba(255, 138, 138, 0.13), rgba(7, 7, 7, 0.42) 68%);
 }
 
 .cook-metric-icon {
-  display: block;
-  margin-bottom: 10px;
-  font-size: 0.78rem;
-  font-weight: 800;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.05);
 }
 
-.cook-metric-icon.active,
+.cook-metric-label {
+  color: var(--text-muted);
+  font-size: 0.78rem;
+  font-weight: 900;
+}
+
 .cook-metric-icon.wait,
 .cook-metric-icon.prep {
   color: var(--gold-primary);
@@ -97,6 +134,7 @@
 
 .cook-metric-card strong {
   display: block;
+  grid-column: 1 / -1;
   color: var(--text-white);
   font-family: 'Playfair Display', serif;
   font-size: 1.9rem;
@@ -105,7 +143,7 @@
 
 .cook-tabs {
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-template-columns: repeat(2, minmax(0, 1fr));
   width: 100%;
   gap: 4px;
   margin-bottom: 24px;
@@ -115,6 +153,9 @@
 }
 
 .cook-tabs button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
   min-height: 34px;
   padding: 0 14px;
   border: 0;
@@ -137,7 +178,6 @@
   display: flex;
   flex-wrap: wrap;
   gap: 10px;
-  margin-bottom: 18px;
 }
 
 .cook-filters button {
@@ -155,6 +195,36 @@
   border-color: var(--gold-primary);
   background: var(--gold-primary);
   color: var(--text-dark);
+}
+
+.cook-filter-panel {
+  display: grid;
+  gap: 14px;
+  margin-bottom: 18px;
+  padding: 16px;
+  border: 1px solid rgba(212, 163, 115, 0.22);
+  border-radius: 8px;
+  background: var(--card-bg);
+}
+
+.cook-filter-panel > div:first-child {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.cook-filter-panel > div:first-child span {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--text-white);
+  font-weight: 900;
+}
+
+.cook-filter-panel > div:first-child strong {
+  color: var(--gold-primary);
+  font-size: 0.86rem;
 }
 
 .cook-dashboard-state {
@@ -180,8 +250,9 @@
 .cook-order-card {
   overflow: hidden;
   border: 1px solid rgba(212, 163, 115, 0.22);
-  border-radius: 12px;
+  border-radius: 8px;
   background: var(--card-bg-strong);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.04);
 }
 
 .cook-order-card-header {
@@ -195,7 +266,8 @@
 
 .cook-order-card.status-in_attesa {
   border-color: rgba(230, 181, 62, 0.62);
-  background: rgba(230, 181, 62, 0.08);
+  background:
+    linear-gradient(135deg, rgba(230, 181, 62, 0.11), rgba(7, 7, 7, 0.42) 72%);
 }
 
 .cook-order-card.status-in_attesa .cook-order-card-header {
@@ -204,7 +276,8 @@
 
 .cook-order-card.status-in_preparazione {
   border-color: rgba(103, 174, 255, 0.62);
-  background: rgba(103, 174, 255, 0.08);
+  background:
+    linear-gradient(135deg, rgba(103, 174, 255, 0.11), rgba(7, 7, 7, 0.42) 72%);
 }
 
 .cook-order-card.status-in_preparazione .cook-order-card-header {
@@ -213,7 +286,8 @@
 
 .cook-order-card.status-pronto {
   border-color: rgba(48, 216, 120, 0.62);
-  background: rgba(48, 216, 120, 0.08);
+  background:
+    linear-gradient(135deg, rgba(48, 216, 120, 0.11), rgba(7, 7, 7, 0.42) 72%);
 }
 
 .cook-order-card.status-pronto .cook-order-card-header {
@@ -222,7 +296,8 @@
 
 .cook-order-card.status-servito {
   border-color: rgba(127, 215, 255, 0.62);
-  background: rgba(127, 215, 255, 0.08);
+  background:
+    linear-gradient(135deg, rgba(127, 215, 255, 0.11), rgba(7, 7, 7, 0.42) 72%);
 }
 
 .cook-order-card.status-servito .cook-order-card-header {
@@ -231,7 +306,8 @@
 
 .cook-order-card.status-annullato {
   border-color: rgba(255, 138, 138, 0.62);
-  background: rgba(255, 138, 138, 0.08);
+  background:
+    linear-gradient(135deg, rgba(255, 138, 138, 0.11), rgba(7, 7, 7, 0.42) 72%);
 }
 
 .cook-order-card.status-annullato .cook-order-card-header {
@@ -379,10 +455,19 @@
   width: 100%;
   min-height: 38px;
   box-sizing: border-box;
-  padding: 0 12px;
+  appearance: none;
+  padding: 0 38px 0 12px;
   border: 1px solid rgba(212, 163, 115, 0.35);
   border-radius: 8px;
   background-color: rgba(212, 163, 115, 0.1);
+  background-image:
+    linear-gradient(45deg, transparent 50%, var(--gold-primary) 50%),
+    linear-gradient(135deg, var(--gold-primary) 50%, transparent 50%);
+  background-position:
+    calc(100% - 18px) 50%,
+    calc(100% - 12px) 50%;
+  background-repeat: no-repeat;
+  background-size: 6px 6px, 6px 6px;
   color: var(--gold-primary);
   font: inherit;
   cursor: pointer;
@@ -399,61 +484,65 @@
   gap: 18px;
 }
 
-.cook-menu-management-header {
+.cook-management-hero {
   display: flex;
-  align-items: flex-start;
+  align-items: center;
   justify-content: space-between;
   gap: 18px;
   padding: 22px 24px;
   border: 1px solid rgba(212, 163, 115, 0.22);
   border-radius: 8px;
-  background: var(--card-bg);
+  background:
+    linear-gradient(135deg, rgba(212, 175, 55, 0.11), rgba(7, 7, 7, 0.42) 72%);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.04);
 }
 
-.cook-menu-management-header h2 {
+.cook-management-hero-title {
+  display: flex;
+  align-items: flex-start;
+  gap: 13px;
+  min-width: 0;
+}
+
+.cook-management-hero-title > span {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 42px;
+  height: 42px;
+  flex: 0 0 auto;
+  border: 1px solid rgba(212, 175, 55, 0.28);
+  border-radius: 8px;
+  background: rgba(212, 175, 55, 0.1);
+  color: var(--gold-primary);
+}
+
+.cook-management-hero h2 {
   margin: 0;
   color: var(--text-white);
   font-family: 'Playfair Display', serif;
   font-size: 1.7rem;
+  line-height: 1.1;
 }
 
-.cook-menu-management-header p {
+.cook-management-hero p {
   margin: 6px 0 0;
   color: var(--text-muted);
 }
 
-.cook-menu-management-header > strong {
-  min-width: 82px;
-  padding: 8px 10px;
-  border: 1px solid rgba(255, 138, 138, 0.45);
-  border-radius: 8px;
-  background: rgba(255, 138, 138, 0.1);
-  color: var(--status-red);
-  font-family: 'Playfair Display', serif;
-  font-size: 1.8rem;
-  line-height: 1;
-  text-align: center;
-}
-
-.cook-menu-management-header > strong::after {
-  content: " non disp.";
-  display: block;
-  margin-top: 4px;
-  color: var(--text-muted);
-  font-family: inherit;
-  font-size: 0.7rem;
-  font-weight: 800;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-}
-
 .cook-management-actions {
   display: flex;
+  flex: 0 0 auto;
+  flex-wrap: wrap;
   justify-content: flex-end;
   gap: 10px;
 }
 
 .cook-management-actions button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
   min-height: 40px;
   padding: 0 14px;
   border: 1px solid rgba(212, 163, 115, 0.32);
@@ -476,11 +565,63 @@
   opacity: 0.6;
 }
 
+.cook-management-summary {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.cook-management-summary article {
+  min-height: 88px;
+  padding: 15px 16px;
+  border: 1px solid rgba(212, 163, 115, 0.24);
+  border-radius: 8px;
+  background: var(--card-bg);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.04);
+}
+
+.cook-management-summary article.tone-ok {
+  border-color: rgba(48, 216, 120, 0.55);
+  background:
+    linear-gradient(135deg, rgba(48, 216, 120, 0.12), rgba(7, 7, 7, 0.42) 70%);
+}
+
+.cook-management-summary article.tone-danger {
+  border-color: rgba(255, 138, 138, 0.55);
+  background:
+    linear-gradient(135deg, rgba(255, 138, 138, 0.12), rgba(7, 7, 7, 0.42) 70%);
+}
+
+.cook-management-summary span {
+  display: block;
+  color: var(--text-muted);
+  font-size: 0.82rem;
+  font-weight: 850;
+}
+
+.cook-management-summary strong {
+  display: block;
+  margin-top: 11px;
+  color: var(--text-white);
+  font-family: 'Playfair Display', serif;
+  font-size: 1.85rem;
+  line-height: 1;
+}
+
+.cook-management-summary article.tone-ok strong {
+  color: var(--status-green);
+}
+
+.cook-management-summary article.tone-danger strong {
+  color: var(--status-red);
+}
+
 .cook-menu-table-wrap {
   overflow-x: auto;
   border: 1px solid rgba(212, 163, 115, 0.18);
   border-radius: 8px;
   background: var(--card-bg);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.03);
 }
 
 .cook-menu-table {
@@ -500,6 +641,7 @@
 .cook-menu-table th {
   color: var(--gold-primary);
   font-size: 0.78rem;
+  letter-spacing: 0.04em;
   text-transform: uppercase;
 }
 
@@ -509,7 +651,7 @@
 }
 
 .cook-menu-table tr.unavailable td {
-  background: rgba(95, 22, 22, 0.28);
+  background: rgba(255, 138, 138, 0.08);
 }
 
 .cook-menu-table tbody tr:last-child td {
@@ -602,11 +744,13 @@
 .cook-inventory-management .admin-inventory-stat {
   border-color: rgba(212, 163, 115, 0.24);
   background: var(--card-bg);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.04);
 }
 
 .cook-inventory-management .admin-inventory-stat.tone-ok {
   border-color: rgba(48, 216, 120, 0.62);
-  background: rgba(48, 216, 120, 0.12);
+  background:
+    linear-gradient(135deg, rgba(48, 216, 120, 0.13), rgba(7, 7, 7, 0.42) 70%);
 }
 
 .cook-inventory-management .admin-inventory-stat.tone-ok strong {
@@ -615,7 +759,8 @@
 
 .cook-inventory-management .admin-inventory-stat.tone-warning {
   border-color: rgba(230, 181, 62, 0.62);
-  background: rgba(230, 181, 62, 0.12);
+  background:
+    linear-gradient(135deg, rgba(230, 181, 62, 0.13), rgba(7, 7, 7, 0.42) 70%);
 }
 
 .cook-inventory-management .admin-inventory-stat.tone-warning strong {
@@ -624,22 +769,12 @@
 
 .cook-inventory-management .admin-inventory-stat.tone-danger {
   border-color: rgba(255, 138, 138, 0.62);
-  background: rgba(255, 138, 138, 0.12);
+  background:
+    linear-gradient(135deg, rgba(255, 138, 138, 0.13), rgba(7, 7, 7, 0.42) 70%);
 }
 
 .cook-inventory-management .admin-inventory-stat.tone-danger strong {
   color: var(--status-red);
-}
-
-.cook-inventory-management .admin-inventory-header {
-  margin-bottom: 0;
-}
-
-.cook-inventory-management .admin-inventory-header h2 {
-  margin: 0 0 10px;
-  color: var(--text-white);
-  font-family: 'Playfair Display', serif;
-  font-size: 2rem;
 }
 
 .cook-inventory-stock-editor {
@@ -658,6 +793,28 @@
 .cook-inventory-management .admin-inventory-state {
   border-color: rgba(212, 163, 115, 0.24);
   background: var(--card-bg);
+}
+
+.cook-inventory-management .admin-inventory-list {
+  border: 1px solid rgba(212, 163, 115, 0.22);
+  border-radius: 8px;
+  background: var(--card-bg);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.04);
+}
+
+.cook-inventory-management .admin-search-toolbar {
+  align-items: end;
+  margin-bottom: 14px;
+}
+
+.cook-inventory-management .admin-search-field {
+  width: min(520px, 100%);
+}
+
+.cook-inventory-management .admin-inventory-filters {
+  padding: 0;
+  border: 0;
+  background: transparent;
 }
 
 .cook-inventory-management .admin-inventory-filters button {
@@ -682,15 +839,15 @@
 }
 
 .cook-inventory-management .admin-inventory-table tr.status-ok {
-  background: rgba(48, 216, 120, 0.12);
+  background: rgba(48, 216, 120, 0.08);
 }
 
 .cook-inventory-management .admin-inventory-table tr.status-monitorare {
-  background: rgba(230, 181, 62, 0.12);
+  background: rgba(230, 181, 62, 0.08);
 }
 
 .cook-inventory-management .admin-inventory-table tr.status-comprare {
-  background: rgba(255, 138, 138, 0.12);
+  background: rgba(255, 138, 138, 0.08);
 }
 
 .cook-inventory-management .admin-inventory-status.status-ok {
@@ -711,23 +868,9 @@
   color: var(--status-red);
 }
 
-.cook-inventory-management .admin-inventory-actions button {
-  border-color: rgba(230, 181, 62, 0.55);
-  background: rgba(230, 181, 62, 0.12);
-  color: var(--gold-primary);
-}
-
-.cook-inventory-management .admin-inventory-actions button:hover {
-  background: rgba(230, 181, 62, 0.2);
-}
-
 .cook-inventory-management .admin-inventory-table th:last-child,
 .cook-inventory-management .admin-inventory-table td:last-child {
   text-align: left;
-}
-
-.cook-inventory-management .admin-inventory-actions {
-  justify-content: flex-start;
 }
 
 .cook-inventory-quantity-input {
@@ -855,6 +998,10 @@
 }
 
 .cook-metric-modal-header button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
   padding: 9px 13px;
   border: 1px solid rgba(212, 163, 115, 0.4);
   border-radius: 8px;
@@ -1066,7 +1213,7 @@
 
 @media (max-width: 1100px) {
   .cook-metrics {
-    grid-template-columns: repeat(3, minmax(170px, 1fr));
+    grid-template-columns: repeat(2, minmax(170px, 1fr));
   }
 
   .cook-orders-grid {
@@ -1076,6 +1223,10 @@
 }
 
 @media (max-width: 720px) {
+  .cook-dashboard-header {
+    flex-direction: column;
+  }
+
   .cook-metrics,
   .cook-orders-grid {
     grid-template-columns: 1fr;
@@ -1085,12 +1236,21 @@
     width: 100%;
   }
 
-  .cook-order-actions {
+  .cook-management-hero {
     flex-direction: column;
+    align-items: stretch;
   }
 
-  .cook-menu-management-header {
-    flex-direction: column;
+  .cook-management-actions {
+    justify-content: stretch;
+  }
+
+  .cook-management-actions button {
+    flex: 1;
+  }
+
+  .cook-management-summary {
+    grid-template-columns: 1fr;
   }
 
   .cook-inventory-stock-editor {

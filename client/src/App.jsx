@@ -17,7 +17,7 @@ import AdminStaff from './views/admin/AdminStaff';
 import AdminInventory from './views/admin/AdminInventory';
 import CookDashboard from './views/CookDashboard';
 import WaiterOrders from './views/WaiterOrders';
-import WaiterWalkIns from './views/WaiterWalkIns';
+import WaiterTables from './views/WaiterTables';
 import { clearAuthSession, getAuthUser } from './api/client';
 import Profile from './views/Profile';
 
@@ -111,8 +111,8 @@ function App() {
     content = <AdminDashboard onNavigate={navigateTo} />;
   }
 
-  if (page === 'walk-in') {
-    content = <WaiterWalkIns onNavigate={navigateTo} />;
+  if (page === 'tavoli') {
+    content = <WaiterTables onNavigate={navigateTo} />;
   }
 
   return (

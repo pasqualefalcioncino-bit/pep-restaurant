@@ -21,6 +21,7 @@
   cursor: pointer;
   font: inherit;
   font-weight: 800;
+  transition: background-color 0.2s ease, transform 0.2s ease;
 }
 
 .home-view-all-btn {
@@ -30,24 +31,32 @@
 .home-view-all-btn:hover,
 .home-discover-btn:hover {
   background: rgba(212, 163, 115, 0.14);
+  transform: translateY(-2px);
 }
 
 .home-specialties-grid {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 28px;
+  gap: 18px;
 }
 
 .home-dish-card {
   overflow: hidden;
   border: 1px solid var(--border-color);
-  border-radius: 20px;
+  border-radius: 8px;
   background: var(--card-bg);
   text-align: left;
+  transition: border-color 0.2s ease, transform 0.2s ease;
+}
+
+.home-dish-card:hover {
+  border-color: rgba(230, 181, 62, 0.56);
+  transform: translateY(-4px);
 }
 
 .home-dish-image {
-  height: 250px;
+  aspect-ratio: 4 / 3;
+  height: auto;
   background: var(--bg-dark);
 }
 
@@ -59,7 +68,7 @@
 }
 
 .home-dish-info {
-  padding: 24px;
+  padding: 22px;
 }
 
 .home-dish-meta,
@@ -74,7 +83,7 @@
   color: var(--gold-primary);
   font-size: 0.78rem;
   font-weight: 800;
-  letter-spacing: 1.8px;
+  letter-spacing: 0.12em;
 }
 
 .home-dish-meta span:last-child {
@@ -84,7 +93,7 @@
 
 .home-dish-card h3 {
   margin: 16px 0 10px;
-  color: var(--gold-primary);
+  color: var(--text-white);
   font-family: 'Playfair Display', Georgia, serif;
   font-size: 1.55rem;
   line-height: 1.15;
@@ -127,5 +136,9 @@
   .home-specialties-header {
     align-items: stretch;
     flex-direction: column;
+  }
+
+  .home-view-all-btn {
+    width: 100%;
   }
 }

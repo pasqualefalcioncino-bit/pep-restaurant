@@ -1,10 +1,13 @@
 .admin-dashboard-page {
+  position: relative;
   width: min(1180px, 100%);
   margin: 0 auto;
 }
 
 .admin-dashboard-header {
-  margin-bottom: 24px;
+  display: grid;
+  gap: 8px;
+  margin-bottom: 26px;
 }
 
 .admin-dashboard-header h1 {
@@ -26,7 +29,7 @@
   padding: 24px;
   border: 1px solid var(--border-color);
   border-radius: 8px;
-  background-color: var(--card-bg);
+  background: linear-gradient(135deg, rgba(22, 19, 16, 0.96), rgba(13, 12, 11, 0.98));
   text-align: center;
 }
 
@@ -57,7 +60,8 @@
 .admin-dashboard-panel {
   border: 1px solid var(--border-color);
   border-radius: 8px;
-  background-color: var(--card-bg);
+  background: linear-gradient(135deg, rgba(24, 20, 16, 0.98), rgba(13, 12, 11, 0.98));
+  box-shadow: 0 18px 42px rgba(0, 0, 0, 0.22);
 }
 
 .admin-dashboard-stat {
@@ -71,16 +75,25 @@
 
 button.admin-dashboard-stat {
   cursor: pointer;
+  transition:
+    border-color 160ms ease,
+    transform 160ms ease,
+    background 160ms ease;
 }
 
 button.admin-dashboard-stat:hover {
   border-color: var(--gold-primary);
   background: rgba(212, 163, 115, 0.08);
+  transform: translateY(-2px);
 }
 
 .admin-dashboard-stat span {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
   color: var(--text-muted);
   font-size: 0.86rem;
+  font-weight: 800;
 }
 
 .admin-dashboard-stat strong {
@@ -109,9 +122,16 @@ button.admin-dashboard-stat:hover {
 }
 
 .admin-dashboard-panel-header h2 {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
   margin: 0;
   color: var(--text-white);
   font-size: 1.2rem;
+}
+
+.admin-dashboard-panel-header h2 svg {
+  color: var(--gold-primary);
 }
 
 .admin-dashboard-panel-header span {
@@ -120,6 +140,9 @@ button.admin-dashboard-stat:hover {
 }
 
 .admin-dashboard-panel-header button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
   flex: 0 0 auto;
   min-height: 36px;
   padding: 0 12px;
@@ -130,11 +153,16 @@ button.admin-dashboard-stat:hover {
   cursor: pointer;
   font: inherit;
   font-weight: 800;
+  transition:
+    border-color 160ms ease,
+    background 160ms ease,
+    transform 160ms ease;
 }
 
 .admin-dashboard-panel-header button:hover {
   border-color: var(--gold-primary);
   background: rgba(212, 163, 115, 0.14);
+  transform: translateY(-1px);
 }
 
 .admin-dashboard-list {
@@ -152,7 +180,7 @@ button.admin-dashboard-stat:hover {
   padding: 13px;
   border: 1px solid var(--border-color);
   border-radius: 8px;
-  background-color: var(--bg-dark);
+  background: rgba(10, 10, 10, 0.74);
   color: inherit;
   font: inherit;
   text-align: left;
@@ -164,10 +192,15 @@ button.admin-dashboard-stat:hover {
 
 .admin-dashboard-order-row {
   cursor: pointer;
+  transition:
+    border-color 160ms ease,
+    transform 160ms ease,
+    background 160ms ease;
 }
 
 .admin-dashboard-order-row:hover {
   border-color: var(--gold-primary);
+  transform: translateY(-1px);
 }
 
 .admin-dashboard-order-row.status-in_attesa {
@@ -202,17 +235,22 @@ button.admin-dashboard-stat:hover {
   padding: 14px;
   border: 1px solid var(--border-color);
   border-radius: 8px;
-  background: var(--bg-dark);
+  background: rgba(10, 10, 10, 0.72);
   color: inherit;
   cursor: pointer;
   font: inherit;
   text-align: left;
+  transition:
+    border-color 160ms ease,
+    filter 160ms ease,
+    transform 160ms ease;
 }
 
 .admin-dashboard-table-stat:hover,
 .admin-dashboard-inventory-stat:hover {
   border-color: var(--gold-primary);
   filter: brightness(1.12);
+  transform: translateY(-2px);
 }
 
 .admin-dashboard-table-stat span,
@@ -346,7 +384,11 @@ button.admin-dashboard-stat:hover {
 }
 
 .admin-dashboard-pill {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
   flex: 0 0 auto;
+  min-height: 30px;
   padding: 6px 9px;
   border: 1px solid rgba(230, 181, 62, 0.45);
   border-radius: 8px;
@@ -389,7 +431,8 @@ button.admin-dashboard-stat:hover {
   align-items: center;
   justify-content: center;
   padding: 24px;
-  background: rgba(0, 0, 0, 0.72);
+  background: rgba(0, 0, 0, 0.76);
+  backdrop-filter: blur(8px);
 }
 
 .admin-dashboard-order-modal {
@@ -399,7 +442,9 @@ button.admin-dashboard-stat:hover {
   padding: 28px;
   border: 1px solid rgba(212, 163, 115, 0.28);
   border-radius: 8px;
-  background: var(--card-bg);
+  background:
+    radial-gradient(circle at 20% 0%, rgba(230, 181, 62, 0.12), transparent 34%),
+    linear-gradient(135deg, rgba(24, 20, 16, 0.98), rgba(9, 9, 9, 0.98));
   box-shadow: 0 24px 60px rgba(0, 0, 0, 0.45);
 }
 
@@ -430,7 +475,11 @@ button.admin-dashboard-stat:hover {
 }
 
 .admin-dashboard-modal-header button {
-  padding: 9px 13px;
+  display: inline-grid;
+  place-items: center;
+  width: 38px;
+  height: 38px;
+  padding: 0;
   border: 1px solid rgba(212, 163, 115, 0.4);
   border-radius: 8px;
   background: transparent;
@@ -458,7 +507,7 @@ button.admin-dashboard-stat:hover {
   padding: 13px;
   border: 1px solid var(--border-color);
   border-radius: 8px;
-  background: var(--bg-dark);
+  background: rgba(10, 10, 10, 0.72);
 }
 
 .admin-dashboard-detail-row > div:first-child {
@@ -524,7 +573,7 @@ button.admin-dashboard-stat:hover {
   padding: 12px;
   border: 1px solid rgba(212, 163, 115, 0.16);
   border-radius: 8px;
-  background: var(--card-bg);
+  background: rgba(10, 10, 10, 0.62);
 }
 
 .admin-dashboard-order-meta span,
@@ -559,7 +608,7 @@ button.admin-dashboard-stat:hover {
   padding: 10px 12px;
   border: 1px solid rgba(212, 163, 115, 0.14);
   border-radius: 8px;
-  background: var(--card-bg-strong);
+  background: rgba(10, 10, 10, 0.7);
 }
 
 .admin-dashboard-order-item.ready {
@@ -624,7 +673,8 @@ button.admin-dashboard-stat:hover {
 
 @media (max-width: 700px) {
   .admin-dashboard-stats,
-  .admin-dashboard-table-stats {
+  .admin-dashboard-table-stats,
+  .admin-dashboard-inventory-stats {
     grid-template-columns: 1fr;
   }
 

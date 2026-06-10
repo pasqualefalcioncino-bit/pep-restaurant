@@ -1,6 +1,18 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
+import {
+  Clock3,
+  ImagePlus,
+  Leaf,
+  ListFilter,
+  Pencil,
+  Search,
+  Trash2,
+  UtensilsCrossed,
+  X,
+} from 'lucide-react';
 import { API_URL, apiRequest, getAuthToken } from '../../api/client';
 import ConfirmDeleteModal from '../../components/admin/ConfirmDeleteModal';
+import useAutoDismiss from '../../hooks/useAutoDismiss';
 import { menuCategories } from '../../utils/menuCatalog';
 import { getMenuImage } from '../../utils/menuImages';
 import { formatEuroPrice } from '../../utils/priceFormatter';
@@ -37,6 +49,9 @@ const AdminMenu = () => {
   const [selectedItemIds, setSelectedItemIds] = useState([]);
   const imageInputRef = useRef(null);
 
+  useAutoDismiss(errorMessage, setErrorMessage);
+  useAutoDismiss(successMessage, setSuccessMessage);
+
   const loadMenu = async () => {
     try {
       const data = await apiRequest('/menu');
@@ -67,9 +82,18 @@ const AdminMenu = () => {
       return matchesCategory && matchesVeg && matchesSearch;
     });
   }, [activeCategory, menuItems, searchTerm, showVegOnly]);
-  const selectedMenuItems = menuItems.filter((item) => selectedItemIds.includes(item.id));
+  const selectedItemIdSet = useMemo(() => new Set(selectedItemIds), [selectedItemIds]);
+  const selectedMenuItems = useMemo(
+    () => menuItems.filter((item) => selectedItemIdSet.has(item.id)),
+    [menuItems, selectedItemIdSet]
+  );
+  const menuSummary = useMemo(() => ({
+    available: menuItems.filter((item) => item.available !== false).length,
+    veg: menuItems.filter((item) => item.veg).length,
+    categories: new Set(menuItems.map((item) => item.category).filter(Boolean)).size,
+  }), [menuItems]);
   const areAllFilteredItemsSelected =
-    filteredMenuItems.length > 0 && filteredMenuItems.every((item) => selectedItemIds.includes(item.id));
+    filteredMenuItems.length > 0 && filteredMenuItems.every((item) => selectedItemIdSet.has(item.id));
 
   const updateField = (field, value) => {
     setFormData((currentData) => ({
@@ -83,6 +107,7 @@ const AdminMenu = () => {
   const resetForm = () => {
     setFormData(emptyForm);
     setEditingItemId(null);
+    setSelectedItemIds([]);
     setErrorMessage('');
     setSuccessMessage('');
   };
@@ -237,7 +262,7 @@ const AdminMenu = () => {
       );
 
       setMenuItems((currentItems) =>
-        currentItems.filter((item) => !selectedItemIds.includes(item.id))
+        currentItems.filter((item) => !selectedItemIdSet.has(item.id))
       );
       setSuccessMessage(`${selectedMenuItems.length} piatti eliminati.`);
       setSelectedItemIds([]);
@@ -264,17 +289,43 @@ const AdminMenu = () => {
         <p>{menuItems.length} piatti presenti nel database.</p>
       </div>
 
+      <div className="admin-menu-stats" aria-label="Riepilogo menu">
+        <article>
+          <span>
+            <UtensilsCrossed size={17} aria-hidden="true" />
+            Totale
+          </span>
+          <strong>{menuItems.length}</strong>
+        </article>
+        <article>
+          <span>
+            <Clock3 size={17} aria-hidden="true" />
+            Disponibili
+          </span>
+          <strong>{menuSummary.available}</strong>
+        </article>
+        <article>
+          <span>
+            <Leaf size={17} aria-hidden="true" />
+            Vegetariani
+          </span>
+          <strong>{menuSummary.veg}</strong>
+        </article>
+        <article>
+          <span>
+            <ListFilter size={17} aria-hidden="true" />
+            Categorie
+          </span>
+          <strong>{menuSummary.categories}</strong>
+        </article>
+      </div>
+
       {errorMessage && <p className="admin-menu-message error">Errore: {errorMessage}</p>}
       {successMessage && <p className="admin-menu-message success">{successMessage}</p>}
 
       <form className="admin-menu-form" onSubmit={submitMenuItem}>
         <div className="admin-menu-form-header">
           <h2>{editingItemId ? 'Modifica piatto' : 'Nuovo piatto'}</h2>
-          {editingItemId && (
-            <button type="button" onClick={resetForm}>
-              Annulla modifica
-            </button>
-          )}
         </div>
 
         <div className="admin-menu-form-grid">
@@ -341,7 +392,7 @@ const AdminMenu = () => {
                 disabled={isUploadingImage}
                 aria-label="Carica immagine piatto"
               >
-                {isUploadingImage ? '...' : '+'}
+                {isUploadingImage ? '...' : <ImagePlus size={18} aria-hidden="true" />}
               </button>
               <input
                 ref={imageInputRef}
@@ -372,13 +423,23 @@ const AdminMenu = () => {
           />
         </label>
 
-        <button className="admin-menu-submit" type="submit" disabled={isSubmitting}>
-          {isSubmitting ? 'Salvataggio...' : editingItemId ? 'Aggiorna piatto' : 'Crea piatto'}
-        </button>
+        <div className="admin-menu-form-actions">
+          <button className="admin-menu-submit" type="submit" disabled={isSubmitting}>
+            <UtensilsCrossed size={17} aria-hidden="true" />
+            {isSubmitting ? 'Salvataggio...' : editingItemId ? 'Aggiorna piatto' : 'Crea piatto'}
+          </button>
+          {editingItemId && (
+            <button className="admin-menu-cancel-edit" type="button" onClick={resetForm}>
+              <X size={16} aria-hidden="true" />
+              Annulla modifica
+            </button>
+          )}
+        </div>
       </form>
 
       <div className="admin-menu-toolbar">
         <label className="admin-menu-search-field" htmlFor="admin-menu-search">
+          <Search size={17} aria-hidden="true" />
           <input
             id="admin-menu-search"
             type="search"
@@ -413,9 +474,12 @@ const AdminMenu = () => {
       </div>
 
       <div className="admin-menu-bulk-actions">
-        <span>{selectedItemIds.length} selezionati</span>
+        <button type="button" onClick={toggleAllFilteredItems} disabled={filteredMenuItems.length === 0}>
+          {areAllFilteredItemsSelected ? 'Deseleziona tutti' : 'Seleziona tutti'}
+        </button>
         <button type="button" onClick={startSelectedEdit} disabled={selectedItemIds.length !== 1}>
           Modifica selezionato
+          <Pencil size={15} aria-hidden="true" />
         </button>
         <button
           className="danger"
@@ -423,6 +487,7 @@ const AdminMenu = () => {
           onClick={() => setItemToDelete({ bulk: true })}
           disabled={selectedItemIds.length === 0}
         >
+          <Trash2 size={15} aria-hidden="true" />
           Elimina selezionati
         </button>
       </div>
@@ -434,14 +499,7 @@ const AdminMenu = () => {
           <table className="admin-menu-table">
             <thead>
               <tr>
-                <th>
-                  <input
-                    type="checkbox"
-                    checked={areAllFilteredItemsSelected}
-                    onChange={toggleAllFilteredItems}
-                    aria-label="Seleziona tutti i piatti filtrati"
-                  />
-                </th>
+                <th aria-label="Selezione" />
                 <th>Piatto</th>
                 <th>Categoria</th>
                 <th>Prezzo</th>
@@ -455,15 +513,18 @@ const AdminMenu = () => {
 
                 return (
                   <tr key={item.id}>
-                    <td>
-                      <input
-                        type="checkbox"
-                        checked={selectedItemIds.includes(item.id)}
-                        onChange={() => toggleItemSelection(item.id)}
-                        aria-label={`Seleziona ${item.name}`}
-                      />
+                    <td data-label="Seleziona">
+                      <label className="admin-menu-select-box">
+                        <input
+                          type="checkbox"
+                          checked={selectedItemIdSet.has(item.id)}
+                          onChange={() => toggleItemSelection(item.id)}
+                          aria-label={`Seleziona ${item.name}`}
+                        />
+                        <span aria-hidden="true" />
+                      </label>
                     </td>
-                    <td>
+                    <td data-label="Piatto">
                       <div className="admin-menu-dish">
                         <div className="admin-menu-dish-image">
                           {menuImage ? (
@@ -478,10 +539,14 @@ const AdminMenu = () => {
                         </div>
                       </div>
                     </td>
-                    <td>{item.category}</td>
-                    <td>{formatEuroPrice(item.price)}</td>
-                    <td>{item.prep_time || 0} min</td>
-                    <td>{item.veg ? 'Si' : 'No'}</td>
+                    <td data-label="Categoria">{item.category}</td>
+                    <td data-label="Prezzo">{formatEuroPrice(item.price)}</td>
+                    <td data-label="Tempo">{item.prep_time || 0} min</td>
+                    <td data-label="Veg">
+                      <span className={`admin-menu-veg-chip ${item.veg ? 'active' : ''}`}>
+                        {item.veg ? 'Si' : 'No'}
+                      </span>
+                    </td>
                   </tr>
                 );
               })}
@@ -493,12 +558,18 @@ const AdminMenu = () => {
       {itemToDelete && (
         <ConfirmDeleteModal
           title="Vuoi eliminare definitivamente i piatti selezionati?"
-          summaryItems={selectedMenuItems.map(
-            (item) => `${item.name} - ${item.category} - ${formatEuroPrice(item.price)}`
-          )}
+          summaryItems={selectedMenuItems.map((item) => ({
+            id: item.id,
+            title: item.name,
+            details: [item.category, formatEuroPrice(item.price)],
+            imageSrc: getMenuImage(item.image),
+            imageAlt: item.name,
+            fallbackText: item.name.charAt(0),
+          }))}
           isDeleting={deletingItemId !== null}
           onCancel={() => setItemToDelete(null)}
           onConfirm={deleteSelectedMenuItems}
+          confirmIcon={<Trash2 size={16} aria-hidden="true" />}
         />
       )}
     </section>

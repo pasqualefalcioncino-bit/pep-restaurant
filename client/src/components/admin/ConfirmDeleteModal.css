@@ -6,16 +6,43 @@
   align-items: center;
   justify-content: center;
   padding: 24px;
-  background: rgba(0, 0, 0, 0.72);
+  background:
+    radial-gradient(circle at 50% 18%, rgba(230, 181, 62, 0.08), transparent 34%),
+    rgba(0, 0, 0, 0.78);
+  backdrop-filter: blur(4px);
 }
 
 .confirm-delete-modal {
-  width: min(430px, 100%);
-  padding: 28px;
+  width: min(500px, 100%);
+  max-height: min(760px, calc(100vh - 48px));
+  overflow: hidden;
+  display: grid;
+  gap: 18px;
+  padding: 24px;
   border: 1px solid var(--border-color);
   border-radius: 8px;
-  background: var(--card-bg);
+  background:
+    radial-gradient(circle at 8% 0%, rgba(255, 138, 138, 0.1), transparent 30%),
+    linear-gradient(135deg, rgba(24, 20, 16, 0.98), rgba(13, 12, 11, 0.98));
   box-shadow: 0 24px 60px rgba(0, 0, 0, 0.45);
+}
+
+.confirm-delete-header {
+  display: grid;
+  grid-template-columns: 46px minmax(0, 1fr);
+  gap: 14px;
+  align-items: start;
+}
+
+.confirm-delete-alert {
+  display: grid;
+  place-items: center;
+  width: 46px;
+  height: 46px;
+  border: 1px solid rgba(255, 138, 138, 0.4);
+  border-radius: 8px;
+  background: rgba(255, 138, 138, 0.12);
+  color: var(--status-red);
 }
 
 .confirm-delete-modal h2 {
@@ -26,39 +53,104 @@
   line-height: 1.2;
 }
 
+.confirm-delete-modal p {
+  margin: 6px 0 0;
+  color: var(--text-muted);
+  font-size: 0.92rem;
+}
+
 .confirm-delete-summary {
   display: grid;
-  gap: 8px;
-  margin-top: 18px;
+  gap: 10px;
+  max-height: min(320px, 42vh);
+  overflow: auto;
   padding: 14px;
   border: 1px solid var(--border-color);
   border-radius: 8px;
-  background: rgba(255, 255, 255, 0.03);
+  background: rgba(10, 10, 10, 0.34);
+}
+
+.confirm-delete-summary-item {
+  display: grid;
+  grid-template-columns: 52px minmax(0, 1fr);
+  gap: 12px;
+  align-items: center;
+  min-width: 0;
+  padding: 10px;
+  border: 1px solid rgba(230, 181, 62, 0.1);
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.025);
+}
+
+.confirm-delete-summary-item > div:last-child {
+  display: grid;
+  gap: 3px;
+  min-width: 0;
+}
+
+.confirm-delete-summary-media {
+  display: grid;
+  place-items: center;
+  width: 52px;
+  height: 52px;
+  overflow: hidden;
+  border: 1px solid rgba(230, 181, 62, 0.26);
+  border-radius: 8px;
+  background:
+    linear-gradient(135deg, rgba(230, 181, 62, 0.12), rgba(10, 10, 10, 0.62));
+  color: var(--gold-primary);
+  font-weight: 900;
+}
+
+.confirm-delete-summary-media img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+}
+
+.confirm-delete-summary-media svg {
+  width: 22px;
+  height: 22px;
+}
+
+.confirm-delete-summary strong {
+  min-width: 0;
+  overflow-wrap: anywhere;
+  color: var(--text-white);
+  font-weight: 800;
 }
 
 .confirm-delete-summary span {
+  min-width: 0;
+  overflow-wrap: anywhere;
   color: var(--text-muted);
-}
-
-.confirm-delete-summary span:first-child {
-  color: var(--text-white);
-  font-weight: 800;
 }
 
 .confirm-delete-actions {
   display: flex;
   justify-content: flex-end;
   gap: 12px;
-  margin-top: 28px;
 }
 
 .confirm-delete-cancel,
 .confirm-delete-submit {
-  padding: 10px 16px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 40px;
+  padding: 0 16px;
+  border: 1px solid transparent;
   border-radius: 8px;
   cursor: pointer;
   font: inherit;
   font-weight: 700;
+  transition:
+    background 160ms ease,
+    border-color 160ms ease,
+    color 160ms ease,
+    transform 160ms ease;
 }
 
 .confirm-delete-cancel {
@@ -69,6 +161,7 @@
 
 .confirm-delete-cancel:hover {
   background: rgba(212, 163, 115, 0.12);
+  transform: translateY(-1px);
 }
 
 .confirm-delete-submit {
@@ -80,10 +173,56 @@
 .confirm-delete-submit:hover {
   background: rgba(255, 138, 138, 0.22);
   color: #ffc0c0;
+  transform: translateY(-1px);
 }
 
 .confirm-delete-cancel:disabled,
 .confirm-delete-submit:disabled {
   cursor: not-allowed;
   opacity: 0.7;
+  transform: none;
+}
+
+@media (max-width: 520px) {
+  .confirm-delete-backdrop {
+    align-items: flex-end;
+    padding: 14px;
+  }
+
+  .confirm-delete-modal {
+    width: 100%;
+    padding: 18px;
+  }
+
+  .confirm-delete-header {
+    grid-template-columns: 40px minmax(0, 1fr);
+  }
+
+  .confirm-delete-alert {
+    width: 40px;
+    height: 40px;
+  }
+
+  .confirm-delete-modal h2 {
+    font-size: 1.35rem;
+  }
+
+  .confirm-delete-summary-item {
+    grid-template-columns: 42px minmax(0, 1fr);
+    padding: 9px;
+  }
+
+  .confirm-delete-summary-media {
+    width: 42px;
+    height: 42px;
+  }
+
+  .confirm-delete-actions {
+    flex-direction: column-reverse;
+  }
+
+  .confirm-delete-cancel,
+  .confirm-delete-submit {
+    width: 100%;
+  }
 }

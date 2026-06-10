@@ -1,0 +1,20 @@
+.contatti-page {
+  position: relative;
+  width: auto;
+  margin: -40px -20px 0;
+  padding: 40px 20px 0;
+  box-sizing: border-box;
+  isolation: isolate;
+}
+
+.contatti-page::before {
+  position: absolute;
+  inset: 0 0 auto;
+  height: 460px;
+  background:
+    radial-gradient(circle at 18% 12%, rgba(230, 181, 62, 0.13), transparent 32%),
+    linear-gradient(180deg, rgba(230, 181, 62, 0.055), transparent 74%);
+  content: '';
+  pointer-events: none;
+  z-index: -1;
+}

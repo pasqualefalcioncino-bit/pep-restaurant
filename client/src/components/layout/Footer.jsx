@@ -1,15 +1,16 @@
-import logo from '../../assets/images/brand/logo.png';
+import { getBrandImage } from '../../utils/brandImages';
 import './Footer.css';
 
 const Footer = () => {
   const currentYear = new Date().getFullYear();
+  const logo = getBrandImage('logo.png');
 
   return (
     <footer className="footer">
       <div className="footer-content">
         <section className="footer-section footer-brand" aria-label="Informazioni ristorante">
           <div className="footer-logo">
-            <img src={logo} alt="" className="footer-logo-img" />
+            {logo && <img src={logo} alt="" className="footer-logo-img" />}
             <div>
               <h3>Ristorante</h3>
               <span>DA PEPPE E SPIKE</span>
@@ -37,20 +38,20 @@ const Footer = () => {
 
         <section className="footer-section">
           <h4>VISITA</h4>
-          <ul className="contact-list">
+          <ul>
             <li>Via dei Sapori 12, 20121 Milano</li>
-            <li><a href="tel:+390212345678">+39 3887898697</a></li>
-            <li><a href="mailto:info@ristorantedapeppeespike.it">info@: ristorantedapeppeespike.it</a></li>
+            <li><a href="tel:+393887898697">+39 388 789 8697</a></li>
+            <li><a href="mailto:info@ristorantedapeppeespike.it">info@ristorantedapeppeespike.it</a></li>
           </ul>
         </section>
 
         <section className="footer-section">
           <h4>ORARI</h4>
-          <ul className="hours-list">
+          <ul>
             <li>Mar-Sab &middot; 12:30 - 14:30</li>
             <li>Mar-Sab &middot; 19:30 - 23:00</li>
             <li>Domenica &middot; solo cena</li>
-            <li className="closed">Lunedi chiuso</li>
+            <li className="closed">Lunedì chiuso</li>
           </ul>
         </section>
       </div>

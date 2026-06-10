@@ -1,8 +1,10 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
+import { Circle, Minus, Plus } from 'lucide-react';
 import { apiRequest, getAuthUser, saveAuthSession, getAuthToken } from '../../api/client';
 import BookingOccasion from './BookingOccasion';
 import BookingSummary from './BookingSummary';
 import bookingOptions from '../../data/bookingOptions.json';
+import useAutoDismiss from '../../hooks/useAutoDismiss';
 import './BookingForm.css';
 
 const { availableTimes, countryPrefixes } = bookingOptions;
@@ -34,8 +36,8 @@ const getPhoneParts = (phoneValue = '') => {
 };
 
 const BookingForm = ({ onBookingSuccess }) => {
-  const currentUser = getAuthUser();
-  const currentUserPhone = getPhoneParts(currentUser?.phone);
+  const currentUser = useMemo(() => getAuthUser(), []);
+  const currentUserPhone = useMemo(() => getPhoneParts(currentUser?.phone), [currentUser?.phone]);
   const [currentStep, setCurrentStep] = useState(1);
   const [bookingData, setBookingData] = useState({
     date: getTodayValue(),
@@ -53,6 +55,9 @@ const BookingForm = ({ onBookingSuccess }) => {
   const [bookingErrorMessage, setBookingErrorMessage] = useState('');
   const todayValue = getTodayValue();
   const maxGuests = 12;
+
+  useAutoDismiss(bookingErrorMessage, setBookingErrorMessage);
+  useAutoDismiss(isConfirmed, setIsConfirmed, false);
 
   useEffect(() => {
     if (currentUser?.role !== 'cliente' || currentUser.email) {
@@ -136,11 +141,10 @@ const BookingForm = ({ onBookingSuccess }) => {
   return (
     <section className="booking-page" aria-labelledby="booking-title">
       <div className="booking-header">
-        <span className="booking-kicker">RISERVA</span>
         <h1 className="booking-title" id="booking-title">
           Prenota un Tavolo
         </h1>
-        <div className="booking-divider" />
+        <p>Scegli data, orario e dettagli della tua esperienza.</p>
       </div>
 
       {currentStep === 1 && (
@@ -176,7 +180,7 @@ const BookingForm = ({ onBookingSuccess }) => {
                     onClick={() => updateGuests(bookingData.guests - 1)}
                     aria-label="Diminuisci ospiti"
                   >
-                    -
+                    <Minus size={16} strokeWidth={2.4} aria-hidden="true" />
                   </button>
                   <input
                     id="booking-guests"
@@ -194,7 +198,7 @@ const BookingForm = ({ onBookingSuccess }) => {
                     onClick={() => updateGuests(bookingData.guests + 1)}
                     aria-label="Aumenta ospiti"
                   >
-                    +
+                    <Plus size={16} strokeWidth={2.4} aria-hidden="true" />
                   </button>
                 </div>
               </div>
@@ -211,7 +215,7 @@ const BookingForm = ({ onBookingSuccess }) => {
                     onClick={() => updateField('time', time)}
                     aria-pressed={bookingData.time === time}
                   >
-                    <span aria-hidden="true">○</span>
+                    <Circle size={12} strokeWidth={2.4} aria-hidden="true" />
                     {time}
                   </button>
                 ))}

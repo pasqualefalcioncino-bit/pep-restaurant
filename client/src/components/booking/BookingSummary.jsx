@@ -1,3 +1,4 @@
+import { CalendarDays, ClipboardList, Phone, Sparkles, Users } from 'lucide-react';
 import bookingOptions from '../../data/bookingOptions.json';
 import './BookingSummary.css';
 
@@ -126,7 +127,9 @@ const BookingSummary = ({
           <span className="booking-summary-label">Riepilogo</span>
           <div className="booking-summary-details" aria-label="Riepilogo dati prenotazione">
             <div className="booking-summary-row">
-              <span aria-hidden="true">📅</span>
+              <span aria-hidden="true">
+                <CalendarDays size={18} strokeWidth={2} />
+              </span>
               <div>
                 <small>Data e orario</small>
                 <strong>
@@ -136,7 +139,9 @@ const BookingSummary = ({
             </div>
 
             <div className="booking-summary-row">
-              <span aria-hidden="true">👥</span>
+              <span aria-hidden="true">
+                <Users size={18} strokeWidth={2} />
+              </span>
               <div>
                 <small>Ospiti</small>
                 <strong>{bookingData.guests} ospiti</strong>
@@ -144,7 +149,9 @@ const BookingSummary = ({
             </div>
 
             <div className="booking-summary-row">
-              <span aria-hidden="true">▣</span>
+              <span aria-hidden="true">
+                <ClipboardList size={18} strokeWidth={2} />
+              </span>
               <div>
                 <small>Occasione</small>
                 <strong>{getOccasionLabel(bookingData.occasion)}</strong>
@@ -152,7 +159,9 @@ const BookingSummary = ({
             </div>
 
             <div className="booking-summary-row">
-              <span aria-hidden="true">✦</span>
+              <span aria-hidden="true">
+                <Sparkles size={18} strokeWidth={2} />
+              </span>
               <div>
                 <small>Richieste speciali</small>
                 <strong>{bookingData.specialRequests || 'Nessuna richiesta inserita'}</strong>
@@ -160,7 +169,9 @@ const BookingSummary = ({
             </div>
 
             <div className="booking-summary-row">
-              <span aria-hidden="true">☎</span>
+              <span aria-hidden="true">
+                <Phone size={18} strokeWidth={2} />
+              </span>
               <div>
                 <small>Telefono</small>
                 <strong>

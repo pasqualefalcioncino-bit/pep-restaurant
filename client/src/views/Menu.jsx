@@ -1,11 +1,15 @@
 import { useEffect, useState } from 'react';
 import { apiRequest } from '../api/client';
 import MenuSection from '../components/menu/MenuSection';
+import useAutoDismiss from '../hooks/useAutoDismiss';
+import './Menu.css';
 
 const Menu = () => {
   const [menuItems, setMenuItems] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [errorMessage, setErrorMessage] = useState('');
+
+  useAutoDismiss(errorMessage, setErrorMessage);
 
   useEffect(() => {
     const loadMenu = async () => {
@@ -37,7 +41,9 @@ const Menu = () => {
   if (isLoading) {
     return (
       <div className="menu-page">
-        <p>Caricamento menu...</p>
+        <div className="menu-page-state">
+          <p>Caricamento menu...</p>
+        </div>
       </div>
     );
   }
@@ -45,7 +51,9 @@ const Menu = () => {
   if (errorMessage) {
     return (
       <div className="menu-page">
-        <p>Errore caricamento menu: {errorMessage}</p>
+        <div className="menu-page-state menu-page-state-error">
+          <p>Errore caricamento menu: {errorMessage}</p>
+        </div>
       </div>
     );
   }
