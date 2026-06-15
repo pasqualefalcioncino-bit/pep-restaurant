@@ -26,23 +26,10 @@ app.use("/bookings", bookingRoutes);
 app.use("/tables", tableRoutes);
 app.use("/inventory", inventoryRoutes);
 
-// DATABASE CONNECTION
 pool.connect()
   .then(async (client) => {
     try {
-      await client.query(
-        "ALTER TABLE menu_items ADD COLUMN IF NOT EXISTS available BOOLEAN DEFAULT true"
-      );
-      await client.query(
-        "ALTER TABLE users ADD COLUMN IF NOT EXISTS phone VARCHAR(30)"
-      );
-      await client.query(
-        "ALTER TABLE users ADD COLUMN IF NOT EXISTS avatar_url TEXT"
-      );
-      await client.query(
-        "ALTER TABLE restaurant_tables ADD COLUMN IF NOT EXISTS occupied_until TIMESTAMPTZ"
-      );
-      console.log("Database collegato con successo --OK--");
+      console.log("Database collegato con successo");
       await tableModel.runTableStatusSync();
     } finally {
       client.release();
@@ -56,13 +43,11 @@ setInterval(() => {
   });
 }, TABLE_STATUS_SYNC_INTERVAL_MS);
 
-// TEST ROUTE
 app.get("/", (req, res) => {
-  res.send("Il server di PepRestaurant è in running --OK--");
+  res.send("Il server di Pep Restaurant e' in esecuzione");
 });
 
-// START SERVER
-const PORT = 3000;
+const PORT = process.env.PORT || 3000;
 
 app.listen(PORT, () => {
   console.log(`Server avviato su porta ${PORT}`);

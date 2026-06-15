@@ -17,29 +17,15 @@ const Footer = () => {
             </div>
           </div>
           <p>
-            Cucina italiana d'autore dal 2003. Tradizione, materie prime selezionate,
+            Cucina italiana d'autore dal 2026. Tradizione, materie prime selezionate,
             eccellenza al tavolo.
           </p>
-          <div className="social-icons" aria-label="Social">
-            <a className="icon-circle" href="#instagram" aria-label="Instagram">
-              <svg className="social-icon" viewBox="0 0 24 24" aria-hidden="true">
-                <rect x="4" y="4" width="16" height="16" rx="5" />
-                <circle cx="12" cy="12" r="3.5" />
-                <circle cx="17" cy="7" r="1" />
-              </svg>
-            </a>
-            <a className="icon-circle" href="#facebook" aria-label="Facebook">
-              <svg className="social-icon" viewBox="0 0 24 24" aria-hidden="true">
-                <path d="M14 8.2h2V5h-2.6C10.8 5 9.5 6.5 9.5 9v2H7v3.2h2.5V20H13v-5.8h2.5L16 11h-3V9.4c0-.8.3-1.2 1-1.2Z" />
-              </svg>
-            </a>
-          </div>
         </section>
 
         <section className="footer-section">
           <h4>VISITA</h4>
           <ul>
-            <li>Via dei Sapori 12, 20121 Milano</li>
+            <li>Via Hertz n.1, 86090, Pesche (IS)</li>
             <li><a href="tel:+393887898697">+39 388 789 8697</a></li>
             <li><a href="mailto:info@ristorantedapeppeespike.it">info@ristorantedapeppeespike.it</a></li>
           </ul>
@@ -51,14 +37,14 @@ const Footer = () => {
             <li>Mar-Sab &middot; 12:30 - 14:30</li>
             <li>Mar-Sab &middot; 19:30 - 23:00</li>
             <li>Domenica &middot; solo cena</li>
-            <li className="closed">Lunedì chiuso</li>
+            <li className="closed">LunedÃ¬ chiuso</li>
           </ul>
         </section>
       </div>
 
       <div className="footer-bottom-wrap">
         <div className="footer-bottom">
-          <p>&copy; 2003-{currentYear} Ristorante Da Peppe e Spike &middot; P.IVA 01234567890</p>
+          <p>&copy; 2026-{currentYear} Ristorante Da Peppe e Spike &middot; Progetto universitario</p>
           <div className="legal-links" aria-label="Link legali">
             <a href="#privacy">Privacy</a>
             <a href="#cookie">Cookie</a>

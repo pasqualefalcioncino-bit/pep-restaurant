@@ -19,8 +19,8 @@ const ContactSection = () => {
               <MapPin size={22} strokeWidth={1.9} />
             </span>
             <div>
-              <strong>Via dei Sapori 12</strong>
-              <p>20121 Milano, Italia</p>
+              <strong>Via Hertz n.1</strong>
+              <p>86090 Pesche (IS), Italia</p>
             </div>
           </article>
 
@@ -59,15 +59,15 @@ const ContactSection = () => {
 
       <div className="contact-map-card">
         <iframe
-          title="Mappa di Pep Restaurant a Milano"
+          title="Mappa di Pep Restaurant a Pesche"
           className="contact-map"
-          src="https://www.openstreetmap.org/export/embed.html?bbox=9.1790%2C45.4580%2C9.2010%2C45.4700&layer=mapnik&marker=45.4642%2C9.1900"
+          src="https://www.openstreetmap.org/export/embed.html?bbox=14.2600%2C41.5900%2C14.3000%2C41.6200&layer=mapnik&marker=41.6050%2C14.2800"
           loading="eager"
           referrerPolicy="no-referrer-when-downgrade"
         />
         <a
           className="contact-map-link"
-          href="https://www.openstreetmap.org/directions?to=Via%20dei%20Sapori%2012%2C%20Milano%2C%20Italia"
+          href="https://www.openstreetmap.org/directions?to=Via%20Hertz%20n.1%2C%2086090%20Pesche%20IS%2C%20Italia"
           target="_blank"
           rel="noreferrer"
         >

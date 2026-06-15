@@ -1,38 +1,77 @@
 -- Pep Restaurant Database Schema
+-- Script completo per inizializzare o resettare il database di sviluppo.
 
--- USERS TABLE
+BEGIN;
+
+DROP TABLE IF EXISTS order_items CASCADE;
+DROP TABLE IF EXISTS orders CASCADE;
+DROP TABLE IF EXISTS bookings CASCADE;
+DROP TABLE IF EXISTS inventory_items CASCADE;
+DROP TABLE IF EXISTS menu_items CASCADE;
+DROP TABLE IF EXISTS restaurant_tables CASCADE;
+DROP TABLE IF EXISTS users CASCADE;
+DROP FUNCTION IF EXISTS set_updated_at() CASCADE;
+
 CREATE TABLE users (
   id SERIAL PRIMARY KEY,
-  name VARCHAR(100),
-  email VARCHAR(100) UNIQUE,
-  password TEXT,
+  name VARCHAR(100) NOT NULL,
+  email VARCHAR(100) NOT NULL UNIQUE,
+  password TEXT NOT NULL,
   phone VARCHAR(30),
   avatar_url TEXT,
-  role VARCHAR(20) DEFAULT 'cliente'
+  role VARCHAR(20) NOT NULL DEFAULT 'cliente',
+  created_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  CONSTRAINT users_role_check CHECK (
+    role IN ('cliente', 'cameriere', 'cuoco', 'admin')
+  ),
+  CONSTRAINT users_email_format_check CHECK (
+    email ~* '^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$'
+  )
 );
 
--- MENU ITEMS TABLE
+CREATE TABLE restaurant_tables (
+  id SERIAL PRIMARY KEY,
+  table_number INT NOT NULL UNIQUE,
+  seats INT NOT NULL,
+  area VARCHAR(50),
+  status VARCHAR(20) NOT NULL DEFAULT 'libero',
+  occupied_until TIMESTAMPTZ,
+  notes TEXT,
+  created_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  CONSTRAINT restaurant_tables_number_check CHECK (table_number > 0),
+  CONSTRAINT restaurant_tables_seats_check CHECK (seats > 0),
+  CONSTRAINT restaurant_tables_status_check CHECK (
+    status IN ('libero', 'occupato', 'prenotato', 'in_pulizia')
+  )
+);
+
 CREATE TABLE menu_items (
   id SERIAL PRIMARY KEY,
   name VARCHAR(100) NOT NULL,
   description TEXT,
   price NUMERIC(10,2) NOT NULL,
   category VARCHAR(50) NOT NULL,
-  prep_time INT DEFAULT 0,
+  prep_time INT NOT NULL DEFAULT 0,
   image VARCHAR(255),
-  veg BOOLEAN DEFAULT false,
-  available BOOLEAN DEFAULT true
+  veg BOOLEAN NOT NULL DEFAULT false,
+  available BOOLEAN NOT NULL DEFAULT true,
+  created_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  CONSTRAINT menu_items_price_check CHECK (price > 0),
+  CONSTRAINT menu_items_prep_time_check CHECK (prep_time >= 0)
 );
 
--- ORDERS TABLE
 CREATE TABLE orders (
   id SERIAL PRIMARY KEY,
-  table_number INT,
-  status VARCHAR(20),
-  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+  table_number INT REFERENCES restaurant_tables(table_number)
+    ON UPDATE CASCADE
+    ON DELETE SET NULL,
+  status VARCHAR(20) NOT NULL DEFAULT 'in_attesa',
+  created_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  CONSTRAINT orders_status_check CHECK (
+    status IN ('in_attesa', 'in_preparazione', 'pronto', 'servito', 'annullato')
+  )
 );
 
--- ORDER ITEMS TABLE
 CREATE TABLE order_items (
   id SERIAL PRIMARY KEY,
   order_id INT NOT NULL REFERENCES orders(id) ON DELETE CASCADE,
@@ -41,11 +80,14 @@ CREATE TABLE order_items (
   category VARCHAR(50),
   quantity INT NOT NULL DEFAULT 1,
   notes TEXT,
-  status VARCHAR(20) DEFAULT 'pending',
-  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+  status VARCHAR(20) NOT NULL DEFAULT 'pending',
+  created_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  CONSTRAINT order_items_quantity_check CHECK (quantity > 0),
+  CONSTRAINT order_items_status_check CHECK (
+    status IN ('pending', 'preparing', 'ready', 'served', 'cancelled')
+  )
 );
 
--- BOOKINGS TABLE
 CREATE TABLE bookings (
   id SERIAL PRIMARY KEY,
   user_id INT REFERENCES users(id) ON DELETE SET NULL,
@@ -55,26 +97,22 @@ CREATE TABLE bookings (
   booking_date DATE NOT NULL,
   booking_time TIME NOT NULL,
   guests INT NOT NULL,
-  table_number INT,
+  table_number INT REFERENCES restaurant_tables(table_number)
+    ON UPDATE CASCADE
+    ON DELETE SET NULL,
   occasion VARCHAR(50),
   special_requests TEXT,
-  status VARCHAR(20) DEFAULT 'in_attesa',
-  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+  status VARCHAR(20) NOT NULL DEFAULT 'in_attesa',
+  created_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  CONSTRAINT bookings_guests_check CHECK (guests > 0 AND guests <= 12),
+  CONSTRAINT bookings_status_check CHECK (
+    status IN ('in_attesa', 'confermata', 'annullata')
+  ),
+  CONSTRAINT bookings_email_format_check CHECK (
+    email ~* '^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$'
+  )
 );
 
--- RESTAURANT TABLES TABLE
-CREATE TABLE restaurant_tables (
-  id SERIAL PRIMARY KEY,
-  table_number INT UNIQUE NOT NULL,
-  seats INT NOT NULL,
-  area VARCHAR(50),
-  status VARCHAR(20) DEFAULT 'libero',
-  occupied_until TIMESTAMPTZ,
-  notes TEXT,
-  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-);
-
--- INVENTORY ITEMS TABLE
 CREATE TABLE inventory_items (
   id SERIAL PRIMARY KEY,
   name VARCHAR(100) NOT NULL,
@@ -84,88 +122,60 @@ CREATE TABLE inventory_items (
   unit VARCHAR(20) NOT NULL,
   min_quantity NUMERIC(10,2) NOT NULL DEFAULT 0,
   notes TEXT,
-  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-);
-
--- ORDER ITEMS STATUS CONSTRAINT
-ALTER TABLE order_items
-ADD CONSTRAINT order_items_status_check
-CHECK (
-  status IN (
-    'pending',
-    'preparing',
-    'ready',
-    'served',
-    'cancelled'
+  created_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  CONSTRAINT inventory_items_quantity_check CHECK (quantity >= 0),
+  CONSTRAINT inventory_items_total_quantity_check CHECK (total_quantity > 0),
+  CONSTRAINT inventory_items_min_quantity_check CHECK (min_quantity >= 0),
+  CONSTRAINT inventory_items_quantity_limit_check CHECK (quantity <= total_quantity),
+  CONSTRAINT inventory_items_unit_check CHECK (
+    unit IN ('kg', 'g', 'l', 'ml', 'pz', 'bottiglie', 'vasetti')
   )
 );
 
--- ORDER STATUS CONSTRAINT
-ALTER TABLE orders
-ADD CONSTRAINT status_check
-CHECK (
-  status IN (
-    'in_attesa',
-    'in_preparazione',
-    'pronto',
-    'servito',
-    'annullato'
-  )
-);
+CREATE OR REPLACE FUNCTION set_updated_at()
+RETURNS TRIGGER AS $$
+BEGIN
+  NEW.updated_at = CURRENT_TIMESTAMP;
+  RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
 
--- BOOKING STATUS CONSTRAINT
-ALTER TABLE bookings
-ADD CONSTRAINT booking_status_check
-CHECK (
-  status IN (
-    'in_attesa',
-    'confermata',
-    'annullata'
-  )
-);
+CREATE TRIGGER inventory_items_set_updated_at
+BEFORE UPDATE ON inventory_items
+FOR EACH ROW
+EXECUTE FUNCTION set_updated_at();
 
--- RESTAURANT TABLE STATUS CONSTRAINT
-ALTER TABLE restaurant_tables
-ADD CONSTRAINT restaurant_tables_status_check
-CHECK (
-  status IN (
-    'libero',
-    'occupato',
-    'prenotato',
-    'in_pulizia'
-  )
-);
+CREATE INDEX idx_users_role ON users(role);
+CREATE INDEX idx_menu_items_category ON menu_items(category);
+CREATE INDEX idx_orders_status_created_at ON orders(status, created_at);
+CREATE INDEX idx_orders_table_number ON orders(table_number);
+CREATE INDEX idx_order_items_order_id ON order_items(order_id);
+CREATE INDEX idx_order_items_menu_item_id ON order_items(menu_item_id);
+CREATE INDEX idx_bookings_user_id ON bookings(user_id);
+CREATE INDEX idx_bookings_date_time ON bookings(booking_date, booking_time);
+CREATE INDEX idx_bookings_table_number ON bookings(table_number);
+CREATE INDEX idx_inventory_items_category ON inventory_items(category);
 
--- INVENTORY UNIT CONSTRAINT
-ALTER TABLE inventory_items
-ADD CONSTRAINT inventory_items_unit_check
-CHECK (
-  unit IN (
-    'kg',
-    'g',
-    'l',
-    'ml',
-    'pz',
-    'bottiglie',
-    'vasetti'
-  )
-);
-
--- DEFAULT ADMIN USER
-INSERT INTO users (name,email,password,role)
+INSERT INTO users (name, email, password, role)
 VALUES (
   'Admin',
   'admin@test.it',
   '$2b$10$aiGGoRQWbjFKgcCOLMCi6.A62X4z1v4YJPa/5VSOUKv4Sz178ufjW',
   'admin'
-)
-ON CONFLICT (email) DO UPDATE SET
-  name = EXCLUDED.name,
-  password = EXCLUDED.password,
-  role = EXCLUDED.role;
+);
 
--- DEFAULT MENU ITEMS
+INSERT INTO restaurant_tables (table_number, seats, area, status, notes)
+VALUES
+  (1, 2, 'Sala principale', 'libero', NULL),
+  (2, 2, 'Sala principale', 'libero', NULL),
+  (3, 4, 'Sala principale', 'libero', NULL),
+  (4, 4, 'Sala principale', 'libero', NULL),
+  (5, 6, 'Sala principale', 'libero', NULL),
+  (6, 2, 'Veranda', 'libero', NULL),
+  (7, 4, 'Veranda', 'libero', NULL),
+  (8, 6, 'Veranda', 'libero', NULL);
+
 INSERT INTO menu_items (id, name, description, price, category, prep_time, image, veg, available)
 VALUES
   (1, 'Risotto allo Zafferano', 'Carnaroli mantecato con zafferano puro di Navelli e foglia d''oro 23k.', 24.00, 'Primi', 22, 'risotto-allo-zafferano.webp', true, true),
@@ -191,36 +201,10 @@ VALUES
   (21, 'Calice Chianti Classico', 'Rosso toscano equilibrato, note di ciliegia, spezie dolci e finale sapido.', 11.00, 'Vini', 3, 'calice-chianti-classico.jpg', true, true),
   (22, 'Carpaccio di Manzo', 'Fettine sottili di manzo, rucola selvatica, scaglie di Parmigiano e limone.', 17.00, 'Antipasti', 10, 'carpaccio-di-manzo.jpg', false, true),
   (23, 'Burrata e Pomodorini', 'Burrata pugliese, pomodorini confit, basilico fresco e olio extravergine.', 15.00, 'Antipasti', 8, 'burrata-e-pomodorini.jpg', true, true),
-  (24, 'Fiori di Zucca Ripieni', 'Fiori di zucca croccanti con ricotta, menta e salsa leggera al pomodoro.', 16.00, 'Antipasti', 14, 'fiori-di-zucca-ripieni.jpg', true, true)
-ON CONFLICT (id) DO UPDATE SET
-  name = EXCLUDED.name,
-  description = EXCLUDED.description,
-  price = EXCLUDED.price,
-  category = EXCLUDED.category,
-  prep_time = EXCLUDED.prep_time,
-  image = EXCLUDED.image,
-  veg = EXCLUDED.veg;
+  (24, 'Fiori di Zucca Ripieni', 'Fiori di zucca croccanti con ricotta, menta e salsa leggera al pomodoro.', 16.00, 'Antipasti', 14, 'fiori-di-zucca-ripieni.jpg', true, true);
 
 SELECT setval('menu_items_id_seq', (SELECT MAX(id) FROM menu_items));
 
--- DEFAULT RESTAURANT TABLES
-INSERT INTO restaurant_tables (table_number, seats, area, status, notes)
-VALUES
-  (1, 2, 'Sala principale', 'libero', NULL),
-  (2, 2, 'Sala principale', 'libero', NULL),
-  (3, 4, 'Sala principale', 'libero', NULL),
-  (4, 4, 'Sala principale', 'libero', NULL),
-  (5, 6, 'Sala principale', 'libero', NULL),
-  (6, 2, 'Veranda', 'libero', NULL),
-  (7, 4, 'Veranda', 'libero', NULL),
-  (8, 6, 'Veranda', 'libero', NULL)
-ON CONFLICT (table_number) DO UPDATE SET
-  seats = EXCLUDED.seats,
-  area = EXCLUDED.area,
-  status = EXCLUDED.status,
-  notes = EXCLUDED.notes;
-
--- DEFAULT INVENTORY ITEMS
 INSERT INTO inventory_items (id, name, category, quantity, total_quantity, unit, min_quantity, notes)
 VALUES
   (1, 'Riso Carnaroli', 'Cereali e pasta', 18.00, 24.00, 'kg', 8.00, 'Base per risotto allo zafferano'),
@@ -243,14 +227,8 @@ VALUES
   (18, 'Fiori di zucca', 'Verdure', 45.00, 150.00, 'pz', 50.00, 'Fiori di zucca ripieni'),
   (19, 'Nebbiolo', 'Vini', 18.00, 24.00, 'bottiglie', 8.00, 'Calici al banco'),
   (20, 'Franciacorta Brut', 'Vini', 14.00, 30.00, 'bottiglie', 10.00, 'Calici e aperitivo'),
-  (21, 'Chianti Classico', 'Vini', 16.00, 24.00, 'bottiglie', 8.00, 'Calici e secondi')
-ON CONFLICT (id) DO UPDATE SET
-  name = EXCLUDED.name,
-  category = EXCLUDED.category,
-  quantity = EXCLUDED.quantity,
-  total_quantity = EXCLUDED.total_quantity,
-  unit = EXCLUDED.unit,
-  min_quantity = EXCLUDED.min_quantity,
-  notes = EXCLUDED.notes;
+  (21, 'Chianti Classico', 'Vini', 16.00, 24.00, 'bottiglie', 8.00, 'Calici e secondi');
 
 SELECT setval('inventory_items_id_seq', (SELECT MAX(id) FROM inventory_items));
+
+COMMIT;

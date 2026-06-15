@@ -3,41 +3,57 @@ const jwt = require("jsonwebtoken");
 const userModel = require("../models/user.model");
 
 const SECRET = process.env.JWT_SECRET;
+const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
-exports.register = async (req, res) => {
-  const { name, email, password } = req.body;
+if (!SECRET) {
+  throw new Error("JWT_SECRET mancante nel file .env");
+}
 
-  try {
-    const hashed = await bcrypt.hash(password, 10);
+const normalizeUserPayload = ({ name, email, password }) => {
+  const normalizedName = name?.trim();
+  const normalizedEmail = email?.trim().toLowerCase();
 
-    const result = await userModel.createUser(name, email, hashed, "cliente");
-
-    const user = result.rows[0];
-
-    res.json({
-      id: user.id,
-      name: user.name,
-      email: user.email,
-      phone: user.phone,
-      avatar_url: user.avatar_url,
-      role: user.role
-    });
-  } catch (err) {
-    res.status(500).send("Errore registrazione");
+  if (!normalizedName || !normalizedEmail || !password) {
+    return { error: "Nome, email e password sono obbligatori" };
   }
+
+  if (!emailPattern.test(normalizedEmail)) {
+    return { error: "Email non valida" };
+  }
+
+  if (String(password).length < 6) {
+    return { error: "La password deve contenere almeno 6 caratteri" };
+  }
+
+  return {
+    name: normalizedName,
+    email: normalizedEmail,
+    password,
+  };
 };
 
-exports.createEmployee = async (req, res) => {
-  const { name, email, password, role } = req.body;
-  const allowedRoles = ["cuoco", "cameriere", "admin"];
+const sendDuplicateEmailError = (err, res, fallbackMessage) => {
+  if (err.code === "23505") {
+    res.status(409).send("Email gia' in uso");
+    return true;
+  }
 
-  if (!allowedRoles.includes(role)) {
-    return res.status(400).send("Ruolo dipendente non valido");
+  res.status(500).send(fallbackMessage);
+  return true;
+};
+
+exports.register = async (req, res) => {
+  const payload = normalizeUserPayload(req.body);
+
+  if (payload.error) {
+    return res.status(400).send(payload.error);
   }
 
   try {
-    const hashed = await bcrypt.hash(password, 10);
-    const result = await userModel.createUser(name, email, hashed, role);
+    const hashed = await bcrypt.hash(payload.password, 10);
+
+    const result = await userModel.createUser(payload.name, payload.email, hashed, "cliente");
+
     const user = result.rows[0];
 
     res.status(201).json({
@@ -49,12 +65,48 @@ exports.createEmployee = async (req, res) => {
       role: user.role
     });
   } catch (err) {
-    res.status(500).send("Errore creazione dipendente");
+    sendDuplicateEmailError(err, res, "Errore registrazione");
+  }
+};
+
+exports.createEmployee = async (req, res) => {
+  const { role } = req.body;
+  const payload = normalizeUserPayload(req.body);
+  const allowedRoles = ["cuoco", "cameriere", "admin"];
+
+  if (payload.error) {
+    return res.status(400).send(payload.error);
+  }
+
+  if (!allowedRoles.includes(role)) {
+    return res.status(400).send("Ruolo dipendente non valido");
+  }
+
+  try {
+    const hashed = await bcrypt.hash(payload.password, 10);
+    const result = await userModel.createUser(payload.name, payload.email, hashed, role);
+    const user = result.rows[0];
+
+    res.status(201).json({
+      id: user.id,
+      name: user.name,
+      email: user.email,
+      phone: user.phone,
+      avatar_url: user.avatar_url,
+      role: user.role
+    });
+  } catch (err) {
+    sendDuplicateEmailError(err, res, "Errore creazione dipendente");
   }
 };
 
 exports.login = async (req, res) => {
-  const { email, password } = req.body;
+  const email = req.body.email?.trim().toLowerCase();
+  const { password } = req.body;
+
+  if (!email || !password) {
+    return res.status(400).send("Email e password sono obbligatorie");
+  }
 
   try {
     const result = await userModel.findByEmail(email);
