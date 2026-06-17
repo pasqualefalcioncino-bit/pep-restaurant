@@ -201,7 +201,6 @@ const AdminBookings = () => {
     <section className="admin-bookings-page" aria-labelledby="admin-bookings-title">
       <div className="admin-bookings-header">
         <h1 id="admin-bookings-title">Prenotazioni Ricevute</h1>
-        <p>{todayBookings.length} prenotazioni per oggi.</p>
       </div>
 
       <div className="admin-bookings-stats" aria-label="Riepilogo prenotazioni">

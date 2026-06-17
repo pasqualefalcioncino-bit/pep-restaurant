@@ -286,7 +286,6 @@ const AdminMenu = () => {
     <section className="admin-menu-page" aria-labelledby="admin-menu-title">
       <div className="admin-menu-header">
         <h1 id="admin-menu-title">Gestione Menu</h1>
-        <p>{menuItems.length} piatti presenti nel database.</p>
       </div>
 
       <div className="admin-menu-stats" aria-label="Riepilogo menu">
@@ -357,24 +356,30 @@ const AdminMenu = () => {
 
           <label>
             Prezzo
-            <input
-              type="number"
-              min="0.01"
-              step="0.01"
-              value={formData.price}
-              onChange={(event) => updateField('price', event.target.value)}
-              required
-            />
+            <div className="admin-menu-input-unit">
+              <input
+                type="number"
+                min="0.01"
+                step="0.01"
+                value={formData.price}
+                onChange={(event) => updateField('price', event.target.value)}
+                required
+              />
+              <span aria-hidden="true">€</span>
+            </div>
           </label>
 
           <label>
             Tempo preparazione
-            <input
-              type="number"
-              min="0"
-              value={formData.prep_time}
-              onChange={(event) => updateField('prep_time', event.target.value)}
-            />
+            <div className="admin-menu-input-unit">
+              <input
+                type="number"
+                min="0"
+                value={formData.prep_time}
+                onChange={(event) => updateField('prep_time', event.target.value)}
+              />
+              <span>minuti</span>
+            </div>
           </label>
 
           <label>

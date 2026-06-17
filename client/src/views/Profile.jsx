@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Camera, Mail, Phone, Save, Trash2, User } from 'lucide-react';
 import { apiRequest, getAuthUser, saveAuthSession, getAuthToken } from '../api/client';
 import useAutoDismiss from '../hooks/useAutoDismiss';
@@ -7,6 +7,7 @@ import './Profile.css';
 
 const Profile = ({ onProfileUpdate }) => {
   const storedUser = getAuthUser();
+  const fileInputRef = useRef(null);
   const [profileData, setProfileData] = useState({
     name: storedUser?.name || '',
     email: storedUser?.email || '',
@@ -69,9 +70,20 @@ const Profile = ({ onProfileUpdate }) => {
 
     reader.onload = () => {
       updateField('avatar_url', reader.result);
+      if (fileInputRef.current) {
+        fileInputRef.current.value = '';
+      }
     };
 
     reader.readAsDataURL(file);
+  };
+
+  const removeAvatar = () => {
+    updateField('avatar_url', '');
+
+    if (fileInputRef.current) {
+      fileInputRef.current.value = '';
+    }
   };
 
   const updatePhone = (value) => {
@@ -142,6 +154,7 @@ const Profile = ({ onProfileUpdate }) => {
           </label>
           <input
             id="profile-avatar-upload"
+            ref={fileInputRef}
             className="profile-file-input"
             type="file"
             accept="image/*"
@@ -151,7 +164,7 @@ const Profile = ({ onProfileUpdate }) => {
             <button
               className="profile-remove-avatar"
               type="button"
-              onClick={() => updateField('avatar_url', '')}
+              onClick={removeAvatar}
             >
               <Trash2 size={16} strokeWidth={2} aria-hidden="true" />
               Rimuovi immagine
@@ -199,7 +212,7 @@ const Profile = ({ onProfileUpdate }) => {
                 type="tel"
                 value={profileData.phone}
                 onChange={(event) => updatePhone(event.target.value)}
-                placeholder="3331234567"
+                placeholder="Inserisci numero"
                 autoComplete="tel"
                 inputMode="numeric"
                 pattern="[0-9]{10}"

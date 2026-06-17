@@ -193,6 +193,25 @@
   color: var(--text-muted);
 }
 
+.admin-menu-input-unit {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.admin-menu-input-unit input {
+  padding-right: 72px;
+}
+
+.admin-menu-input-unit span {
+  position: absolute;
+  right: 12px;
+  color: var(--gold-primary);
+  font-size: 0.82rem;
+  font-weight: 800;
+  pointer-events: none;
+}
+
 .admin-menu-image-field {
   display: grid;
   grid-template-columns: minmax(0, 1fr) 42px;

@@ -225,7 +225,6 @@ const AdminInventory = () => {
       <div className="admin-inventory-header">
         <div>
           <h1 id="admin-inventory-title">Inventario</h1>
-          <p>Ingredienti e materie prime collegati al menu del ristorante.</p>
         </div>
       </div>
 

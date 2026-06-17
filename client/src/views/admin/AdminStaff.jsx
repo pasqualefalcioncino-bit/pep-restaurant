@@ -181,7 +181,6 @@ const AdminStaff = () => {
       <div className="admin-staff-header">
         <div>
           <h1 id="admin-staff-title">Staff</h1>
-          <p>{staffMembers.length} membri staff presenti nel database.</p>
         </div>
         <button type="button" onClick={() => setIsCreateFormOpen((isOpen) => !isOpen)}>
           {isCreateFormOpen ? <X size={16} aria-hidden="true" /> : <Plus size={16} aria-hidden="true" />}

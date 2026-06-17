@@ -252,7 +252,6 @@ const AdminDashboard = ({ onNavigate }) => {
     <section className="admin-dashboard-page" aria-labelledby="admin-dashboard-title">
       <div className="admin-dashboard-header">
         <h1 id="admin-dashboard-title">Dashboard</h1>
-        <p>Riepilogo operativo di prenotazioni, ordini, tavoli, inventario, utenti e menu.</p>
       </div>
 
       {loadErrors.length > 0 && (

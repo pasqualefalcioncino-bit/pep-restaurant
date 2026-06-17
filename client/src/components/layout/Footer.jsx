@@ -33,11 +33,12 @@ const Footer = () => {
 
         <section className="footer-section">
           <h4>ORARI</h4>
-          <ul>
-            <li>Mar-Sab &middot; 12:30 - 14:30</li>
-            <li>Mar-Sab &middot; 19:30 - 23:00</li>
-            <li>Domenica &middot; solo cena</li>
-            <li className="closed">LunedÃ¬ chiuso</li>
+          <ul className="footer-hours-list">
+            <li className="footer-hours-days">Lunedi - Domenica</li>
+            <li className="footer-hours-times">
+              <span>12:30 - 14:30</span>
+              <span>19:30 - 23:00</span>
+            </li>
           </ul>
         </section>
       </div>

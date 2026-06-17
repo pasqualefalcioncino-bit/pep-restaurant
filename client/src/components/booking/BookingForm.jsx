@@ -17,7 +17,7 @@ const getTodayValue = () => {
 };
 
 const getPhoneParts = (phoneValue = '') => {
-  const phone = phoneValue.trim();
+  const phone = String(phoneValue || '').trim();
   const matchingPrefix = countryPrefixes.find((countryPrefix) =>
     phone.startsWith(countryPrefix.value)
   )?.value;

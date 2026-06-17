@@ -307,7 +307,6 @@ const AdminTables = () => {
       <div className="admin-tables-header">
         <div>
           <h1 id="admin-tables-title">Tavoli</h1>
-          <p>{tables.length} tavoli configurati per la sala.</p>
         </div>
       </div>
 

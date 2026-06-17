@@ -168,7 +168,8 @@
 }
 
 .admin-inventory-form option {
-  color: #1f1a17;
+  background: var(--bg-dark);
+  color: var(--text-white);
 }
 
 .admin-inventory-form input:focus,

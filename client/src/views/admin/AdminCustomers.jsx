@@ -126,7 +126,6 @@ const AdminCustomers = () => {
       <div className="admin-customers-header">
         <div>
           <h1 id="admin-customers-title">Clienti</h1>
-          <p>{customers.length} clienti presenti nel database.</p>
         </div>
       </div>
 
