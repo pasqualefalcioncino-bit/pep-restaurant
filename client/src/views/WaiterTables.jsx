@@ -7,6 +7,7 @@ import {
   Sparkles,
   Users,
   Utensils,
+  XCircle,
 } from 'lucide-react';
 import { apiRequest } from '../api/client';
 import useAutoDismiss from '../hooks/useAutoDismiss';
@@ -37,6 +38,7 @@ const WaiterTables = ({ onNavigate }) => {
   const [assignedTable, setAssignedTable] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
+  const [releasingTableId, setReleasingTableId] = useState(null);
   const [errorMessage, setErrorMessage] = useState('');
 
   useAutoDismiss(errorMessage, setErrorMessage);
@@ -127,6 +129,29 @@ const WaiterTables = ({ onNavigate }) => {
     }
   };
 
+  const releaseTable = async (table) => {
+    setReleasingTableId(table.id);
+    setErrorMessage('');
+    setAssignedTable(null);
+
+    try {
+      const updatedTable = await apiRequest(`/tables/${table.id}/status`, {
+        method: 'PATCH',
+        body: JSON.stringify({ status: 'libero' }),
+      });
+
+      setTables((currentTables) =>
+        currentTables.map((currentTable) =>
+          currentTable.id === updatedTable.id ? updatedTable : currentTable
+        )
+      );
+    } catch (error) {
+      setErrorMessage(error.message);
+    } finally {
+      setReleasingTableId(null);
+    }
+  };
+
   if (isLoading) {
     return (
       <section className="waiter-tables-page">
@@ -168,10 +193,7 @@ const WaiterTables = ({ onNavigate }) => {
           <CheckCircle2 size={22} />
           <div>
             <strong>Tavolo {assignedTable.table_number} occupato.</strong>
-            <span>
-              {assignedTable.guests} coperti: tornera libero automaticamente tra 1 ora se non
-              parte un ordine.
-            </span>
+            <span>{assignedTable.guests} coperti: liberalo dalla pagina Tavoli quando i clienti escono.</span>
           </div>
           <button type="button" onClick={() => onNavigate('ordini')}>
             Vai agli ordini
@@ -256,6 +278,7 @@ const WaiterTables = ({ onNavigate }) => {
             <div className="waiter-tables-grid">
               {visibleTables.map((table) => {
                 const canFitGuests = table.status === 'libero' && Number(table.seats) >= guestCount;
+                const isOccupied = table.status === 'occupato';
 
                 return (
                   <article
@@ -280,10 +303,23 @@ const WaiterTables = ({ onNavigate }) => {
                       <strong>{table.seats} posti</strong>
                       {canFitGuests ? (
                         <span>Adatto a {guestCount}</span>
+                      ) : isOccupied ? (
+                        <span>In servizio</span>
                       ) : (
                         <span>Non selezionabile</span>
                       )}
                     </div>
+                    {isOccupied && (
+                      <button
+                        className="waiter-tables-release-btn"
+                        type="button"
+                        onClick={() => releaseTable(table)}
+                        disabled={releasingTableId === table.id}
+                      >
+                        <XCircle size={16} />
+                        {releasingTableId === table.id ? 'Liberando...' : 'Libera'}
+                      </button>
+                    )}
                   </article>
                 );
               })}

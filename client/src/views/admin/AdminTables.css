@@ -53,8 +53,8 @@
 }
 
 .admin-tables-stat.status-libero {
-  border-color: rgba(81, 207, 102, 0.38);
-  background: rgba(81, 207, 102, 0.08);
+  border-color: rgba(48, 216, 120, 0.38);
+  background: rgba(48, 216, 120, 0.08);
 }
 
 .admin-tables-stat.status-libero strong {
@@ -71,21 +71,21 @@
 }
 
 .admin-tables-stat.status-prenotato {
-  border-color: rgba(116, 192, 252, 0.4);
-  background: rgba(116, 192, 252, 0.08);
+  border-color: rgba(230, 181, 62, 0.4);
+  background: rgba(230, 181, 62, 0.08);
 }
 
 .admin-tables-stat.status-prenotato strong {
-  color: var(--status-blue);
+  color: var(--gold-primary);
 }
 
 .admin-tables-stat.status-in_pulizia {
-  border-color: rgba(255, 212, 59, 0.4);
-  background: rgba(255, 212, 59, 0.08);
+  border-color: rgba(127, 215, 255, 0.4);
+  background: rgba(127, 215, 255, 0.08);
 }
 
 .admin-tables-stat.status-in_pulizia strong {
-  color: var(--gold-primary);
+  color: var(--status-cyan);
 }
 
 .admin-tables-stat span {
@@ -337,8 +337,8 @@
 }
 
 .admin-table-card.status-libero {
-  border-color: rgba(81, 207, 102, 0.35);
-  background: linear-gradient(180deg, rgba(81, 207, 102, 0.08), var(--card-bg) 52%);
+  border-color: rgba(48, 216, 120, 0.35);
+  background: linear-gradient(180deg, rgba(48, 216, 120, 0.08), var(--card-bg) 52%);
 }
 
 .admin-table-card.status-occupato {
@@ -347,13 +347,13 @@
 }
 
 .admin-table-card.status-prenotato {
-  border-color: rgba(116, 192, 252, 0.38);
-  background: linear-gradient(180deg, rgba(116, 192, 252, 0.08), var(--card-bg) 52%);
+  border-color: rgba(230, 181, 62, 0.38);
+  background: linear-gradient(180deg, rgba(230, 181, 62, 0.08), var(--card-bg) 52%);
 }
 
 .admin-table-card.status-in_pulizia {
-  border-color: rgba(255, 212, 59, 0.38);
-  background: linear-gradient(180deg, rgba(255, 212, 59, 0.08), var(--card-bg) 52%);
+  border-color: rgba(127, 215, 255, 0.38);
+  background: linear-gradient(180deg, rgba(127, 215, 255, 0.08), var(--card-bg) 52%);
 }
 
 .admin-table-card-top {
@@ -481,8 +481,8 @@
 }
 
 .admin-table-status.libero {
-  border: 1px solid rgba(81, 207, 102, 0.28);
-  background: rgba(81, 207, 102, 0.14);
+  border: 1px solid rgba(48, 216, 120, 0.28);
+  background: rgba(48, 216, 120, 0.14);
   color: var(--status-green);
 }
 
@@ -493,15 +493,15 @@
 }
 
 .admin-table-status.prenotato {
-  border: 1px solid rgba(116, 192, 252, 0.28);
-  background: rgba(116, 192, 252, 0.14);
-  color: var(--status-blue);
+  border: 1px solid rgba(230, 181, 62, 0.28);
+  background: rgba(230, 181, 62, 0.14);
+  color: var(--gold-primary);
 }
 
 .admin-table-status.in_pulizia {
-  border: 1px solid rgba(255, 212, 59, 0.28);
-  background: rgba(255, 212, 59, 0.14);
-  color: var(--gold-primary);
+  border: 1px solid rgba(127, 215, 255, 0.28);
+  background: rgba(127, 215, 255, 0.14);
+  color: var(--status-cyan);
 }
 
 .admin-table-details {

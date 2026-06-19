@@ -1,5 +1,20 @@
 const bookingModel = require("../models/booking.model");
 
+const availableBookingTimes = [
+  "12:30",
+  "13:00",
+  "13:30",
+  "14:00",
+  "19:30",
+  "20:00",
+  "20:30",
+  "21:00",
+  "21:30",
+  "22:00",
+];
+
+const mondayIndex = 1;
+
 const isValidBookingPayload = ({
   full_name,
   email,
@@ -16,10 +31,16 @@ const isValidBookingPayload = ({
     phone &&
     booking_date &&
     booking_time &&
+    typeof booking_time === "string" &&
+    availableBookingTimes.includes(booking_time.slice(0, 5)) &&
     Number.isInteger(guestCount) &&
     guestCount > 0 &&
     guestCount <= 12
   );
+};
+
+const isClosedBookingDate = (bookingDate) => {
+  return new Date(`${bookingDate}T00:00:00`).getDay() === mondayIndex;
 };
 
 const isFutureBookingDateTime = (bookingDate, bookingTime) => {
@@ -28,14 +49,10 @@ const isFutureBookingDateTime = (bookingDate, bookingTime) => {
 
 const bookingFailureMessages = {
   create: {
-    SAME_DATE_TIME:
-      "Impossibile prenotare: esiste gia' una prenotazione per lo stesso giorno e orario",
     NO_TABLE_AVAILABLE:
       "Impossibile prenotare: nessun tavolo disponibile per il numero di persone indicato",
   },
   update: {
-    SAME_DATE_TIME:
-      "Impossibile modificare: esiste gia' una prenotazione per lo stesso giorno e orario",
     NO_TABLE_AVAILABLE:
       "Impossibile modificare: nessun tavolo disponibile per il numero di persone indicato",
   },
@@ -81,6 +98,10 @@ exports.createBooking = async (req, res) => {
     return res
       .status(400)
       .send("Impossibile prenotare: data e orario selezionati sono gia' passati");
+  }
+
+  if (isClosedBookingDate(booking_date)) {
+    return res.status(400).send("Impossibile prenotare: il lunedi siamo chiusi");
   }
 
   try {
@@ -147,6 +168,10 @@ exports.updateMyBooking = async (req, res) => {
     return res
       .status(400)
       .send("Impossibile modificare: data e orario selezionati sono gia' passati");
+  }
+
+  if (isClosedBookingDate(booking_date)) {
+    return res.status(400).send("Impossibile modificare: il lunedi siamo chiusi");
   }
 
   try {
@@ -226,6 +251,10 @@ exports.updateBookingStatus = async (req, res) => {
 
     if (result.reason === "TABLE_NOT_FOUND") {
       return res.status(404).send("Tavolo non trovato");
+    }
+
+    if (result.reason === "TABLE_REQUIRED") {
+      return res.status(400).send("Assegna un tavolo per confermare la prenotazione");
     }
 
     if (result.reason === "TABLE_NOT_AVAILABLE") {

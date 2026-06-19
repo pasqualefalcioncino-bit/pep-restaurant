@@ -1,4 +1,5 @@
 import { getBrandImage } from '../../utils/brandImages';
+import { openingHours } from '../../utils/openingHours';
 import './Footer.css';
 
 const Footer = () => {
@@ -34,10 +35,11 @@ const Footer = () => {
         <section className="footer-section">
           <h4>ORARI</h4>
           <ul className="footer-hours-list">
-            <li className="footer-hours-days">Lunedi - Domenica</li>
+            <li className="footer-hours-days">{openingHours.closedLabel}</li>
+            <li className="footer-hours-days">{openingHours.openDaysLabel}</li>
             <li className="footer-hours-times">
-              <span>12:30 - 14:30</span>
-              <span>19:30 - 23:00</span>
+              <span>{openingHours.lunchLabel}</span>
+              <span>{openingHours.dinnerLabel}</span>
             </li>
           </ul>
         </section>

@@ -156,14 +156,10 @@ const updateStatus = async (id, status) => {
       [itemStatusByOrderStatus[status], id]
     );
 
-    if (tableNumber) {
-      const tableStatus = ["servito", "annullato"].includes(status)
-        ? "libero"
-        : "occupato";
-
+    if (tableNumber && !["servito", "annullato"].includes(status)) {
       await client.query(
-        "UPDATE restaurant_tables SET status=$1, occupied_until=NULL WHERE table_number=$2",
-        [tableStatus, tableNumber]
+        "UPDATE restaurant_tables SET status='occupato', occupied_until=NULL WHERE table_number=$1",
+        [tableNumber]
       );
     }
 
@@ -228,6 +224,11 @@ const markOrderItemReady = async (orderId, itemId) => {
     if (counts.total_items > 0 && counts.total_items === counts.ready_items) {
       await client.query(
         "UPDATE orders SET status='pronto' WHERE id=$1",
+        [orderId]
+      );
+    } else if (orderResult.rows[0].status === "in_attesa") {
+      await client.query(
+        "UPDATE orders SET status='in_preparazione' WHERE id=$1",
         [orderId]
       );
     }

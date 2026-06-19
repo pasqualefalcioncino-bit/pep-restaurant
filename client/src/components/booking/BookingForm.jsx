@@ -1,20 +1,21 @@
 import { useEffect, useMemo, useState } from 'react';
 import { Circle, Minus, Plus } from 'lucide-react';
 import { apiRequest, getAuthUser, saveAuthSession, getAuthToken } from '../../api/client';
+import BookingDatePicker from './BookingDatePicker';
 import BookingOccasion from './BookingOccasion';
 import BookingSummary from './BookingSummary';
 import bookingOptions from '../../data/bookingOptions.json';
 import useAutoDismiss from '../../hooks/useAutoDismiss';
+import {
+  getBookingTimeOptions,
+  getFirstAvailableTime,
+  getNextOpenDateValue,
+  getSafeBookingDate,
+  isClosedDate,
+} from '../../utils/bookingAvailability';
 import './BookingForm.css';
 
-const { availableTimes, countryPrefixes } = bookingOptions;
-
-const getTodayValue = () => {
-  const today = new Date();
-  const timezoneOffset = today.getTimezoneOffset() * 60000;
-
-  return new Date(today.getTime() - timezoneOffset).toISOString().split('T')[0];
-};
+const { countryPrefixes } = bookingOptions;
 
 const getPhoneParts = (phoneValue = '') => {
   const phone = String(phoneValue || '').trim();
@@ -39,10 +40,11 @@ const BookingForm = ({ onBookingSuccess }) => {
   const currentUser = useMemo(() => getAuthUser(), []);
   const currentUserPhone = useMemo(() => getPhoneParts(currentUser?.phone), [currentUser?.phone]);
   const [currentStep, setCurrentStep] = useState(1);
+  const initialDate = getNextOpenDateValue();
   const [bookingData, setBookingData] = useState({
-    date: getTodayValue(),
+    date: initialDate,
     guests: 2,
-    time: '20:00',
+    time: getFirstAvailableTime(initialDate),
     occasion: 'lavoro',
     specialRequests: '',
     fullName: currentUser?.role === 'cliente' ? currentUser.name || '' : '',
@@ -53,7 +55,7 @@ const BookingForm = ({ onBookingSuccess }) => {
   const [isConfirmed, setIsConfirmed] = useState(false);
   const [isSubmittingBooking, setIsSubmittingBooking] = useState(false);
   const [bookingErrorMessage, setBookingErrorMessage] = useState('');
-  const todayValue = getTodayValue();
+  const timeOptions = getBookingTimeOptions(bookingData.date);
   const maxGuests = 12;
 
   useAutoDismiss(bookingErrorMessage, setBookingErrorMessage);
@@ -97,6 +99,23 @@ const BookingForm = ({ onBookingSuccess }) => {
     setBookingErrorMessage('');
   };
 
+  const updateDate = (value) => {
+    const safeDate = getSafeBookingDate(value);
+    const nextTime = getFirstAvailableTime(safeDate) || '';
+
+    setBookingData((currentData) => ({
+      ...currentData,
+      date: safeDate,
+      time: getBookingTimeOptions(safeDate).some(
+        (option) => option.time === currentData.time && !option.disabled
+      )
+        ? currentData.time
+        : nextTime,
+    }));
+    setIsConfirmed(false);
+    setBookingErrorMessage('');
+  };
+
   const updateGuests = (nextGuests) => {
     const safeGuests = Math.min(maxGuests, Math.max(1, Number(nextGuests) || 1));
     updateField('guests', safeGuests);
@@ -104,6 +123,19 @@ const BookingForm = ({ onBookingSuccess }) => {
 
   const handleSubmit = (event) => {
     event.preventDefault();
+
+    if (isClosedDate(bookingData.date)) {
+      setBookingErrorMessage('Il lunedi siamo chiusi. Scegli un altro giorno.');
+      return;
+    }
+
+    const selectedTimeOption = timeOptions.find((option) => option.time === bookingData.time);
+
+    if (!bookingData.time || selectedTimeOption?.disabled) {
+      setBookingErrorMessage('Seleziona un orario futuro disponibile.');
+      return;
+    }
+
     setCurrentStep(2);
   };
 
@@ -160,14 +192,11 @@ const BookingForm = ({ onBookingSuccess }) => {
           <form className="booking-card" onSubmit={handleSubmit}>
             <div className="booking-form-row">
               <div className="booking-form-group">
-                <label htmlFor="booking-date">Data</label>
-                <input
+                <BookingDatePicker
                   id="booking-date"
-                  type="date"
-                  min={todayValue}
+                  label="Data"
                   value={bookingData.date}
-                  onChange={(event) => updateField('date', event.target.value)}
-                  required
+                  onChange={updateDate}
                 />
               </div>
 
@@ -207,13 +236,17 @@ const BookingForm = ({ onBookingSuccess }) => {
             <div className="booking-times-section">
               <span className="booking-field-label">Orario disponibile</span>
               <div className="booking-times-grid">
-                {availableTimes.map((time) => (
+                {timeOptions.map(({ time, disabled, reason }) => (
                   <button
                     key={time}
-                    className={`booking-time-btn${bookingData.time === time ? ' selected' : ''}`}
+                    className={`booking-time-btn${bookingData.time === time ? ' selected' : ''}${
+                      disabled ? ' unavailable' : ''
+                    }`}
                     type="button"
+                    disabled={disabled}
                     onClick={() => updateField('time', time)}
                     aria-pressed={bookingData.time === time}
+                    title={disabled ? reason : undefined}
                   >
                     <Circle size={12} strokeWidth={2.4} aria-hidden="true" />
                     {time}

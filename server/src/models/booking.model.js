@@ -1,6 +1,7 @@
 const pool = require("../config/db");
 
-const TABLE_TURNOVER_MINUTES = 120;
+const TABLE_TURNOVER_MINUTES = 30;
+const CUSTOMER_MANAGEABLE_STATUSES = ["in_attesa", "confermata"];
 
 const getAutomaticTable = async (client, guests, bookingDate, bookingTime, excludedBookingId = null) => {
   const result = await client.query(
@@ -25,21 +26,6 @@ const getAutomaticTable = async (client, guests, bookingDate, bookingTime, exclu
   );
 
   return result.rows[0]?.table_number || null;
-};
-
-const hasBookingAtSameDateTime = async (client, bookingDate, bookingTime, excludedId = null) => {
-  const result = await client.query(
-    `SELECT id
-     FROM bookings
-     WHERE booking_date=$1
-       AND booking_time=$2
-       AND status <> 'annullata'
-       AND ($3::int IS NULL OR id <> $3)
-     LIMIT 1`,
-    [bookingDate, bookingTime, excludedId]
-  );
-
-  return result.rows.length > 0;
 };
 
 const releaseTableIfUnused = async (client, tableNumber, excludedBookingId = null) => {
@@ -82,11 +68,6 @@ const createBooking = async ({
   try {
     await client.query("BEGIN");
 
-    if (await hasBookingAtSameDateTime(client, booking_date, booking_time)) {
-      await client.query("ROLLBACK");
-      return { rows: [], reason: "SAME_DATE_TIME" };
-    }
-
     const tableNumber = await getAutomaticTable(client, guests, booking_date, booking_time);
 
     if (!tableNumber) {
@@ -96,9 +77,9 @@ const createBooking = async ({
 
     const result = await client.query(
       `INSERT INTO bookings
-        (user_id, full_name, email, phone, booking_date, booking_time, guests, table_number, occasion, special_requests)
+        (user_id, full_name, email, phone, booking_date, booking_time, guests, table_number, occasion, special_requests, status)
        VALUES
-        ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10)
+        ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,'confermata')
        RETURNING *`,
       [
         user_id,
@@ -162,10 +143,10 @@ const updateCustomerBooking = async (
        JOIN users u ON u.id=$2
        WHERE b.id=$1
          AND (b.user_id=$2 OR b.email=u.email)
-         AND b.status='in_attesa'
+         AND b.status = ANY($3::text[])
          AND (b.booking_date + b.booking_time) > CURRENT_TIMESTAMP
        FOR UPDATE OF b`,
-      [id, userId]
+      [id, userId, CUSTOMER_MANAGEABLE_STATUSES]
     );
 
     const currentBooking = bookingResult.rows[0];
@@ -173,11 +154,6 @@ const updateCustomerBooking = async (
     if (!currentBooking) {
       await client.query("ROLLBACK");
       return { rows: [] };
-    }
-
-    if (await hasBookingAtSameDateTime(client, booking_date, booking_time, id)) {
-      await client.query("ROLLBACK");
-      return { rows: [], reason: "SAME_DATE_TIME" };
     }
 
     const tableNumber = await getAutomaticTable(
@@ -250,10 +226,10 @@ const cancelCustomerBooking = async (id, userId) => {
        JOIN users u ON u.id=$2
        WHERE b.id=$1
          AND (b.user_id=$2 OR b.email=u.email)
-         AND b.status='in_attesa'
+         AND b.status = ANY($3::text[])
          AND (b.booking_date + b.booking_time) > CURRENT_TIMESTAMP
        FOR UPDATE OF b`,
-      [id, userId]
+      [id, userId, CUSTOMER_MANAGEABLE_STATUSES]
     );
 
     const currentBooking = bookingResult.rows[0];
@@ -271,10 +247,10 @@ const cancelCustomerBooking = async (id, userId) => {
        WHERE b.id=$1
          AND u.id=$2
          AND (b.user_id=$2 OR b.email=u.email)
-         AND b.status='in_attesa'
+         AND b.status = ANY($3::text[])
          AND (b.booking_date + b.booking_time) > CURRENT_TIMESTAMP
        RETURNING b.*`,
-      [id, userId]
+      [id, userId, CUSTOMER_MANAGEABLE_STATUSES]
     );
 
     await releaseTableIfUnused(client, currentBooking.table_number, id);
@@ -296,7 +272,7 @@ const updateBookingStatus = async (id, status, tableNumber = null) => {
     await client.query("BEGIN");
 
     const bookingResult = await client.query(
-      "SELECT id, table_number FROM bookings WHERE id=$1",
+      "SELECT id, table_number, booking_date, booking_time, guests FROM bookings WHERE id=$1",
       [id]
     );
 
@@ -306,11 +282,22 @@ const updateBookingStatus = async (id, status, tableNumber = null) => {
     }
 
     const previousTableNumber = bookingResult.rows[0].table_number;
+    const { booking_date: bookingDate, booking_time: bookingTime, guests } = bookingResult.rows[0];
     const nextTableNumber = status === "confermata" ? tableNumber : null;
+
+    if (status === "confermata" && !nextTableNumber) {
+      await client.query("ROLLBACK");
+      return {
+        rows: [],
+        reason: "TABLE_REQUIRED",
+      };
+    }
 
     if (nextTableNumber) {
       const tableResult = await client.query(
-        "SELECT id, status FROM restaurant_tables WHERE table_number=$1",
+        `SELECT id, seats, status
+         FROM restaurant_tables
+         WHERE table_number=$1`,
         [nextTableNumber]
       );
 
@@ -323,13 +310,29 @@ const updateBookingStatus = async (id, status, tableNumber = null) => {
       }
 
       const tableStatus = tableResult.rows[0].status;
-      const isSameAssignedTable = previousTableNumber === nextTableNumber;
 
-      if (
-        tableStatus === "in_pulizia" ||
-        tableStatus === "occupato" ||
-        (tableStatus === "prenotato" && !isSameAssignedTable)
-      ) {
+      if (tableResult.rows[0].seats < guests || tableStatus === "in_pulizia") {
+        await client.query("ROLLBACK");
+        return {
+          rows: [],
+          reason: "TABLE_NOT_AVAILABLE",
+        };
+      }
+
+      const slotConflictResult = await client.query(
+        `SELECT id
+         FROM bookings
+         WHERE table_number=$1
+           AND booking_date=$2
+           AND booking_time > ($3::time - ($5::int * INTERVAL '1 minute'))
+           AND booking_time < ($3::time + ($5::int * INTERVAL '1 minute'))
+           AND status <> 'annullata'
+           AND id <> $4
+         LIMIT 1`,
+        [nextTableNumber, bookingDate, bookingTime, id, TABLE_TURNOVER_MINUTES]
+      );
+
+      if (slotConflictResult.rows.length > 0) {
         await client.query("ROLLBACK");
         return {
           rows: [],

@@ -1,7 +1,6 @@
 const pool = require("../config/db");
 
-const BOOKING_OCCUPANCY_MINUTES = 60;
-const GUEST_SEATING_MINUTES = 60;
+const BOOKING_OCCUPANCY_MINUTES = 30;
 
 const syncReservedTableStatuses = async (client) => {
   await client.query(
@@ -27,22 +26,6 @@ const syncReservedTableStatuses = async (client) => {
      SET status='prenotato',
          occupied_until=NULL
      WHERE t.status = 'libero'
-       AND EXISTS (
-         SELECT 1
-         FROM bookings b
-         WHERE b.table_number = t.table_number
-           AND b.status <> 'annullata'
-           AND (b.booking_date + b.booking_time) > CURRENT_TIMESTAMP
-       )`
-  );
-
-  await client.query(
-    `UPDATE restaurant_tables t
-     SET status='libero',
-         occupied_until=NULL
-     WHERE t.status = 'occupato'
-       AND t.occupied_until IS NOT NULL
-       AND t.occupied_until <= CURRENT_TIMESTAMP
        AND NOT EXISTS (
          SELECT 1
          FROM orders o
@@ -51,12 +34,20 @@ const syncReservedTableStatuses = async (client) => {
        )
        AND NOT EXISTS (
          SELECT 1
+         FROM bookings active_b
+         WHERE active_b.table_number = t.table_number
+           AND active_b.status <> 'annullata'
+           AND CURRENT_TIMESTAMP >= (active_b.booking_date + active_b.booking_time)
+           AND CURRENT_TIMESTAMP < (
+             active_b.booking_date + active_b.booking_time + ($1::int * INTERVAL '1 minute')
+           )
+       )
+       AND EXISTS (
+         SELECT 1
          FROM bookings b
          WHERE b.table_number = t.table_number
            AND b.status <> 'annullata'
-           AND CURRENT_TIMESTAMP < (
-             b.booking_date + b.booking_time + ($1::int * INTERVAL '1 minute')
-           )
+           AND (b.booking_date + b.booking_time) > CURRENT_TIMESTAMP
        )`,
     [BOOKING_OCCUPANCY_MINUTES]
   );
@@ -65,12 +56,7 @@ const syncReservedTableStatuses = async (client) => {
     `UPDATE restaurant_tables t
      SET status='libero',
          occupied_until=NULL
-     WHERE t.status IN ('prenotato', 'occupato')
-       AND (
-         t.status = 'prenotato'
-         OR t.occupied_until IS NULL
-         OR t.occupied_until <= CURRENT_TIMESTAMP
-       )
+     WHERE t.status = 'prenotato'
        AND NOT EXISTS (
          SELECT 1
          FROM orders o
@@ -80,11 +66,17 @@ const syncReservedTableStatuses = async (client) => {
        AND NOT EXISTS (
          SELECT 1
          FROM bookings b
-           WHERE b.table_number = t.table_number
-             AND b.status <> 'annullata'
-             AND CURRENT_TIMESTAMP < (
-               b.booking_date + b.booking_time + ($1::int * INTERVAL '1 minute')
+         WHERE b.table_number = t.table_number
+           AND b.status <> 'annullata'
+           AND (
+             (b.booking_date + b.booking_time) > CURRENT_TIMESTAMP
+             OR (
+               CURRENT_TIMESTAMP >= (b.booking_date + b.booking_time)
+               AND CURRENT_TIMESTAMP < (
+                 b.booking_date + b.booking_time + ($1::int * INTERVAL '1 minute')
+               )
              )
+           )
        )`,
     [BOOKING_OCCUPANCY_MINUTES]
   );
@@ -195,12 +187,12 @@ const seatGuestTable = async (id, guests) => {
     const result = await client.query(
       `UPDATE restaurant_tables
        SET status='occupato',
-           occupied_until=CURRENT_TIMESTAMP + ($3::int * INTERVAL '1 minute')
+           occupied_until=NULL
        WHERE id=$1
          AND seats >= $2
          AND status='libero'
        RETURNING *`,
-      [id, guests, GUEST_SEATING_MINUTES]
+      [id, guests]
     );
 
     await client.query("COMMIT");

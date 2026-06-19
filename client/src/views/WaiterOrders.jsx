@@ -304,11 +304,6 @@ const WaiterOrders = () => {
           currentOrder.id === updatedOrder.id ? updatedOrder : currentOrder
         )
       );
-      setTables((currentTables) =>
-        currentTables.map((table) =>
-          table.table_number === updatedOrder.table_number ? { ...table, status: 'libero' } : table
-        )
-      );
       setSuccessMessage(`Ordine #${updatedOrder.id} segnato come servito.`);
     } catch (error) {
       setErrorMessage(error.message);

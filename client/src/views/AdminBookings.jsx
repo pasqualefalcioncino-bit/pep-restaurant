@@ -52,10 +52,58 @@ const tableStatusLabels = {
   in_pulizia: 'in pulizia',
 };
 
+const bookingTurnoverMinutes = 30;
+
 const formatTableOption = (table) => {
   const statusLabel = tableStatusLabels[table.status] || table.status;
 
   return `Tav. ${table.table_number} - ${table.seats} posti - ${statusLabel}`;
+};
+
+const getBookingDateTime = (booking) => {
+  const dateKey = getDateKey(booking.booking_date);
+  const timeValue = formatTime(booking.booking_time);
+
+  if (!dateKey || timeValue === '-') {
+    return null;
+  }
+
+  return new Date(`${dateKey}T${timeValue}`);
+};
+
+const hasSlotConflict = (table, targetBooking, bookings) => {
+  const targetDateTime = getBookingDateTime(targetBooking);
+
+  if (!targetDateTime) {
+    return true;
+  }
+
+  return bookings.some((booking) => {
+    if (
+      booking.id === targetBooking.id ||
+      booking.status === 'annullata' ||
+      booking.table_number !== table.table_number
+    ) {
+      return false;
+    }
+
+    const bookingDateTime = getBookingDateTime(booking);
+
+    if (!bookingDateTime) {
+      return false;
+    }
+
+    return Math.abs(bookingDateTime.getTime() - targetDateTime.getTime()) <
+      bookingTurnoverMinutes * 60 * 1000;
+  });
+};
+
+const isTableUnavailableForBooking = (table, booking, bookings) => {
+  return (
+    table.status === 'in_pulizia' ||
+    Number(table.seats) < Number(booking.guests || 0) ||
+    hasSlotConflict(table, booking, bookings)
+  );
 };
 
 const AdminBookings = () => {
@@ -128,19 +176,7 @@ const AdminBookings = () => {
           booking.id === bookingId ? updatedBooking : booking
         )
       );
-      setTables((currentTables) =>
-        currentTables.map((table) => {
-          if (booking.table_number && table.table_number === booking.table_number) {
-            return { ...table, status: 'libero' };
-          }
-
-          if (updatedBooking.table_number && table.table_number === updatedBooking.table_number) {
-            return { ...table, status: 'prenotato' };
-          }
-
-          return table;
-        })
-      );
+      setTables(await apiRequest('/tables'));
     } catch (error) {
       setErrorMessage(error.message);
     } finally {
@@ -164,15 +200,7 @@ const AdminBookings = () => {
       setBookings((currentBookings) =>
         currentBookings.filter((currentBooking) => currentBooking.id !== bookingToDelete.id)
       );
-      if (bookingToDelete.table_number) {
-        setTables((currentTables) =>
-          currentTables.map((table) =>
-            table.table_number === bookingToDelete.table_number
-              ? { ...table, status: 'libero' }
-              : table
-          )
-        );
-      }
+      setTables(await apiRequest('/tables'));
       setBookingToDelete(null);
     } catch (error) {
       setErrorMessage(error.message);
@@ -280,7 +308,7 @@ const AdminBookings = () => {
                       onChange={(event) =>
                         updateBooking(booking, {
                           table_number: event.target.value,
-                          status: event.target.value ? 'confermata' : booking.status,
+                          status: event.target.value ? 'confermata' : 'in_attesa',
                         })
                       }
                       disabled={updatingBookingId === booking.id}
@@ -291,7 +319,7 @@ const AdminBookings = () => {
                         const isCurrentTable = table.table_number === booking.table_number;
                         const isUnavailable =
                           !isCurrentTable &&
-                          ['occupato', 'prenotato', 'in_pulizia'].includes(table.status);
+                          isTableUnavailableForBooking(table, booking, bookings);
 
                         return (
                           <option

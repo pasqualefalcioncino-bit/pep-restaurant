@@ -14,6 +14,7 @@ import {
 } from 'lucide-react';
 import { apiRequest } from '../api/client';
 import AdminSearchToolbar from '../components/admin/AdminSearchToolbar';
+import ConfirmDeleteModal from '../components/admin/ConfirmDeleteModal';
 import {
   filterInventoryItems,
   formatQuantity,
@@ -138,6 +139,7 @@ const KitchenOrderCard = ({
   updatingOrderId,
   updatingOrderItemId,
   onStatusChange,
+  onCancelRequest,
   onItemReady,
 }) => {
   const tone = getOrderTone(order);
@@ -187,7 +189,16 @@ const KitchenOrderCard = ({
         <select
           className="cook-order-status"
           value={order.status}
-          onChange={(event) => onStatusChange(order.id, event.target.value)}
+          onChange={(event) => {
+            const nextStatus = event.target.value;
+
+            if (nextStatus === 'annullato') {
+              onCancelRequest(order);
+              return;
+            }
+
+            onStatusChange(order.id, nextStatus);
+          }}
           disabled={updatingOrderId === order.id}
           aria-label={`Stato ordine tavolo ${order.table_number}`}
         >
@@ -317,6 +328,7 @@ const CookDashboard = ({ mode = 'orders' }) => {
   const [errorMessage, setErrorMessage] = useState('');
   const [updatingOrderId, setUpdatingOrderId] = useState(null);
   const [updatingOrderItemId, setUpdatingOrderItemId] = useState(null);
+  const [orderToCancel, setOrderToCancel] = useState(null);
   const isManagementMode = mode === 'management';
 
   useAutoDismiss(errorMessage, setErrorMessage);
@@ -483,10 +495,24 @@ const CookDashboard = ({ mode = 'orders' }) => {
       setOrders((currentOrders) =>
         currentOrders.map((order) => (order.id === orderId ? normalizedOrder : order))
       );
+      return true;
     } catch (error) {
       setErrorMessage(error.message);
+      return false;
     } finally {
       setUpdatingOrderId(null);
+    }
+  };
+
+  const confirmCancelOrder = async () => {
+    if (!orderToCancel) {
+      return;
+    }
+
+    const wasCancelled = await updateOrderStatus(orderToCancel.id, 'annullato');
+
+    if (wasCancelled) {
+      setOrderToCancel(null);
     }
   };
 
@@ -762,6 +788,7 @@ const CookDashboard = ({ mode = 'orders' }) => {
                   updatingOrderId={updatingOrderId}
                   updatingOrderItemId={updatingOrderItemId}
                   onStatusChange={updateOrderStatus}
+                  onCancelRequest={setOrderToCancel}
                   onItemReady={markOrderItemReady}
                 />
               ))}
@@ -1087,6 +1114,30 @@ const CookDashboard = ({ mode = 'orders' }) => {
             )}
           </div>
         </div>
+      )}
+
+      {orderToCancel && (
+        <ConfirmDeleteModal
+          title="Vuoi annullare questo ordine?"
+          description="L'ordine verra spostato tra gli annullati e non comparira piu tra le comande attive."
+          summaryItems={[{
+            id: orderToCancel.id,
+            title: `Ordine #${orderToCancel.id}`,
+            details: [
+              `Tavolo ${orderToCancel.table_number || '-'}`,
+              `${(orderToCancel.items || []).length} piatti`,
+              `Creato ${formatDateTime(orderToCancel.created_at)}`,
+            ],
+            icon: <Trash2 size={18} aria-hidden="true" />,
+            fallbackText: String(orderToCancel.id),
+          }]}
+          isDeleting={updatingOrderId === orderToCancel.id}
+          onCancel={() => setOrderToCancel(null)}
+          onConfirm={confirmCancelOrder}
+          confirmLabel="Annulla ordine"
+          pendingLabel="Annullamento..."
+          confirmIcon={<Trash2 size={16} aria-hidden="true" />}
+        />
       )}
     </section>
   );

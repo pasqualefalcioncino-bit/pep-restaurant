@@ -23,10 +23,14 @@ const normalizeSummaryItem = (item, index) => {
 
 const ConfirmDeleteModal = ({
   title,
+  description = 'Questa operazione non puo essere annullata.',
   summaryItems,
   isDeleting,
   onCancel,
   onConfirm,
+  cancelLabel = 'Annulla',
+  confirmLabel = 'Elimina',
+  pendingLabel = 'Elimino...',
   confirmIcon = <Trash2 size={16} aria-hidden="true" />,
 }) => {
   return (
@@ -43,7 +47,7 @@ const ConfirmDeleteModal = ({
           </span>
           <div>
             <h2 id="confirm-delete-title">{title}</h2>
-            <p>Questa operazione non puo essere annullata.</p>
+            <p>{description}</p>
           </div>
         </div>
 
@@ -83,7 +87,7 @@ const ConfirmDeleteModal = ({
             onClick={onCancel}
             disabled={isDeleting}
           >
-            Annulla
+            {cancelLabel}
           </button>
           <button
             className="confirm-delete-submit"
@@ -92,7 +96,7 @@ const ConfirmDeleteModal = ({
             disabled={isDeleting}
           >
             {!isDeleting && confirmIcon}
-            {isDeleting ? 'Elimino...' : 'Elimina'}
+            {isDeleting ? pendingLabel : confirmLabel}
           </button>
         </div>
       </div>

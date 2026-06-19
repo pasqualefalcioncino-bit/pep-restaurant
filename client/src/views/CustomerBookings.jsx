@@ -15,11 +15,16 @@ import {
 } from 'lucide-react';
 import { apiRequest, clearAuthSession } from '../api/client';
 import CancelBookingModal from '../components/booking/CancelBookingModal';
-import bookingOptions from '../data/bookingOptions.json';
+import BookingDatePicker from '../components/booking/BookingDatePicker';
 import useAutoDismiss from '../hooks/useAutoDismiss';
+import {
+  getBookingTimeOptions,
+  getDateInputValue,
+  getFirstAvailableTime,
+  getSafeBookingDate,
+  isClosedDate,
+} from '../utils/bookingAvailability';
 import './CustomerBookings.css';
-
-const { availableTimes } = bookingOptions;
 
 const bookingStatuses = {
   in_attesa: 'In attesa',
@@ -60,46 +65,6 @@ const formatTime = (timeValue) => {
   return timeValue ? timeValue.slice(0, 5) : '-';
 };
 
-const getDateInputValue = (dateValue) => {
-  if (!dateValue) {
-    return '';
-  }
-
-  if (typeof dateValue === 'string') {
-    if (!dateValue.includes('T')) {
-      return dateValue;
-    }
-
-    const date = new Date(dateValue);
-    const timezoneOffset = date.getTimezoneOffset() * 60000;
-
-    return new Date(date.getTime() - timezoneOffset).toISOString().split('T')[0];
-  }
-
-  const timezoneOffset = dateValue.getTimezoneOffset() * 60000;
-  return new Date(dateValue.getTime() - timezoneOffset).toISOString().split('T')[0];
-};
-
-const getTodayValue = () => getDateInputValue(new Date());
-
-const getSelectableTimes = (dateValue, selectedTime = '') => {
-  const todayValue = getTodayValue();
-  const isToday = dateValue === todayValue;
-  const futureTimes = availableTimes.filter((time) => {
-    if (!isToday) {
-      return true;
-    }
-
-    return new Date(`${dateValue}T${time}`) > new Date();
-  });
-
-  if (selectedTime && !futureTimes.includes(selectedTime)) {
-    return availableTimes.filter((time) => time === selectedTime || futureTimes.includes(time));
-  }
-
-  return futureTimes;
-};
-
 const getBookingDateTime = (booking) => {
   const date = getDateInputValue(booking.booking_date);
   const time = formatTime(booking.booking_time);
@@ -113,8 +78,9 @@ const getBookingDateTime = (booking) => {
 
 const canManageBooking = (booking) => {
   const bookingDateTime = getBookingDateTime(booking);
+  const manageableStatuses = ['in_attesa', 'confermata'];
 
-  return booking.status === 'in_attesa' && bookingDateTime && bookingDateTime > new Date();
+  return manageableStatuses.includes(booking.status) && bookingDateTime && bookingDateTime > new Date();
 };
 
 const getEditFormFromBooking = (booking) => ({
@@ -180,16 +146,12 @@ const CustomerBookingCard = ({
             required
           />
         </label>
-        <label>
-          Data
-          <input
-            type="date"
-            min={getTodayValue()}
-            value={editForm.booking_date}
-            onChange={(event) => onChangeEditField('booking_date', event.target.value)}
-            required
-          />
-        </label>
+        <BookingDatePicker
+          id={`customer-booking-date-${booking.id}`}
+          label="Data"
+          value={editForm.booking_date}
+          onChange={(dateValue) => onChangeEditField('booking_date', dateValue)}
+        />
         <label>
           Orario
           <select
@@ -197,9 +159,9 @@ const CustomerBookingCard = ({
             onChange={(event) => onChangeEditField('booking_time', event.target.value)}
             required
           >
-            {getSelectableTimes(editForm.booking_date, editForm.booking_time).map((time) => (
-              <option key={time} value={time}>
-                {time}
+            {getBookingTimeOptions(editForm.booking_date).map((option) => (
+              <option key={option.time} value={option.time} disabled={option.disabled}>
+                {option.time}{option.disabled ? ` - ${option.reason}` : ''}
               </option>
             ))}
           </select>
@@ -364,10 +326,27 @@ const CustomerBookings = () => {
   };
 
   const changeEditField = (field, value) => {
-    setEditForm((currentForm) => ({
-      ...currentForm,
-      [field]: value,
-    }));
+    setEditForm((currentForm) => {
+      if (field !== 'booking_date') {
+        return {
+          ...currentForm,
+          [field]: value,
+        };
+      }
+
+      const safeDate = getSafeBookingDate(value);
+      const currentTimeIsAvailable = getBookingTimeOptions(safeDate).some(
+        (option) => option.time === currentForm.booking_time && !option.disabled
+      );
+
+      return {
+        ...currentForm,
+        booking_date: safeDate,
+        booking_time: currentTimeIsAvailable
+          ? currentForm.booking_time
+          : getFirstAvailableTime(safeDate),
+      };
+    });
     setActionMessage('');
   };
 
@@ -375,6 +354,20 @@ const CustomerBookings = () => {
     event.preventDefault();
 
     if (!editingBookingId || !editForm) {
+      return;
+    }
+
+    if (isClosedDate(editForm.booking_date)) {
+      setActionMessage('Il lunedi siamo chiusi. Scegli un altro giorno.');
+      return;
+    }
+
+    const selectedTimeOption = getBookingTimeOptions(editForm.booking_date).find(
+      (option) => option.time === editForm.booking_time
+    );
+
+    if (!editForm.booking_time || selectedTimeOption?.disabled) {
+      setActionMessage('Seleziona un orario futuro disponibile.');
       return;
     }
 

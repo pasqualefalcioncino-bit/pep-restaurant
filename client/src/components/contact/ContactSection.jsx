@@ -1,4 +1,5 @@
 import { Clock3, Mail, MapPin, Phone } from 'lucide-react';
+import { openingHours } from '../../utils/openingHours';
 import './ContactSection.css';
 
 const ContactSection = () => {
@@ -50,8 +51,10 @@ const ContactSection = () => {
             </span>
             <div>
               <strong>Orari</strong>
-              <p>Mar–Sab 12:30–14:30 · 19:30–23:00</p>
-              <p>Domenica solo cena</p>
+              <p>{openingHours.closedLabel}</p>
+              <p>
+                {openingHours.openDaysLabel} {openingHours.lunchLabel} · {openingHours.dinnerLabel}
+              </p>
             </div>
           </article>
         </div>

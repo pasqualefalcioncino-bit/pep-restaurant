@@ -183,13 +183,19 @@
 }
 
 .app-content.with-admin-theme :is(
-  .admin-dashboard-order-row.status-in_attesa,
   .admin-dashboard-table-stat.status-in_pulizia,
   .admin-dashboard-table-chip.status-in_pulizia,
-  .admin-inventory-stat.tone-warning,
-  .admin-inventory-table tr.status-monitorare,
   .admin-table-card.status-in_pulizia,
   .admin-tables-stat.status-in_pulizia
+) {
+  border-color: rgba(127, 215, 255, 0.62);
+  background: rgba(127, 215, 255, 0.12);
+}
+
+.app-content.with-admin-theme :is(
+  .admin-dashboard-order-row.status-in_attesa,
+  .admin-inventory-stat.tone-warning,
+  .admin-inventory-table tr.status-monitorare
 ) {
   border-color: rgba(230, 181, 62, 0.62);
   background: rgba(230, 181, 62, 0.12);
@@ -198,10 +204,13 @@
 .app-content.with-admin-theme :is(
   .admin-dashboard-table-stat.status-in_pulizia strong,
   .admin-dashboard-table-chip.status-in_pulizia,
-  .admin-inventory-stat.tone-warning strong,
   .admin-table-status.in_pulizia,
   .admin-tables-stat.status-in_pulizia strong
 ) {
+  color: var(--status-cyan);
+}
+
+.app-content.with-admin-theme .admin-inventory-stat.tone-warning strong {
   color: var(--gold-primary);
 }
 
@@ -229,14 +238,13 @@
 }
 
 .app-content.with-admin-theme :is(
-  .admin-dashboard-order-row.status-in_preparazione,
   .admin-dashboard-table-stat.status-prenotato,
   .admin-dashboard-table-chip.status-prenotato,
   .admin-table-card.status-prenotato,
   .admin-tables-stat.status-prenotato
 ) {
-  border-color: rgba(103, 174, 255, 0.62);
-  background: rgba(103, 174, 255, 0.12);
+  border-color: rgba(230, 181, 62, 0.62);
+  background: rgba(230, 181, 62, 0.12);
 }
 
 .app-content.with-admin-theme :is(
@@ -245,7 +253,12 @@
   .admin-table-status.prenotato,
   .admin-tables-stat.status-prenotato strong
 ) {
-  color: var(--status-blue);
+  color: var(--gold-primary);
+}
+
+.app-content.with-admin-theme .admin-dashboard-order-row.status-in_preparazione {
+  border-color: rgba(103, 174, 255, 0.62);
+  background: rgba(103, 174, 255, 0.12);
 }
 
 .app-content.with-admin-theme :is(
@@ -291,9 +304,14 @@
 }
 
 .app-content.with-admin-theme :is(
-  .admin-inventory-status.status-monitorare,
   .admin-table-status.in_pulizia
 ) {
+  border-color: rgba(127, 215, 255, 0.55);
+  background: rgba(127, 215, 255, 0.18);
+  color: var(--status-cyan);
+}
+
+.app-content.with-admin-theme .admin-inventory-status.status-monitorare {
   border-color: rgba(230, 181, 62, 0.55);
   background: rgba(230, 181, 62, 0.18);
   color: var(--gold-primary);
@@ -309,9 +327,9 @@
 }
 
 .app-content.with-admin-theme .admin-table-status.prenotato {
-  border-color: rgba(103, 174, 255, 0.55);
-  background: rgba(103, 174, 255, 0.18);
-  color: var(--status-blue);
+  border-color: rgba(230, 181, 62, 0.55);
+  background: rgba(230, 181, 62, 0.18);
+  color: var(--gold-primary);
 }
 
 .app-content.with-admin-theme :is(

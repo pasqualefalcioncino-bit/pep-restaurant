@@ -272,8 +272,8 @@ button.admin-dashboard-stat:hover {
 }
 
 .admin-dashboard-table-stat.status-libero {
-  border-color: rgba(81, 207, 102, 0.35);
-  background: rgba(81, 207, 102, 0.08);
+  border-color: rgba(48, 216, 120, 0.35);
+  background: rgba(48, 216, 120, 0.08);
 }
 
 .admin-dashboard-table-stat.status-libero strong {
@@ -290,21 +290,21 @@ button.admin-dashboard-stat:hover {
 }
 
 .admin-dashboard-table-stat.status-prenotato {
-  border-color: rgba(116, 192, 252, 0.35);
-  background: rgba(116, 192, 252, 0.08);
+  border-color: rgba(230, 181, 62, 0.35);
+  background: rgba(230, 181, 62, 0.08);
 }
 
 .admin-dashboard-table-stat.status-prenotato strong {
-  color: var(--status-blue);
+  color: var(--gold-primary);
 }
 
 .admin-dashboard-table-stat.status-in_pulizia {
-  border-color: rgba(255, 212, 59, 0.35);
-  background: rgba(255, 212, 59, 0.08);
+  border-color: rgba(127, 215, 255, 0.35);
+  background: rgba(127, 215, 255, 0.08);
 }
 
 .admin-dashboard-table-stat.status-in_pulizia strong {
-  color: var(--gold-primary);
+  color: var(--status-cyan);
 }
 
 .admin-dashboard-inventory-stat.status-ok {
@@ -356,15 +356,15 @@ button.admin-dashboard-stat:hover {
 }
 
 .admin-dashboard-table-chip.status-prenotato {
-  border-color: rgba(116, 192, 252, 0.45);
-  background: rgba(116, 192, 252, 0.1);
-  color: var(--status-blue);
+  border-color: rgba(230, 181, 62, 0.45);
+  background: rgba(230, 181, 62, 0.1);
+  color: var(--gold-primary);
 }
 
 .admin-dashboard-table-chip.status-in_pulizia {
-  border-color: rgba(255, 212, 59, 0.45);
-  background: rgba(255, 212, 59, 0.1);
-  color: var(--gold-primary);
+  border-color: rgba(127, 215, 255, 0.45);
+  background: rgba(127, 215, 255, 0.1);
+  color: var(--status-cyan);
 }
 
 .admin-dashboard-row strong,
@@ -541,8 +541,8 @@ button.admin-dashboard-stat:hover {
 
 .admin-dashboard-detail-row.status-libero,
 .admin-dashboard-detail-row.status-ok {
-  border-color: rgba(81, 207, 102, 0.35);
-  background: rgba(81, 207, 102, 0.08);
+  border-color: rgba(48, 216, 120, 0.35);
+  background: rgba(48, 216, 120, 0.08);
 }
 
 .admin-dashboard-detail-row.status-occupato,
@@ -552,14 +552,18 @@ button.admin-dashboard-stat:hover {
 }
 
 .admin-dashboard-detail-row.status-prenotato {
-  border-color: rgba(116, 192, 252, 0.35);
-  background: rgba(116, 192, 252, 0.08);
+  border-color: rgba(230, 181, 62, 0.35);
+  background: rgba(230, 181, 62, 0.08);
 }
 
-.admin-dashboard-detail-row.status-in_pulizia,
+.admin-dashboard-detail-row.status-in_pulizia {
+  border-color: rgba(127, 215, 255, 0.35);
+  background: rgba(127, 215, 255, 0.08);
+}
+
 .admin-dashboard-detail-row.status-monitorare {
-  border-color: rgba(255, 212, 59, 0.35);
-  background: rgba(255, 212, 59, 0.08);
+  border-color: rgba(230, 181, 62, 0.35);
+  background: rgba(230, 181, 62, 0.08);
 }
 
 .admin-dashboard-order-meta {
